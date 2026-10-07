@@ -21,11 +21,16 @@ in that tab.
 - macOS
 - Node.js 22 or later
 - Ghostty 1.3 or later
+- Git and npm
+
+Install either or both of the agent CLIs you use:
+
 - Codex 0.147 or later with compatible app-server capabilities, excluding
   0.151.x; newer untested releases are checked automatically before launch
 - Claude Code 2.1.226 or later (the 2.1.x family is tested; newer releases run
   with a warning as long as the packaged Agent Board plugin still validates)
-- npm
+
+`agent-codex` does not require Claude Code, and `agent-claude` does not require Codex.
 
 Agent Board uses Ghostty AppleScript and macOS Automation. It does not require
 tmux, a daemon, a database server, or network access for local board operations.
@@ -53,10 +58,12 @@ manual title override for those tabs.
 
 ## Install from a checkout
 
-1. Install the dependencies.
+1. Clone the repository and install the locked dependencies.
 
    ```bash
-   npm install
+   git clone https://github.com/andromedus1/agent-board.git
+   cd agent-board
+   npm ci
    ```
 
 2. Build the five commands (`agent-board`, `agent-name`, `agent-codex`,
@@ -92,14 +99,43 @@ requested Ghostty control, then run the doctor again.
 
 The doctor checks the runtime, local state directory, Codex, Claude Code, and
 Ghostty, including whether Claude Code accepts the packaged Agent Board hook
-plugin. It returns nonzero when an error blocks managed operation. Warnings do
-not block managed operation.
+plugin. It returns nonzero for any error, including a missing provider you do
+not use. An unused provider's error does not prevent the other provider's
+launcher from running. Address errors for your chosen provider and the shared
+runtime, state, and Ghostty checks. Warnings do not block managed operation.
 
 Use JSON for automation:
 
 ```bash
 agent-board doctor --json
 ```
+
+## Update Agent Board
+
+From the checkout's `main` branch:
+
+```bash
+git pull --ff-only
+npm ci
+npm run build
+```
+
+`npm link` points the commands at this checkout, so a rebuild normally needs no
+relink. If you installed a tarball instead, repeat the pack and global install
+steps above after building. Exit running managed sessions and restart them with
+`agent-codex` or `agent-claude` to pick up launcher changes.
+
+After updating Codex, check its version and Agent Board's diagnostics:
+
+```bash
+codex --version
+agent-board doctor
+```
+
+Then start `agent-codex` in a fresh Ghostty tab. Newer untested Codex releases
+must pass an automatic capability check before launch. If doctor reports
+`CODEX_CAPABILITIES_UNSUPPORTED`, follow its failure message; changes to the
+required protocol may need an Agent Board update or a compatible Codex release.
 
 ## Start the first managed session
 
@@ -370,9 +406,8 @@ Three probes are opt-in. The Codex probe runs the production compatibility
 check and reads generated protocol schemas, including the `thread/loaded/list`
 ID response and the `thread/read` metadata response used during discovery.
 The Claude probe runs an installed `claude` binary directly to confirm its
-reported version and that `claude plugin
-validate` accepts the packaged Agent Board hook plugin. The Ghostty probe
-creates and removes a disposable window.
+reported version and that `claude plugin validate` accepts the packaged Agent
+Board hook plugin. The Ghostty probe creates and removes a disposable window.
 
 ```bash
 AGENT_BOARD_LIVE_CODEX=1 npm run test:integration:codex
