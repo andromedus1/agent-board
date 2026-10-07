@@ -391,9 +391,10 @@ options and do not expand the first release.
 
 ## Test the checkout
 
-Run the complete hermetic suite:
+Run the type check and complete hermetic suite:
 
 ```bash
+npm run typecheck
 npm test
 ```
 
@@ -401,6 +402,13 @@ The suite builds and installs a packed artifact in temporary directories. It
 uses private executable substitutes and does not touch live Ghostty tabs, a
 live Codex install, or a live Claude Code install. The three live compatibility
 and hardware probes below remain skipped until explicitly enabled.
+
+The [CI workflow](.github/workflows/ci.yml) runs both checks on `macos-15` with
+Node.js 22 and 26 for pull requests, pushes to `main`, manual runs, and a weekly
+schedule. The Node.js 26 job also installs the latest `@openai/codex` and enables
+the installed compatibility/schema probe below. That probe needs no credentials
+and does not run a model turn. The live Claude and Ghostty probes remain local
+opt-ins.
 
 Three probes are opt-in. The Codex probe runs the production compatibility
 check and reads generated protocol schemas, including the `thread/loaded/list`

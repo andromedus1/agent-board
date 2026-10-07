@@ -5,7 +5,7 @@ type: spec
 kind: planning
 status: draft
 nav_priority: high
-updated: 2026-08-20
+updated: 2026-10-06
 summary: |
   Agent Board registers one Codex or Claude session per Ghostty tab, stores provider-qualified identity and observed state locally, projects five common attention symbols into machine-maintained tab titles, and renders the same records through an `agents` command. The contract separates activity, attention, health, capability, and evidence so simple labels remain truthful.
 decisions:
@@ -16,7 +16,7 @@ decisions:
   - Stale and ambiguous sessions never silently map to idle or error; process exit remains observation evidence.
   - Registration captures validated stable Ghostty identity and renders the complete tab-title override.
   - Managed Codex app-server plus remote TUI and managed ordinary Claude plus bundled hooks are the supported provider topologies; ordinary unobserved mode remains diagnostic.
-  - Managed working evidence remains working only when reconciliation has positively verified that the persisted launcher binding is alive; the existing freshness threshold is a conservative fallback for unverified or unbound working evidence, and a missing launcher becomes stale diagnostic evidence during reconciliation.
+  - Managed Codex working evidence outlives the freshness window only when reconciliation has positively verified that the persisted launcher binding is alive; Claude hook-based working evidence always ages, and a missing launcher becomes stale diagnostic evidence during reconciliation for either provider.
   - The local store is versioned and atomically readable; a resident daemon is not a first-release requirement.
   - The first release is observation-only and exposes no semantic agent actions.
 ---
@@ -161,13 +161,14 @@ must be caused by an explicit or reliably observed operator interaction, not by
 elapsed time alone. Implementation validation must prove reliable Ghostty-focus
 acknowledgement and retain explicit `agent-board ack` as the fallback.
 
-A managed `working` record remains working regardless of lifecycle-event age
-only when the current projection operation carries a positive launcher-process
-probe that matches its persisted launcher binding, so a quiet turn may run for
-hours without falling into a diagnostic state. The persisted launcher PID
-(`launcherPid` in the session record) is runtime binding context, not proof by
-itself; direct title/board projections
-without a matching verification retain the configured freshness fallback.
+A live, managed Codex `working` record remains working past the lifecycle-event
+freshness window only when the current projection operation carries a positive
+launcher-process probe that matches its persisted launcher binding, so a quiet
+turn may run for hours without falling into a diagnostic state. The persisted
+launcher PID (`launcherPid` in the session record) is runtime binding context,
+not proof by itself; direct Codex title/board projections without a matching
+verification retain the configured freshness fallback. Claude hook-based working
+evidence always uses the configured freshness window, even with a live launcher.
 During `agents` reconciliation, a missing or unprobeable launcher is recorded
 as stale, corroborated diagnostic evidence rather than inferred idle,
 completion, or error. Hard launcher death is discovered when reconciliation
@@ -229,8 +230,8 @@ mode=ordinary                           -> ? diagnostic
 health=error                           -> × error
 attention=input_required               -> ! needs input
 attention=completion_unread             -> ✓ finished / unread
-managed + live + working + verified launcher PID matches binding -> ● working
-working without verified launcher binding and observation fresh -> ● working
+managed Codex + live + working + verified launcher PID matches binding -> ● working
+other managed/live working with fresh observation -> ● working
 activity=idle and health=live           -> ○ idle
 stale/ambiguous                         -> diagnostic/expiry policy, not a false glyph
 ```

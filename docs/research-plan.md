@@ -15,7 +15,7 @@ decisions:
   - Store encoding and implementation language are well-understood reversible choices and need no external research yet.
   - Hardware, wireless, remote aggregation, and multi-agent research remain deferred until their entry conditions are met.
   - Ghostty 1.3+ AppleScript IDs and targeted tab-title overrides are validated for V1, with hierarchy-aware liveness required for undo-close.
-  - Managed app-server plus remote TUI is the V1 default; ordinary Codex remains a degraded-confidence fallback.
+  - Managed app-server plus remote TUI is the V1 default; ordinary Codex remains a registration-only diagnostic state until managed observation attaches.
   - Codex and Claude share outcome glyphs over asymmetric native evidence; Claude preserves its ordinary interactive CLI and uses a bundled per-run observation plugin.
 ---
 

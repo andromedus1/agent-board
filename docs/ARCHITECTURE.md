@@ -16,7 +16,7 @@ decisions:
   - The implementation is a Node.js 22+ TypeScript modular monolith with runtime-validated external boundaries.
   - One versioned session record is the source of truth and is updated atomically under a per-session lock.
   - The domain stores orthogonal identity, activity, attention, health, adapter evidence, and terminal presence; visible statuses are derived centrally.
-  - Managed working projection uses an ephemeral, reconciliation-verified launcher process existence check matched to the persisted launcher binding; the 60-second freshness threshold remains a fallback whenever that proof is unavailable.
+  - Managed Codex working projection bypasses the 60-second freshness threshold only with an ephemeral, reconciliation-verified launcher process existence check matched to the persisted launcher binding; Claude hook-based working evidence always ages through that threshold.
   - Ghostty 1.3+ AppleScript stable IDs and targeted tab-title overrides are the primary terminal contract.
   - Completion acknowledgement is Board-owned and clears when the registered Ghostty tab is reliably focused, with an explicit acknowledgement command as fallback.
   - Provider compatibility is explicit and evidence-preserving: Codex has a minimum version and explicit exclusion, with capability probes for newer untested releases, while Claude Code 2.1.226 is the hook floor, 2.1.x is tested, and newer families warn when plugin validation succeeds.
@@ -374,8 +374,8 @@ agent mode ordinary                            -> ? diagnostic
 agent health error                             -> × error
 attention input_required                       -> ! needs input
 attention completion_unread                    -> ✓ finished / unread
-managed/live working with verified PID match   -> ● working
-working without verified launcher proof and fresh -> ● working
+managed/live Codex working with verified PID match -> ● working
+other managed/live working with fresh evidence -> ● working
 visible managed tab with live idle evidence    -> ○ idle
 ```
 
@@ -449,9 +449,11 @@ for the current title/board projection. A live probe leaves native agent
 evidence unchanged and does not refresh it periodically. A missing or
 unprobeable launcher atomically records stale health with corroborated local
 launcher-liveness diagnostic evidence, retaining the PID as runtime binding
-context. A persisted PID without a matching current probe is not sufficient to
-bypass freshness, including on direct title-render paths. Working records
-without verified launcher proof retain the configured freshness fallback.
+context. Only managed Codex working records can use this proof to bypass the
+lifecycle-event freshness window. A persisted PID without a matching current
+probe is not sufficient, including on direct title-render paths. Codex working
+records without verified launcher proof retain the configured freshness fallback;
+Claude hook-based working evidence always ages, even with a live launcher.
 Because V1 has no resident daemon, hard launcher death is discovered when
 `agents` or another state reconciliation runs.
 

@@ -9,10 +9,10 @@ Agent-Board uses Andrew's retained workflow:
 
 Canonical process references:
 
-- `/Users/andrewclark/dev/skills-v2/AGENTS.md`
-- `/Users/andrewclark/dev/skills-v2/plugins/research-pipeline/docs/build-process.md`
-- `/Users/andrewclark/dev/skills-v2/plugins/research-pipeline/docs/research-composition.md`
-- `/Users/andrewclark/dev/skills-v2/plugins/agile-workflow/docs/ARCHITECTURE.md`
+- `~/dev/skills-v2/AGENTS.md`
+- `~/dev/skills-v2/plugins/research-pipeline/docs/build-process.md`
+- `~/dev/skills-v2/plugins/research-pipeline/docs/research-composition.md`
+- `~/dev/skills-v2/plugins/agile-workflow/docs/ARCHITECTURE.md`
 
 Workbench is prior art only. Do not create Workbench-owned `.work`, `.research`,
 or `.knowledge` state in this project. Ideas such as outcome-first routing,
