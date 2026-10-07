@@ -1,21 +1,20 @@
 ---
-description: Read this to understand the reviewed Agent-Board concept, current boundaries, and next decisions.
+description: Read this only for the historical pre-Scout Agent Board concept and the broader ideas that were later narrowed.
 type: north-star
-kind: planning
-status: draft
-updated: 2026-08-01
+kind: historical
+status: superseded
+updated: 2026-08-14
+superseded_by: docs/VISION.md
+supersession_note: |
+  Superseded by the 2026-08-14 Ghostty/Codex-first foundation set. Retained because its trust, capability, adapter, and future hardware observations remain useful historical input and preserved future options.
 summary: |
-  Agent-Board is a premium local-first attention router for supervising multiple AI agents.
-  The concept is reviewed but not yet grounded through formal prior-art research or architecture.
-decisions:
-  - Attention management is the product wedge.
-  - The software control plane must precede custom hardware.
-  - The platform is vendor-neutral, with a deliberately narrow first environment.
-  - Semantic approvals require native integrations and are never generic keystrokes.
-  - Agent state and confidence should be modeled separately from action capability.
+  Historical checkpoint for the earlier daemon, tmux, multi-agent, simulated-device, and premium-hardware concept. Current product truth lives in VISION, SPEC, ARCHITECTURE, PRINCIPLES, and the verified Scout landscape.
 ---
 
 # Agent-Board concept checkpoint
+
+> Historical checkpoint, superseded by `docs/VISION.md`. This file preserves the
+> broader option space and review findings; it is not current product scope.
 
 ## Product thesis
 
@@ -132,9 +131,8 @@ integration's evidence and capability.
 - Which protocol and local security boundaries are required before adapters may
   expose semantic actions?
 
-## Next entrypoint
+## Historical next entrypoint
 
-Run `research-pipeline:ideate`, using this document as the concept seed rather
-than as a locked specification. Let Scout map prior art first. Turn consequential
-unknowns into Agentic Research engagements, then establish VISION, SPEC, and
-ARCHITECTURE before creating the `.work/` delivery graph.
+The prescribed ideation and Scout engagement have now run. Follow the canonical
+foundation set and `docs/research-plan.md`; use this checkpoint only to recover
+the provenance of deferred product options.

@@ -1,0 +1,277 @@
+# Auto-generated. DO NOT EDIT BY HAND.
+# On-demand layer — load when surfacing a specific doc's full context.
+generated_at: '2026-09-12T14:30:39Z'
+generated_from: frontmatter
+schema_version: 2
+documents:
+  docs/ARCHITECTURE.md:
+    summary: 'Agent Board is a local TypeScript modular monolith with five small CLI binaries and no permanently
+      installed daemon. Each supervised tab runs a provider-specific managed launcher: Codex uses app-server
+      plus remote TUI, while Claude preserves its ordinary interactive CLI and emits lifecycle evidence
+      through bundled hooks. Both persist normalized state and share one Ghostty-title and board projection
+      policy.
+
+      '
+    decisions:
+    - Managed app-server plus `codex --remote` is the default Codex V1 topology; ordinary mode remains
+      a registration-only diagnostic state until a managed observer attaches.
+    - Managed ordinary Claude plus a bundled per-run hook integration is the Claude topology; hook gaps
+      remain lower-confidence or diagnostic rather than being promoted to native state.
+    - Each supervised tab owns its short-lived launcher, app-server, TUI, and observer process group;
+      there is no global resident daemon.
+    - The stable Board session, Ghostty binding, and project identity outlive a managed runtime; each
+      relaunch replaces the prior launcher metadata and native Codex thread binding.
+    - The implementation is a Node.js 22+ TypeScript modular monolith with runtime-validated external
+      boundaries.
+    - One versioned session record is the source of truth and is updated atomically under a per-session
+      lock.
+    - The domain stores orthogonal identity, activity, attention, health, adapter evidence, and terminal
+      presence; visible statuses are derived centrally.
+    - Managed working projection uses an ephemeral, reconciliation-verified launcher process existence
+      check matched to the persisted launcher binding; the 60-second freshness threshold remains a fallback
+      whenever that proof is unavailable.
+    - Ghostty 1.3+ AppleScript stable IDs and targeted tab-title overrides are the primary terminal contract.
+    - Completion acknowledgement is Board-owned and clears when the registered Ghostty tab is reliably
+      focused, with an explicit acknowledgement command as fallback.
+    - Provider compatibility is explicit and evidence-preserving: experimental Codex protocol families
+        are version-gated, while Claude Code 2.1.226 is the hook floor, 2.1.x is tested, and newer families
+        warn when plugin validation succeeds.
+    - V1 exposes observation, naming, and board administration, with no semantic agent actions; focus
+      navigation, notifications, GUI, remote, and hardware remain outside the runtime boundary.
+  docs/PRINCIPLES.md:
+    summary: 'Agent Board optimizes for calm, trustworthy attention routing with minimal workflow friction.
+      These principles govern how evidence, labels, adapters, future surfaces, and semantic capabilities
+      earn their place.
+
+      '
+    decisions:
+    - Attention before control.
+    - Truth before apparent precision.
+    - Peripheral first, deliberate detail on demand.
+    - One source of truth, many projections.
+    - Human meaning and machine observation remain separate.
+    - Narrow proof before platform breadth.
+    - Local usefulness before connectivity.
+    - Future surfaces earn entry through observed demand.
+    - Semantic actions require semantic capabilities.
+  docs/SPEC.md:
+    summary: 'Agent Board registers one Codex or Claude session per Ghostty tab, stores provider-qualified
+      identity and observed state locally, projects five common attention symbols into machine-maintained
+      tab titles, and renders the same records through an `agents` command. The contract separates activity,
+      attention, health, capability, and evidence so simple labels remain truthful.
+
+      '
+    decisions:
+    - One supervised agent per Ghostty tab is the first-release operating constraint.
+    - Project labels are human-controlled presentation and never session identity.
+    - Stable Board and Ghostty identity survives managed relaunch; provider-native Codex thread or Claude
+      session binding is scoped to one launcher lifetime.
+    - Five visible symbols are derived from orthogonal stored state rather than persisted as canonical
+      truth.
+    - Stale and ambiguous sessions never silently map to idle or error; process exit remains observation
+      evidence.
+    - Registration captures validated stable Ghostty identity and renders the complete tab-title override.
+    - Managed Codex app-server plus remote TUI and managed ordinary Claude plus bundled hooks are the
+      supported provider topologies; ordinary unobserved mode remains diagnostic.
+    - Managed working evidence remains working only when reconciliation has positively verified that the
+      persisted launcher binding is alive; the existing freshness threshold is a conservative fallback
+      for unverified or unbound working evidence, and a missing launcher becomes stale diagnostic evidence
+      during reconciliation.
+    - The local store is versioned and atomically readable; a resident daemon is not a first-release requirement.
+    - The first release is observation-only and exposes no semantic agent actions.
+  docs/VISION.md:
+    summary: 'Agent Board is a local attention router for one operator supervising several Codex and Claude
+      terminal agents. Its current product slice makes trustworthy provider-qualified state visible through
+      common Ghostty title and terminal-board glyphs without requiring tmux, a GUI, or hardware.
+
+      '
+    decisions:
+    - Attention routing, not faster input or agent control, is the product wedge.
+    - The first user and workflow are Andrew supervising Codex and Claude sessions in Ghostty tabs on
+      macOS.
+    - The first proof is tab titles plus a terminal board backed by one local state model.
+    - State confidence and liveness remain visible rather than being collapsed into confident-looking
+      labels.
+    - The software control plane must prove value before GUI, remote, or hardware surfaces are commissioned.
+    - Vendor neutrality is proven through Codex and Claude adapters that share outcome semantics without
+      pretending their evidence is identical.
+    - Semantic actions require native capabilities and are outside the first proof.
+  docs/configuration.md:
+    summary: 'Agent Board owns the compact Ghostty tab title for both Codex and Claude Code sessions,
+      while Codex additionally owns a detailed in-tab status line. Minimal merge-only examples preserve
+      Andrew''s tab and prompt-navigation workflow without copying or mutating full personal configuration
+      files.
+
+      '
+    decisions:
+    - Agent Board owns the complete title of each registered Ghostty tab, regardless of which agent adapter
+      manages it.
+    - The Codex status line shows project, branch, model/reasoning, and context usage inside the active
+      tab. This status-line guidance is Codex-specific; Claude Code sessions are not covered by it.
+    - Copyable examples are merged manually and never overwrite a complete personal configuration.
+    - The Ghostty manual-title prompt is not used for supervised tabs because it conflicts with machine
+      title ownership.
+  docs/project-brief.md:
+    summary: Historical checkpoint for the earlier daemon, tmux, multi-agent, simulated-device, and premium-hardware
+      concept. Current product truth lives in VISION, SPEC, ARCHITECTURE, PRINCIPLES, and the verified
+      Scout landscape.
+    supersession_note: 'Superseded by the 2026-08-14 Ghostty/Codex-first foundation set. Retained because
+      its trust, capability, adapter, and future hardware observations remain useful historical input
+      and preserved future options.
+
+      '
+  docs/research-plan.md:
+    summary: 'Scout and the focused Codex, Ghostty, and Codex-Claude engagements are complete. Managed
+      remote TUI is accepted as the Codex V1 default, managed ordinary Claude with hooks is accepted as
+      the Claude topology, and the mixed-provider terminal arc is implemented and verified. Follow-up
+      research remains deliberately deferred until its entry conditions are met.
+
+      '
+    decisions:
+    - No deep-research or research-program campaign is warranted before the first proof.
+    - Codex detector topology is the first pre-architecture decision because it changes workflow friction
+      and state fidelity.
+    - Ghostty scripting behavior requires an empirical integration check in addition to documentation
+      research.
+    - Store encoding and implementation language are well-understood reversible choices and need no external
+      research yet.
+    - Hardware, wireless, remote aggregation, and multi-agent research remain deferred until their entry
+      conditions are met.
+    - Ghostty 1.3+ AppleScript IDs and targeted tab-title overrides are validated for V1, with hierarchy-aware
+      liveness required for undo-close.
+    - Managed app-server plus remote TUI is the V1 default; ordinary Codex remains a degraded-confidence
+      fallback.
+    - Codex and Claude share outcome glyphs over asymmetric native evidence; Claude preserves its ordinary
+      interactive CLI and uses a bundled per-run observation plugin.
+  .research/analysis/briefs/claude-code-adapter-feasibility.md:
+    summary: '{inferred: feasibility from documented primitives and current repository boundaries} A hook-based
+      Claude Code adapter is feasible and should be materially smaller than the Codex managed-app-server
+      adapter while preserving Claude''s ordinary terminal UI. Native hooks cover session identity, permission
+      and MCP input waits, normal completion, and API failures; prompt-start and user-interrupt edges
+      require explicitly lower confidence until a live probe establishes a safe reconciliation rule.[claude-code-hooks]{3}
+      [claude-code-hooks]{4} [claude-code-hooks]{5} [claude-code-hooks]{6} [claude-code-hooks]{7} [claude-code-hooks]{8}
+
+      '
+    key_findings:
+    - '{inferred: recommended topology} Load a bundled hook plugin per managed Claude launch instead of
+      modifying user settings.[claude-code-cli-reference]{3} [claude-code-hooks]{1}'
+    - PermissionRequest, Elicitation, Stop, and StopFailure provide native attention-relevant evidence.[claude-code-hooks]{5}
+      [claude-code-hooks]{6} [claude-code-hooks]{7}
+    - '{inferred: Board state mapping} Treat UserPromptSubmit as corroborated working evidence, not an
+      authoritative processing-start event.[claude-code-hooks]{4}'
+    - A user interrupt does not fire Stop, so stale-working recovery must remain visibly inferred.[claude-code-hooks]{8}
+    - '{inferred: topology consequence} The Agent SDK offers richer control but would no longer supervise
+      the existing interactive Claude TUI, and normally requires API-key authentication for a third-party
+      product.[claude-agent-sdk-streaming]{1} [claude-agent-sdk-overview]{2}'
+  .research/analysis/briefs/codex-detector-topology.md:
+    summary: 'Managed app-server plus a remote Codex TUI preserves the recognizable terminal workflow
+      and supplies exact active/idle state to a concurrent observer, but it changes launch topology and
+      relies on an experimental interface. Ordinary Codex has lower startup friction but cannot fulfill
+      the same working/idle/error contract without visibly lower confidence.
+
+      '
+    key_findings:
+    - A second app-server client can discover a remote-TUI thread and receive its active/idle transitions.
+    - The remote TUI retained the normal prompt, project/branch/model/context status line, and terminal-title
+      behavior in a PTY probe.
+    - Ordinary-TUI hooks and notifications remain useful partial evidence but do not expose working start
+      or immediate generic idle.
+    - Human-wait flags are present in the installed schema but were not forced in the runtime probe.
+    - The topology choice is a product-taste decision between launch friction and semantic fidelity.
+  .research/analysis/briefs/ghostty-registration-liveness.md:
+    summary: 'Ghostty 1.3.1 stable IDs and targeted tab-title overrides are suitable for V1 registration
+      and rendering. Closed tabs remain alive and enumerable during undo-close, so liveness must combine
+      current tab hierarchy, explicit lifecycle evidence, and staleness rather than equating enumeration
+      with visibility.
+
+      '
+    key_findings:
+    - Targeted set_tab_title updates and clearing worked without changing captured IDs.
+    - Closing a whole temporary window removed its terminal from live enumeration.
+    - Closing a tab left its terminal enumerable; undo restored the same tab and terminal IDs.
+    - Ghostty 1.3+ AppleScript should be the minimum supported integration and OSC should be diagnostic
+      fallback only.
+    - Reorder, window movement, and live bell decoration remain implementation-time checks, not blockers
+      to the vertical slice.
+  .research/analysis/campaigns/agent-board-prior-art/parent.md:
+    summary: 'The landscape supports a narrow Ghostty-first attention board, a multidimensional internal
+      state projected into five simple symbols, and machine-maintained Ghostty tab-title overrides. Codex
+      state fidelity depends on a consequential launch-topology choice: partial side-channel observation
+      of an ordinary TUI or a managed remote TUI backed by app-server.
+
+      '
+    key_findings:
+    - The new Ghostty/Codex-first notes are a better V1 than the earlier daemon, tmux, multi-agent, simulated-device
+      scope.
+    - The five visible symbols should be derived from identity, activity, attention, health, and evidence
+      rather than stored as canonical state.
+    - Ghostty 1.3+ AppleScript IDs and targeted set_tab_title actions are more reliable than OSC title
+      ownership.
+    - With medium confidence, Codex app-server provides high-fidelity state while the fetched official
+      material does not document retroactive attachment to an ordinary already-running TUI.
+    - An unchanged Codex TUI exposes useful completion, approval, stop, and delayed-session-end signals
+      but not a complete working/idle model.
+    - A local atomic store is sufficient for the first proof; a daemon becomes justified by subscriptions,
+      proactive notifications, or multiple live consumers.
+    - Deferred daemon, adapters, focus, software surfaces, simulator, hardware, and remote aggregation
+      should be preserved with evidence-based entry conditions.
+  .research/analysis/campaigns/codex-claude-symmetric-support/dispatch.md:
+    summary: 'Completed full-rigor research confirms that Agent Board can use one common glyph and operator
+      contract for Codex and Claude while keeping provider-specific evidence confidence and capabilities
+      visible.
+
+      '
+    key_findings:
+    - Outcome symmetry is feasible without identical provider lifecycle signals.
+    - The smallest honest Claude topology preserves the ordinary interactive CLI and adds observation-first
+      hooks.
+    - Herdr corroborates common vocabulary over provider-specific evidence rather than equal native lifecycle
+      authority.
+    - The synthesis passed citation lint, repeated adversarial review, isolated evaluation, and lead spot-check.
+  .research/analysis/campaigns/codex-claude-symmetric-support/parent.md:
+    summary: '{inferred: cross-provider synthesis} Agent Board can offer the same five primary glyphs,
+      board behavior, naming, acknowledgement, and attention-routing workflow for Codex and Claude without
+      requiring identical provider signals. Codex supplies authoritative lifecycle state through app-server;
+      Claude''s ordinary TUI supplies native hook evidence for input waits, normal completion, API failure,
+      and session lifecycle, while working-start and user-interrupt recovery require lower confidence
+      until live validation closes the gaps.
+
+      '
+    key_findings:
+    - '{inferred: product contract} Symmetry should mean invariant glyph semantics and operator workflow,
+      not identical provider topology or evidence authority.'
+    - Codex app-server exposes native active/idle, approval/input waits, completion, interruption, and
+      failure.[symmetry-codex-app-server]{6} [symmetry-codex-app-server]{9} [symmetry-codex-app-server]{11}
+      [symmetry-codex-app-server]{12}
+    - Claude hooks expose permission and MCP input waits, normal completion, API failure, and session
+      end, but Stop does not fire on user interruption.[symmetry-claude-hooks]{2} [symmetry-claude-hooks]{3}
+      [symmetry-claude-hooks]{4} [symmetry-claude-hooks]{5} [symmetry-claude-hooks]{6}
+    - Completion-unread remains Board-owned for both providers; the inspected Codex schema has no unread
+      field, and Claude Stop is a completion event rather than an acknowledgement model.[symmetry-codex-local-schema-0-148-0]{12}
+      [symmetry-claude-hooks]{3}
+    - Herdr demonstrates honest terminal-level symmetry by sharing state vocabulary while exposing provider-specific
+      manifests and keeping Claude/Codex lifecycle authority screen-derived.[herdr-agents-docs]{2} [herdr-agents-docs]{3}
+      [herdr-source-repo]{5} [herdr-source-repo]{6}
+    - '{inferred: implementation comparison} The existing Agent Board glyph projection and normalized
+      transitions can remain common; the material new work is a Claude launcher/plugin/translator, provider
+      capability diagnostics, and a cross-provider runtime matrix.'
+  .research/analysis/positions/codex-claude-common-glyph-contract.md:
+    summary: '{inferred: locked provider-neutral product position} Agent Board will define Codex and Claude
+      symmetry at the outcome boundary: the same five primary glyph meanings, acknowledgement behavior,
+      and attention-routing workflow, with provider-specific evidence authority, confidence, capability,
+      and diagnostics kept visible.
+
+      '
+    key_findings:
+    - '{extends: shared glyph contract} Both adapters project `○` idle, `●` working, `✓` completion-unread,
+      `!` needs input, and `×` error; `?` is the diagnostic fallback when evidence is insufficient.'
+    - Codex app-server exposes native active/idle, approval waits, completion, interruption, and failure.[symmetry-codex-app-server]{6}
+      [symmetry-codex-app-server]{9} [symmetry-codex-app-server]{11} [symmetry-codex-app-server]{12}
+    - Claude hooks expose prompt submission, permission and MCP input waits, normal completion, API failure,
+      and session end, but user interruption does not fire `Stop`.[symmetry-claude-hooks]{1} [symmetry-claude-hooks]{2}
+      [symmetry-claude-hooks]{3} [symmetry-claude-hooks]{4} [symmetry-claude-hooks]{5} [symmetry-claude-hooks]{6}
+    - '{inferred: Board-owned projection} Completion-unread is Board state for both providers, not a provider-native
+      lifecycle field.[symmetry-codex-local-schema-0-148-0]{12} [symmetry-claude-hooks]{3}'
+    - '{inferred: prior-art convergence} Herdr supports common supervision vocabulary with provider-specific
+      state manifests, while its Claude and Codex hooks remain session-only.[herdr-agents-docs]{2} [herdr-agents-docs]{3}
+      [herdr-source-repo]{5} [herdr-source-repo]{6} [herdr-source-repo]{7} [herdr-source-repo]{8}'

@@ -2,3 +2,12 @@
 .env
 .env.*
 !.env.example
+node_modules/
+dist/
+.coverage/
+.nyc_output/
+*.log
+.peeragent/
+
+# Local runtime state
+.agent-board/

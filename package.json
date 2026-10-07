@@ -1,0 +1,41 @@
+{
+  "name": "agent-board",
+  "version": "0.1.0",
+  "description": "A local attention router for supervised coding agents",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "dist",
+    "assets/claude-plugin"
+  ],
+  "bin": {
+    "agent-name": "dist/cli/agent-name.js",
+    "agent-codex": "dist/cli/agent-codex.js",
+    "agent-claude": "dist/cli/agent-claude.js",
+    "agents": "dist/cli/agents.js",
+    "agent-board": "dist/cli/agent-board.js"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "build": "tsc",
+    "pretest": "npm run build",
+    "test": "tsx --test --test-concurrency=1 'tests/**/*.test.ts'",
+    "test:integration:codex": "tsx --test --test-concurrency=1 tests/integration/installed-codex.test.ts",
+    "test:integration:claude": "tsx --test --test-concurrency=1 tests/integration/installed-claude.test.ts",
+    "test:integration:ghostty": "tsx --test --test-concurrency=1 tests/integration/disposable-ghostty.test.ts"
+  },
+  "dependencies": {
+    "proper-lockfile": "^4.1.2",
+    "ws": "^8.21.3",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/proper-lockfile": "^4.1.4",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}

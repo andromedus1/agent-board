@@ -21,14 +21,20 @@ individually through the retained workflow.
 
 ## Current state
 
-This repository is at a concept checkpoint. The initial thesis and review are in
-`docs/project-brief.md`. No product discovery, prior-art engagement,
-architecture, implementation plan, or hardware commitment is complete yet.
+This repository has completed foundation ideation, a verified prior-art Scout,
+the two blocking runtime engagements, and the Codex-Claude symmetric-support
+campaign. Managed Codex app-server plus remote TUI and managed ordinary Claude
+with bundled per-run observation hooks are the accepted provider topologies;
+the Ghostty 1.3+ AppleScript contract is validated, and
+`docs/ARCHITECTURE.md` is locked.
 
-The next arc begins with `research-pipeline:ideate`, including its prior-art
-Scout engagement. Use Agentic Research for consequential unknowns. Bootstrap
-`.work/` only when foundation scope is stable enough to decompose into delivery
-items.
+The terminal V1 and mixed-provider delivery arcs are complete: the
+dependency-linked work items have been implemented, reviewed, and verified,
+including packaged end-to-end journeys, the operator doctor, and shared glyph
+support for concurrent `agent-codex` and `agent-claude` tabs. Deferred product
+ideas remain preserved in the backlog for deliberate promotion. Use Agentic
+Research only when a consequential unresolved question would change a future
+delivery decision; do not reopen settled research by default.
 
 ## Product guardrails
 
@@ -48,3 +54,51 @@ items.
 Git owns history. Foundation docs own current product truth. `.research/` owns
 evidence. `.work/` items own delivery once created. Chat history is not an
 authoritative project artifact.
+
+<!-- agile-workflow:start -->
+## Agile-Workflow Substrate
+
+Work tracked in `.work/` as markdown items with YAML frontmatter
+(`kind, stage, tags, parent, depends_on, release_binding, research_refs,
+research_origin`; a `[research]` item also carries the commissioning
+`research_dials` block).
+Layout: `.work/active/{epics,features,stories}/`, `.work/backlog/`,
+`.work/releases/<version>/`, `.work/archive/`.
+
+**Primary query tool:** `.work/bin/work-view` filters by stage, tag, kind,
+parent, and dependency. Common patterns:
+
+- `work-view --ready` — items ready to work (deps satisfied)
+- `work-view --stage review` — items awaiting an agent review pass (`/agile-workflow:review`)
+- `work-view --parent <id>` / `--blocking <id>` — hierarchy / sequencing
+- `work-view --scope all` — include terminal tiers: `releases/` (one summary doc per version) and
+  `archive/` (bodyless ref stubs). Full bodies live in git history. By default work-view shows only
+  active + backlog; `--release` / `--gate` auto-widen to all tiers.
+- `work-view --help` for the full flag set
+
+Foundation docs in `docs/` describe the system's current state or intended
+future state, never the past; git history is the audit trail. Review existing
+assertions only: missing coverage and unimplemented future intent are not drift;
+flag only false, stale, or contradictory claims. Item files are the durable
+state: update the body with implementation discoveries, review findings,
+blockers, and decisions instead of relying on chat history.
+
+Reusable code patterns live in `.agents/skills/patterns/` (load the `patterns`
+skill for detail). Project agent rules live in `.agents/rules/*.md`
+(plugin-managed rules in `.agents/rules/agile-workflow.md`); do not maintain
+`.claude/rules/*.md` as a source of truth. The `.work/` ↔ `.research/` handoff follows
+`plugins/agentic-research/docs/HANDOFF.md`.
+
+**Before designing, implementing, or reviewing, read `.agents/rules/*.md`.**
+The agile-workflow hook auto-loads these at session start and after compaction;
+read them directly when working without the hook. Do not rely on
+UserPromptSubmit for rules or queue snapshots; query `work-view` when queue
+state is needed.
+
+Project-specific refactor style conventions belong in this file under
+`## Refactor Style Conventions`. Detailed refactor convention references belong
+in `.agents/skills/refactor-conventions/` and extend `refactor-design`'s
+defaults; they do not replace the built-in scan and they do not create
+standalone plan docs.
+
+<!-- agile-workflow:end -->

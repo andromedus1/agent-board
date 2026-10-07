@@ -1,0 +1,110 @@
+# Codex 0.147.0 managed-runtime probe
+
+Date: 2026-08-14
+Host: macOS 26.3, arm64
+Codex: `codex-cli 0.147.0`
+Terminal during remote-TUI probe: PTY advertising Ghostty 1.3.1
+
+This is a bounded local experiment record. It contains selected protocol output
+needed for the Agent Board topology decision; identifiers are ephemeral probe
+identifiers.
+
+## P1 — direct app-server lifecycle
+
+Started `codex app-server --listen stdio://`, initialized a client, and called
+`thread/start` with an ephemeral, read-only thread. The response contained:
+
+```json
+{"status":{"type":"idle"},"ephemeral":true,"cwd":"/Users/andrewclark/dev/agent-board"}
+```
+
+A harmless `turn/start` request (`Reply with exactly PROBE_OK`) produced, in
+order:
+
+```json
+{"method":"thread/status/changed","params":{"status":{"type":"active","activeFlags":[]}}}
+{"method":"turn/started","params":{"turn":{"status":"inProgress"}}}
+{"method":"thread/status/changed","params":{"status":{"type":"idle"}}}
+{"method":"turn/completed","params":{"turn":{"status":"completed","durationMs":1448}}}
+```
+
+The stream also exposed item, hook, token-usage, warning, and rate-limit events.
+
+## P2 — error and approval-related activity
+
+An attempted `request_user_input` call in Default mode wrote the runtime error
+`request_user_input is unavailable in Default mode`, then still completed the
+turn and returned the thread to `idle`.
+
+In a separate read-only thread, an attempted file write produced
+`item/autoApprovalReview/started`, `guardianWarning`, and
+`item/autoApprovalReview/completed` events before command completion. The
+temporary empty probe file was removed immediately after the test. Because the
+configured reviewer automatically approved this explicitly requested reversible
+write, this run did not exercise a human-waiting interval.
+
+## P3 — remote TUI parity
+
+Started app-server on a local Unix socket and launched:
+
+```text
+codex --remote unix:///tmp/.../codex.sock --no-alt-screen
+```
+
+The TUI rendered the ordinary Codex 0.147.0 welcome surface, current project,
+branch, model/reasoning, context status line, prompt composer, and Codex-managed
+terminal title. No task was run in this Unix-socket pass.
+
+## P4 — concurrent observer
+
+Started app-server on `ws://127.0.0.1:47731`, attached the remote TUI, then
+initialized a second WebSocket client. `thread/loaded/list` on the observer
+returned the TUI-created thread ID while the TUI remained connected.
+
+Before the first turn there was no rollout to resume, so the observer's
+`thread/resume` request returned `no rollout found`. Despite that failed resume,
+submitting `Reply with exactly REMOTE_PROBE_OK` in the TUI caused the concurrent
+observer to receive:
+
+```json
+{"method":"thread/status/changed","params":{"status":{"type":"active","activeFlags":[]}}}
+{"method":"thread/status/changed","params":{"status":{"type":"idle"}}}
+```
+
+The TUI displayed `REMOTE_PROBE_OK`. This establishes that a separately
+initialized client can discover a remote-TUI thread and observe its global
+thread-status transitions without proxying terminal bytes.
+
+## P5 — ephemeral loopback endpoint
+
+Started the installed app-server with:
+
+```text
+codex app-server --listen ws://127.0.0.1:0
+```
+
+It selected an available loopback port, reported the resolved WebSocket,
+readiness, and health endpoints, and remained running until interrupted:
+
+```text
+codex app-server (WebSockets)
+  listening on: ws://127.0.0.1:51380
+  readyz: http://127.0.0.1:51380/readyz
+  healthz: http://127.0.0.1:51380/healthz
+  note: binds localhost only (use SSH port-forwarding for remote access)
+```
+
+The selected port is ephemeral probe data; the contract is that port `0`
+resolves to a reported loopback endpoint rather than a fixed number.
+
+## Limits
+
+- The experiment did not force a real human approval or question wait, so the
+  installed schema remains the evidence for `waitingOnApproval` and
+  `waitingOnUserInput` flags.
+- The observer saw global thread-status transitions but did not receive the
+  TUI client's detailed `turn/started` or `turn/completed` notifications in this
+  pass.
+- The app-server and remote modes are explicitly labeled experimental by the
+  installed CLI and official documentation.
+- Visual parity was inspected in a PTY, not in Andrew's live Ghostty tab.

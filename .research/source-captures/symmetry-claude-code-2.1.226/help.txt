@@ -1,0 +1,29 @@
+Source: read-only local command `claude --version; claude --help`
+Fetched: 2026-08-20
+
+2.1.226 (Claude Code)
+
+Claude Code starts an interactive session by default; `-p` / `--print` starts a
+non-interactive run. Relevant launch surfaces reported by this installed build:
+
+- `--background` starts a session as a background agent and returns immediately;
+  `claude agents` manages background agents.
+- `--continue` continues the most recent conversation in the current directory;
+  `--resume [value]` resumes a conversation by ID or opens an interactive picker;
+  `--fork-session` creates a new session ID while resuming.
+- `--name` sets a display name; `--session-id <uuid>` uses a specific session ID.
+- `--remote-control [name]` starts an interactive session with Remote Control;
+  `--remote-control-session-name-prefix` sets a prefix for generated names.
+- `--permission-mode` accepts `acceptEdits`, `auto`, `bypassPermissions`,
+  `manual`, `dontAsk`, and `plan`.
+- `--plugin-dir`, `--plugin-url`, `--mcp-config`, `--strict-mcp-config`, and
+  `--settings` expose customization/configuration surfaces.
+- `--bare` skips hooks, LSP, plugin sync, keychain reads, CLAUDE.md discovery,
+  and related automatic configuration. It requires `ANTHROPIC_API_KEY` or an
+  `apiKeyHelper` for Anthropic authentication.
+- `--input-format stream-json`, `--output-format stream-json`,
+  `--replay-user-messages`, and `--include-hook-events` are available only with
+  `--print` where noted by the CLI help.
+
+Relevant top-level commands reported: `agents`, `auth`, `doctor`, `mcp`,
+`plugin|plugins`, `project`, `setup-token`, and `update|upgrade`.

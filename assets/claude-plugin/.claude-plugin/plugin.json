@@ -1,0 +1,6 @@
+{
+  "name": "agent-board-observer",
+  "version": "0.1.0",
+  "description": "Observation-only Agent Board lifecycle integration for Claude Code",
+  "author": { "name": "Agent Board contributors" }
+}

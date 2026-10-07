@@ -1,0 +1,213 @@
+# Auto-generated. DO NOT EDIT BY HAND. Run /knowledge-index to regenerate.
+# Frontmatter is the source of truth — edit each doc's frontmatter and re-run.
+#
+# schema_version controls lint mode:
+#   1 = grace (missing v2 fields produce warnings, not errors)
+#   2 = enforce (missing v2 fields are errors)
+# Set to 2 once the project's docs are fully backfilled to v2 frontmatter.
+schema_version: 2
+generated_at: 2026-09-12T14:30:39Z
+generated_from: frontmatter
+total_docs: 25
+
+documents:
+  # ── planning ──────────────────────────────────────────────────────────────
+
+  - path: docs/ARCHITECTURE.md
+    title: "Architecture: Agent Board"
+    type: architecture
+    kind: planning
+    updated: 2026-09-12
+    status: locked
+    consumer_hint: Read this before implementing or changing Agent Board modules, process topology, state contracts, or external adapters.
+
+  - path: docs/configuration.md
+    title: Companion terminal configuration
+    type: design
+    kind: planning
+    updated: 2026-09-12
+    status: locked
+    consumer_hint: Read this when configuring Ghostty tabs for Codex or Claude Code sessions and the Codex status line for the recommended Agent Board workflow.
+
+  - path: docs/VISION.md
+    title: Agent Board vision
+    type: north-star
+    kind: planning
+    updated: 2026-08-20
+    status: draft
+    consumer_hint: Read this to understand why Agent Board exists, who it serves first, and what product outcome matters.
+
+  - path: docs/PRINCIPLES.md
+    title: Agent Board principles
+    type: principles
+    kind: planning
+    updated: 2026-08-14
+    status: draft
+    consumer_hint: Read this when a product or architecture tradeoff needs a decision heuristic rather than another feature request.
+
+  - path: docs/research-plan.md
+    title: Agent Board research plan
+    type: research-plan
+    kind: planning
+    updated: 2026-08-20
+    status: locked
+    consumer_hint: Read this for the completed pre-architecture research decisions and the entry conditions for deliberately deferred follow-up research.
+
+  - path: docs/SPEC.md
+    title: Agent Board specification
+    type: spec
+    kind: planning
+    updated: 2026-08-20
+    status: draft
+    consumer_hint: Read this to understand the first product contract, normalized domain model, behavior, constraints, and acceptance boundary.
+
+  # ── research ──────────────────────────────────────────────────────────────
+
+  - path: .research/analysis/briefs/claude-code-adapter-feasibility.md
+    title: Claude Code adapter feasibility
+    type: brief
+    kind: research
+    updated: 2026-08-20
+    status: locked
+    research_method: /research
+    consumer_hint: Read this before deciding whether or how to add Claude Code as Agent Board's second supervised adapter.
+
+  - path: .research/analysis/briefs/codex-detector-topology.md
+    title: Codex detector topology
+    type: brief
+    kind: research
+    updated: 2026-08-14
+    status: locked
+    research_method: /research
+    consumer_hint: Read this before selecting or implementing the Codex V1 adapter; it compares unchanged ordinary-TUI observation with a managed remote TUI on the installed build.
+
+  - path: .research/analysis/briefs/ghostty-registration-liveness.md
+    title: Ghostty registration and liveness contract
+    type: brief
+    kind: research
+    updated: 2026-08-14
+    status: locked
+    research_method: /research
+    consumer_hint: Read this before implementing Ghostty identity, title rendering, reconciliation, or stale-session cleanup.
+
+  - path: .research/analysis/campaigns/agent-board-prior-art/acquisitions.md
+    title: Acquisition candidates
+    type: campaign
+    kind: research
+    updated: 2026-08-14
+    consumer_hint: "Agentic Research campaign: Acquisition candidates"
+
+  - path: .research/analysis/campaigns/agent-board-prior-art/decomposition-rationale.md
+    title: Scout decomposition rationale
+    type: campaign
+    kind: research
+    updated: 2026-08-14
+    consumer_hint: "Agentic Research campaign: Scout decomposition rationale"
+
+  - path: .research/analysis/campaigns/agent-board-prior-art/parent.md
+    title: Agent Board prior-art landscape
+    type: campaign
+    kind: research
+    updated: 2026-08-14
+    status: locked
+    research_method: /scout
+    consumer_hint: Read this before defining Agent Board scope or architecture; it maps direct and adjacent prior art and resolves the first Ghostty/Codex integration choices.
+
+  - path: .research/analysis/campaigns/agent-board-prior-art/specialists/attention-board.md
+    title: Attention-board state models and evolution paths
+    type: campaign
+    kind: research
+    updated: 2026-08-14
+    consumer_hint: "Agentic Research campaign: Attention-board state models and evolution paths"
+
+  - path: .research/analysis/campaigns/agent-board-prior-art/specialists/codex-lifecycle.md
+    title: Codex lifecycle evidence and adapter boundaries
+    type: campaign
+    kind: research
+    updated: 2026-08-14
+    consumer_hint: "Agentic Research campaign: Codex lifecycle evidence and adapter boundaries"
+
+  - path: .research/analysis/campaigns/agent-board-prior-art/specialists/ghostty-sessions.md
+    title: Ghostty title ownership, terminal identity, and session liveness
+    type: campaign
+    kind: research
+    updated: 2026-08-14
+    consumer_hint: "Agentic Research campaign: Ghostty title ownership, terminal identity, and session liveness"
+
+  - path: .research/analysis/campaigns/agent-board-prior-art/verification-checklist.md
+    title: Adversarial verification checklist
+    type: campaign
+    kind: research
+    updated: 2026-08-14
+    consumer_hint: "Agentic Research campaign: Adversarial verification checklist"
+
+  - path: .research/analysis/campaigns/codex-claude-symmetric-support/acquisitions.md
+    title: Acquisition candidates
+    type: campaign
+    kind: research
+    updated: 2026-08-20
+    consumer_hint: "Agentic Research campaign: Acquisition candidates"
+
+  - path: .research/analysis/campaigns/codex-claude-symmetric-support/dispatch.md
+    title: Codex–Claude symmetric-support research dispatch
+    type: campaign
+    kind: research
+    updated: 2026-08-20
+    status: locked
+    consumer_hint: Registration for the research campaign defining trustworthy symmetric Codex and Claude support in Agent Board.
+
+  - path: .research/analysis/campaigns/codex-claude-symmetric-support/parent.md
+    title: Symmetric Codex and Claude support
+    type: campaign
+    kind: research
+    updated: 2026-08-20
+    status: locked
+    research_method: /research
+    consumer_hint: Read this before designing or implementing symmetric Codex and Claude support in Agent Board.
+
+  - path: .research/analysis/campaigns/codex-claude-symmetric-support/specialists/claude-current-surface.md
+    title: Claude Code current lifecycle and control surface
+    type: campaign
+    kind: research
+    updated: 2026-08-20
+    consumer_hint: "Agentic Research campaign: Claude Code current lifecycle and control surface"
+
+  - path: .research/analysis/campaigns/codex-claude-symmetric-support/specialists/codex-current-surface.md
+    title: Codex current lifecycle and control surface
+    type: campaign
+    kind: research
+    updated: 2026-08-20
+    consumer_hint: "Agentic Research campaign: Codex current lifecycle and control surface"
+
+  - path: .research/analysis/campaigns/codex-claude-symmetric-support/specialists/herdr-prior-art.md
+    title: "Herdr prior art: terminal-level symmetry, inference-bound provider state"
+    type: campaign
+    kind: research
+    updated: 2026-08-20
+    consumer_hint: "Agentic Research campaign: Herdr prior art: terminal-level symmetry, inference-bound provider state"
+
+  - path: .research/analysis/campaigns/agent-board-prior-art/dispatch.md
+    title: Agent Board prior-art landscape
+    type: landscape-brief
+    kind: research
+    consumer_hint: "Agentic Research landscape-brief: Agent Board prior-art landscape"
+
+  - path: .research/analysis/positions/codex-claude-common-glyph-contract.md
+    title: Codex–Claude common-glyph contract
+    type: position
+    kind: research
+    updated: 2026-08-20
+    status: locked
+    research_method: /research
+    consumer_hint: Read this before designing, implementing, or reviewing provider-neutral Codex and Claude status projection in Agent Board.
+
+  # ── historical ──────────────────────────────────────────────────────────────
+
+  - path: docs/project-brief.md
+    title: Agent-Board concept checkpoint
+    type: north-star
+    kind: historical
+    updated: 2026-08-14
+    status: superseded
+    superseded_by: docs/VISION.md
+    consumer_hint: Read this only for the historical pre-Scout Agent Board concept and the broader ideas that were later narrowed.

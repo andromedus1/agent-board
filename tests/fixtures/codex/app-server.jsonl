@@ -1,0 +1,3 @@
+{"method":"thread/status/changed","params":{"threadId":"thread-probe","status":{"type":"active","activeFlags":[]}}}
+{"method":"thread/status/changed","params":{"threadId":"thread-probe","status":{"type":"idle"}}}
+{"method":"turn/completed","params":{"threadId":"thread-probe","turn":{"id":"turn-probe","status":"completed","durationMs":1448}}}

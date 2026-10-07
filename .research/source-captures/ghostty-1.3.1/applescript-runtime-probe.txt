@@ -1,0 +1,69 @@
+# Ghostty 1.3.1 AppleScript runtime probe
+
+Date: 2026-08-14
+Application: `/Applications/Ghostty.app`, version 1.3.1 (build 15212)
+Dictionary: bundled `Ghostty.sdef`
+
+This is a bounded local experiment record. Temporary Ghostty windows and tabs
+were created by exact object reference and closed after each probe.
+
+## G1 — enumeration and permission
+
+AppleScript successfully enumerated the running application's windows, tabs,
+terminals, and stable text IDs. macOS allowed the Automation request for the
+calling process. This verifies the interface is usable on the current machine;
+it does not eliminate first-run TCC permission from installation design.
+
+## G2 — targeted title ownership
+
+A temporary window yielded these stable object shapes:
+
+```text
+window=tab-group-8230cb480
+tab=tab-82554f200
+terminal=58400B3E-...
+```
+
+On the captured terminal, `perform action "set_tab_title:AB-PROBE-ONE"`
+returned true and changed the tab name. Updating it to `AB-PROBE-TWO` also
+returned true. Window, tab, and terminal IDs were unchanged across both title
+updates. `perform action "set_tab_title:"` returned true and restored the
+shell-derived title `~/dev/data-platform`.
+
+After closing that temporary window, its terminal ID was absent from the live
+application-wide terminal enumeration.
+
+## G3 — close and undo-close identity
+
+A second temporary window contained two one-terminal tabs. Before close, the
+second terminal was in application-wide enumeration. One second after closing
+that terminal, it was still present in enumeration. Running `perform action
+"undo"` on the remaining terminal returned true. After undo:
+
+```text
+present_after_undo=true
+same_tab_after_undo=true
+```
+
+The restored tab and terminal retained their original IDs. This demonstrates
+that enumeration means the surface remains alive, not that its tab is currently
+visible to the operator.
+
+## G4 — installed configuration diagnostics
+
+The active Ghostty config contained no explicit global `title`,
+`bell-features`, or shell-title override. The active Codex config contained a
+TUI status line but no `tui.terminal_title` override, so Codex's documented
+default terminal-title writer remains active. Agent Board therefore needs an
+install diagnostic and should use the Ghostty tab-title override rather than
+competing OSC writes.
+
+## Limits
+
+- The bundled AppleScript dictionary has no window-bounds setter or direct
+  tab-move command, so window movement and tab reordering were not automated in
+  this probe.
+- Bell-title decoration was not triggered against Andrew's live tabs; its
+  interaction remains grounded in Ghostty's configuration documentation.
+- The probe did not distinguish every possible hidden/undoable surface state;
+  it establishes that existence alone is insufficient for liveness.

@@ -1,0 +1,89 @@
+Agent Board focused runtime research — adversarial verification
+Date: 2026-08-14
+Verdict: APPROVED
+
+Scope
+-----
+This pass verifies:
+- .research/analysis/briefs/codex-detector-topology.md
+- .research/analysis/briefs/ghostty-registration-liveness.md
+
+Mechanical floor
+----------------
+Citation lint over both briefs: 47 resolved, 0 broken, 0 thin, 0 pattern flags.
+Knowledge-index lint after both briefs: 16 documents, 0 errors, 0 warnings.
+
+(a) Semantic citation-chain walk
+--------------------------------
+- Managed lifecycle ordering points to local experiment passage 1, which records
+  idle start followed by active, turn-started, idle, and turn-completed.
+- Concurrent-observer claims point to local experiment passage 4, which records
+  a second initialized client discovering the TUI thread and receiving active
+  then idle without a successful resume.
+- Ordinary-TUI limitations point to the notification and hook passages that
+  enumerate completion, approval, stop, and delayed session end; the brief does
+  not turn those passages into a complete lifecycle stream.
+- Ghostty title identity points to local experiment passage 2; close-window and
+  close/undo differences point separately to passages 3 and 4.
+- Ghostty version, configuration, and OSC claims point to official documentation
+  attestations rather than to the local experiment alone.
+
+(b) Claim shapes lint missed
+----------------------------
+No unsupported superlative, census, universal-negative, or implied production-
+stability claim remains. The recommendation calls the managed path technically
+viable, not stable. The launch choice is explicitly framed as taste.
+
+(c) Smoothed contradictions
+----------------------------
+The briefs preserve rather than collapse these tensions:
+- familiar remote-TUI rendering versus an experimental startup topology;
+- global thread-status observation versus connection-scoped detailed turn
+  notifications in the bounded pass;
+- live/enumerable Ghostty surface versus visible tab membership;
+- schema-defined waiting flags versus the absence of a completed human-wait
+  runtime test.
+
+(d) Relevance weighting
+-----------------------
+Installed schemas and local runtime observations carry version-specific behavior.
+Official Codex and Ghostty documentation carries supported-interface and config
+claims. Prior-art sources are not used to attest runtime behavior.
+
+(e) Quote-context walk
+----------------------
+No load-bearing direct quote is used. Exact JSON excerpts are scoped to the
+bounded local experiment and retain their ordering and status fields.
+
+(f) Analytical-tier inheritance
+--------------------------------
+All citation references resolve to source attestations. Neither brief cites the
+Scout synthesis or another analytical brief as if it were source evidence.
+
+(g) Passage-reference walk
+--------------------------
+Every citation locator used by the two briefs exists in its attestation and was
+sampled for the adjacent specific. No bibliography ordinal is used as a passage
+locator.
+
+(h) Thin-attestation check
+--------------------------
+Both new experiment attestations contain summary, numbered key passages,
+structural notes, and explicit scope/gaps. Existing cited attestations passed the
+same corpus lint audit.
+
+Residual limits carried forward
+-------------------------------
+- A real human approval/question waiting interval is not yet runtime-verified.
+- Detailed turn notifications were not observed by the non-subscribed concurrent
+  client in the bounded remote-TUI pass.
+- Reorder, window movement, and live bell-title decoration remain implementation-
+  time integration checks.
+- App-server protocol use must be version-gated because the interface is labeled
+  experimental.
+
+Final assessment
+----------------
+The evidence is sufficient to firm Ghostty architecture and to present the Codex
+default as a consequential product-taste gate. No source-chain defect requires a
+change in either brief's direction.
