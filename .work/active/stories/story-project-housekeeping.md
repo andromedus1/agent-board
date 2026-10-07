@@ -8,6 +8,7 @@ tags: []
 created: 2026-10-06
 updated: 2026-10-06
 release_binding: null
+gate_origin: null
 research_refs: []
 research_origin: null
 review_weight: standard
@@ -50,6 +51,11 @@ Use actual macOS GitHub Actions runs and local typecheck/full suite; verify ever
 archived item's metadata and body through Git, graph identities, generated
 index counts, documentation audit, and clean/synchronized Git state. No tests
 that merely mirror workflow YAML or reversible prose changes are needed.
+
+## Simplification opportunity
+
+Clear completed bodies from the active queue while retaining recovery refs,
+remove the absorbed backlog duplicate, and prune merged branch clutter.
 
 ## Execution
 
