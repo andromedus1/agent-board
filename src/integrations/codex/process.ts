@@ -4,6 +4,7 @@ import { AgentBoardError } from "../../domain/errors.js";
 import type { ProcessRunner } from "../process-runner.js";
 import { NodeProcessRunner } from "../process-runner.js";
 import { checkCodexCompatibility, type CodexCompatibility } from "./compatibility.js";
+import { probeCodexCapabilities } from "./capabilities.js";
 import { parseAdvertisedEndpoint, type AppServerEndpoint } from "./endpoint.js";
 
 const DEFAULT_READINESS_TIMEOUT_MS = 10_000;
@@ -136,7 +137,20 @@ export class CodexProcessHost {
     const request = this.runner.run({ command: this.command, args: ["--version"], timeoutMs: this.readinessTimeoutMs, maxOutputBytes: this.maxDiagnosticTailBytes });
     const result = await (signal === undefined ? request : withAbort(request, signal));
     if (result.exitCode !== 0) throw failure(`Codex version probe exited with code ${result.exitCode}`, result.stderr.slice(-this.maxDiagnosticTailBytes));
-    return checkCodexCompatibility(`${result.stdout}\n${result.stderr}`);
+    const compatibility = checkCodexCompatibility(`${result.stdout}\n${result.stderr}`);
+    if (compatibility.reasonCode !== "unverified") return compatibility;
+    try {
+      await probeCodexCapabilities(this.runner, this.command, this.readinessTimeoutMs, signal);
+      return { compatible: true, version: compatibility.version, capabilityProbed: true };
+    } catch (error) {
+      if (signal?.aborted) throw abortError();
+      return {
+        compatible: false,
+        version: compatibility.version,
+        reasonCode: "capabilities",
+        reason: error instanceof AgentBoardError ? error.message : "Codex capability schemas could not be read or validated",
+      };
+    }
   }
 
   async version(signal?: AbortSignal): Promise<string> {

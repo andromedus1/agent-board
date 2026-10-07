@@ -122,13 +122,18 @@ async function codexChecks(dependencies: DoctorDependencies): Promise<DoctorChec
   }
   if (result.compatible) {
     assertText(result.version, "Codex version");
-    return [check("codex", "CODEX_COMPATIBLE", "info", `Codex ${result.version} is compatible with managed observation`)];
+    return [check("codex", "CODEX_COMPATIBLE", "info", result.capabilityProbed
+      ? `Codex ${result.version} passed the managed observation capability probe`
+      : `Codex ${result.version} is compatible with managed observation`)];
   }
   if (result.reasonCode === "unsupported") {
-    return [failureCheck("codex", "CODEX_VERSION_UNSUPPORTED", "Installed Codex is incompatible with managed observation", `Install the tested Codex ${SUPPORTED_CODEX_FAMILY} release.`)];
+    return [failureCheck("codex", "CODEX_VERSION_UNSUPPORTED", "Installed Codex is incompatible with managed observation", `Install Codex ${SUPPORTED_CODEX_FAMILY}.`)];
   }
   if (result.reasonCode === "unrecognized") {
-    return [failureCheck("codex", "CODEX_VERSION_UNKNOWN", "Codex did not report a recognizable version", `Run codex --version and install the tested Codex ${SUPPORTED_CODEX_FAMILY} release.`)];
+    return [failureCheck("codex", "CODEX_VERSION_UNKNOWN", "Codex did not report a recognizable version", `Run codex --version and install Codex ${SUPPORTED_CODEX_FAMILY}.`)];
+  }
+  if (result.reasonCode === "capabilities") {
+    return [failureCheck("codex", "CODEX_CAPABILITIES_UNSUPPORTED", result.reason ?? "Codex managed observation capability check failed", "Check codex --help and codex app-server generate-json-schema; use a compatible Codex installation or update Agent Board.")];
   }
   throw new TypeError("Codex compatibility report has an invalid shape");
 }

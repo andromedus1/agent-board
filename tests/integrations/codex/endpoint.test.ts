@@ -41,6 +41,7 @@ test("parses and gates the installed Codex protocol family", () => {
   assert.deepEqual(checkCodexCompatibility("codex-cli 0.153.4"), { compatible: true, version: "0.153.4" });
   assert.deepEqual(checkCodexCompatibility("codex-cli 0.154.0"), { compatible: true, version: "0.154.0" });
   assert.equal(checkCodexCompatibility("codex-cli 0.151.0").reasonCode, "unsupported");
-  assert.equal(checkCodexCompatibility("codex-cli 0.155.0").reasonCode, "unsupported");
+  assert.equal(checkCodexCompatibility("codex-cli 0.146.0").reasonCode, "unsupported");
+  assert.equal(checkCodexCompatibility("codex-cli 0.160.1").reasonCode, "unverified");
   assert.equal(checkCodexCompatibility("not a version").reasonCode, "unrecognized");
 });

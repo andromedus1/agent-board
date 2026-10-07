@@ -96,6 +96,20 @@ test("diagnoseSystem maps runtime and typed Codex compatibility branches", async
   assert.equal(unrecognized.checks.find((item) => item.component === "codex")?.code, "CODEX_VERSION_UNKNOWN");
 });
 
+test("diagnoseSystem reports Codex capability evidence and failed probes", async () => {
+  const verified = await diagnoseSystem(dependencies({
+    codex: { compatibility: async () => ({ compatible: true, version: "0.160.1", capabilityProbed: true }) },
+  }));
+  assert.equal(verified.ready, true);
+  assert.match(verified.checks.find((item) => item.component === "codex")!.message, /passed.*capability probe/u);
+  const failed = await diagnoseSystem(dependencies({
+    codex: { compatibility: async () => ({ compatible: false, version: "0.161.0", reasonCode: "capabilities", reason: "Codex capability check failed: thread status values changed" }) },
+  }));
+  assert.equal(failed.ready, false);
+  assert.equal(failed.checks.find((item) => item.component === "codex")?.code, "CODEX_CAPABILITIES_UNSUPPORTED");
+  assert.match(failed.checks.find((item) => item.component === "codex")!.message, /thread status values changed/u);
+});
+
 test("diagnoseSystem reports Claude compatibility and packaged-plugin failures", async () => {
   const unsupported = await diagnoseSystem(dependencies({
     claude: { compatibility: async () => ({ compatible: false, version: "2.1.100", reasonCode: "unsupported" }), validatePlugin: async () => undefined },
