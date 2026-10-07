@@ -1,4 +1,4 @@
-import { chmod, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { chmod, copyFile, mkdir, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -132,7 +132,14 @@ export async function createPackageHarness(initial?: Partial<Scenario>): Promise
     const packed = JSON.parse(pack.stdout) as Array<{ filename: string }>;
     const tarball = join(projectRoot, packed[0]?.filename ?? "");
     try {
-      await execFileAsync("npm", ["install", "--offline", "--ignore-scripts", "--no-save", "--prefix", prefix, tarball], { cwd: projectRoot, maxBuffer: 4 * 2 ** 20 });
+      // npm ci caches locked tarballs, but not the registry metadata needed to
+      // resolve fresh ranges. Seed the isolated prefix from that same lockfile.
+      await mkdir(prefix);
+      for (const file of ["package.json", "package-lock.json"]) {
+        await copyFile(join(projectRoot, file), join(prefix, file));
+      }
+      await execFileAsync("npm", ["ci", "--offline", "--omit=dev", "--ignore-scripts"], { cwd: prefix, maxBuffer: 4 * 2 ** 20 });
+      await execFileAsync("npm", ["install", "--offline", "--omit=dev", "--ignore-scripts", "--no-save", tarball], { cwd: prefix, maxBuffer: 4 * 2 ** 20 });
     } finally {
       await rm(tarball, { force: true });
     }

@@ -40,7 +40,8 @@ test("packed golden journeys preserve board/title parity and independent session
 
     await harness.writeScenario((value) => ({ ...value, ghostty: { ...value.ghostty, focusedTerminalId: "term-one" }, codex: { ...value.codex, status: "idle" } }));
     launcher = harness.start("agent-codex");
-    const managed = await waitForBoardRow(harness, (row) => row.label === "data-platform" && row.agentMode === "managed");
+    // Registration becomes managed before the observer records its first status.
+    const managed = await waitForBoardRow(harness, (row) => row.label === "data-platform" && row.agentMode === "managed" && row.status === "idle");
     assert.equal(managed.glyph, "○");
     scenario = await waitForScenario(harness, (candidate) => candidate.ghostty.terminals["term-one"]?.title === "○ data-platform", 900);
     assert.equal(scenario.ghostty.terminals["term-one"]?.title, "○ data-platform");

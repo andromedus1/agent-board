@@ -1,7 +1,7 @@
 # Auto-generated. DO NOT EDIT BY HAND. Run /knowledge-index to regenerate.
 # Frontmatter is the source of truth.
 schema_version: 3
-generated_at: '2026-10-07T01:31:26Z'
+generated_at: '2026-10-07T01:58:43Z'
 generated_from: frontmatter
 total_docs: 25
 by_kind:
@@ -10,13 +10,13 @@ by_kind:
   historical: 1
 substrate_summary:
   active:
-    epic: 6
-    feature: 19
-    story: 68
+    epic: 0
+    feature: 0
+    story: 0
     release: 0
-  backlog: 13
+  backlog: 12
   releases: {}
-  archive: 23
+  archive: 117
 recent:
 - path: docs/research-plan.md
   title: Agent Board research plan
@@ -26,16 +26,16 @@ recent:
   title: Companion terminal configuration
   kind: planning
   updated: 2026-10-06
+- path: docs/SPEC.md
+  title: Agent Board specification
+  kind: planning
+  updated: 2026-10-06
 - path: docs/ARCHITECTURE.md
   title: 'Architecture: Agent Board'
   kind: planning
   updated: 2026-10-06
 - path: docs/VISION.md
   title: Agent Board vision
-  kind: planning
-  updated: 2026-08-20
-- path: docs/SPEC.md
-  title: Agent Board specification
   kind: planning
   updated: 2026-08-20
 - path: docs/PRINCIPLES.md
