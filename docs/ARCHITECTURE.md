@@ -5,7 +5,7 @@ type: architecture
 kind: planning
 status: locked
 nav_priority: high
-updated: 2026-09-12
+updated: 2026-10-06
 summary: |
   Agent Board is a local TypeScript modular monolith with five small CLI binaries and no permanently installed daemon. Each supervised tab runs a provider-specific managed launcher: Codex uses app-server plus remote TUI, while Claude preserves its ordinary interactive CLI and emits lifecycle evidence through bundled hooks. Both persist normalized state and share one Ghostty-title and board projection policy.
 decisions:
@@ -19,13 +19,13 @@ decisions:
   - Managed working projection uses an ephemeral, reconciliation-verified launcher process existence check matched to the persisted launcher binding; the 60-second freshness threshold remains a fallback whenever that proof is unavailable.
   - Ghostty 1.3+ AppleScript stable IDs and targeted tab-title overrides are the primary terminal contract.
   - Completion acknowledgement is Board-owned and clears when the registered Ghostty tab is reliably focused, with an explicit acknowledgement command as fallback.
-  - Provider compatibility is explicit and evidence-preserving: experimental Codex protocol families are version-gated, while Claude Code 2.1.226 is the hook floor, 2.1.x is tested, and newer families warn when plugin validation succeeds.
+  - Provider compatibility is explicit and evidence-preserving: Codex has a minimum version and explicit exclusion, with capability probes for newer untested releases, while Claude Code 2.1.226 is the hook floor, 2.1.x is tested, and newer families warn when plugin validation succeeds.
   - V1 exposes observation, naming, and board administration, with no semantic agent actions; focus navigation, notifications, GUI, remote, and hardware remain outside the runtime boundary.
 ---
 
 # Architecture: Agent Board
 
-*Last updated: 2026-09-12*
+*Last updated: 2026-10-06*
 
 > How the system is built. For product intent, see [Vision](VISION.md),
 > [Specification](SPEC.md), and [Principles](PRINCIPLES.md). Runtime decisions
@@ -479,13 +479,21 @@ label while replacing the launcher metadata and native thread binding. The new
 observer can then bind the root thread created by its own private app-server.
 
 Protocol compatibility is checked against the installed Codex version and the
-minimum event/schema shapes Agent Board needs. V1 does not vendor the entire
-generated app-server schema; it maintains narrow boundary schemas for the
-methods it consumes and integration-tests them against the installed generator.
-The installed probe guards both the `thread/loaded/list` ID surface and the
-`thread/read` metadata surface. Unknown additive fields are allowed. Missing
-required fields or changed enum semantics fail the managed adapter visibly;
-response-validation failures name the JSON-RPC method that drifted.
+minimum event/schema shapes Agent Board needs. Tested families use a version
+fast path. Newer untested minor or major releases must pass a local capability
+probe before managed launch: CLI help must expose the remote TUI and app-server
+listener options, and generated schemas must preserve the discovery responses,
+required lifecycle notifications, and status values. The probe has bounded
+commands and schema reads, removes its temporary files, and stores no persistent
+result cache. Doctor uses the same compatibility check.
+
+V1 does not vendor the entire generated app-server schema; it maintains narrow
+runtime boundary schemas for the methods it consumes and integration-tests them
+against the installed generator. The installed probe guards both the
+`thread/loaded/list` ID surface and the `thread/read` metadata surface. Unknown
+additive fields are allowed. Missing required fields or changed enum semantics
+fail the managed adapter visibly; response-validation failures name the JSON-RPC
+method that drifted.
 
 App-server readiness, observer initialization, and child shutdown all have
 bounded timeouts. The local endpoint binds loopback only, lives for one launcher,
@@ -607,16 +615,17 @@ phases in the V1 architecture.
 
 ## Bounded compatibility and tuning checks
 
-- Managed observation currently accepts Codex `0.147.x`, `0.148.x`, `0.149.x`,
-  `0.150.x`, `0.152.x`, `0.153.x`, or `0.154.x`. The installed `codex-cli` `0.154.0`
-  release passed the narrow generated-schema contract and lifecycle-value probe
-  in `tests/integration/installed-codex.test.ts`. This probe does not validate
-  status-line visual rendering. `agent-board doctor` reports
-  unsupported or unrecognized versions before launch, including the explicitly
-  excluded `0.151.x` family and unverified later releases. Compatibility is
-  intentionally a narrow tested family, not an implicit promise for every
-  future Codex release. A future upgrade must refresh the generated-schema
-  integration probe and lifecycle fixtures together.
+- Managed observation requires Codex `0.147` or later and explicitly excludes
+  `0.151.x`. The tested `0.147.x`, `0.148.x`, `0.149.x`, `0.150.x`, `0.152.x`,
+  `0.153.x`, and `0.154.x` families use the version fast path. Newer untested
+  releases are allowed when their installed capabilities pass the startup
+  probe; a version increment alone does not prevent launch. Doctor reports
+  failed probes as `CODEX_CAPABILITIES_UNSUPPORTED` with the failed requirement.
+  Passing the probe establishes the narrow managed-observation contract;
+  runtime validation still detects incompatible responses and notifications.
+  It does not validate status-line visual rendering. Changes to required
+  protocol contracts need corresponding adapter, probe, and lifecycle-fixture
+  updates.
 - Managed Claude observation requires Claude Code `2.1.226` or newer. The
   `2.1.x` family is tested; newer families remain available with an explicit
   `CLAUDE_VERSION_UNTESTED` warning when the packaged plugin still validates.

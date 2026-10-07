@@ -1,8 +1,8 @@
 import { AgentBoardError } from "../../domain/errors.js";
 
 const VERSION = /\b(\d+)\.(\d+)\.(\d+)(?:-[0-9A-Za-z.-]+)?\b/gu;
-const SUPPORTED_CODEX_MINORS = new Set([147, 148, 149, 150, 152, 153, 154]);
-export const SUPPORTED_CODEX_FAMILY = "0.147.x, 0.148.x, 0.149.x, 0.150.x, 0.152.x, 0.153.x, or 0.154.x";
+const TESTED_CODEX_MINORS = new Set([147, 148, 149, 150, 152, 153, 154]);
+export const SUPPORTED_CODEX_FAMILY = "0.147 or later with compatible app-server capabilities (excluding 0.151.x)";
 
 export function parseCodexVersion(output: string): string {
   const versions = [...output.matchAll(VERSION)].map((match) => `${match[1]}.${match[2]}.${match[3]}`);
@@ -21,8 +21,9 @@ export function parseCodexVersion(output: string): string {
 export interface CodexCompatibility {
   compatible: boolean;
   version?: string;
-  reasonCode?: "unrecognized" | "unsupported";
+  reasonCode?: "unrecognized" | "unsupported" | "unverified" | "capabilities";
   reason?: string;
+  capabilityProbed?: boolean;
 }
 
 export function checkCodexCompatibility(output: string): CodexCompatibility {
@@ -38,13 +39,16 @@ export function checkCodexCompatibility(output: string): CodexCompatibility {
   }
 
   const [major, minor] = version.split(".").map(Number);
-  if (major !== 0 || !SUPPORTED_CODEX_MINORS.has(minor)) {
+  if (major === 0 && (minor < 147 || minor === 151)) {
     return {
       compatible: false,
       version,
       reasonCode: "unsupported",
       reason: `Codex ${version} is unsupported; managed observation requires ${SUPPORTED_CODEX_FAMILY}`,
     };
+  }
+  if (major !== 0 || !TESTED_CODEX_MINORS.has(minor)) {
+    return { compatible: false, version, reasonCode: "unverified", reason: `Codex ${version} requires a capability probe` };
   }
   return { compatible: true, version };
 }

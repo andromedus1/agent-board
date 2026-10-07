@@ -5,6 +5,7 @@ import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { isAbsolute, join } from "node:path";
 import { tmpdir } from "node:os";
 import { promisify } from "node:util";
+import { CodexProcessHost } from "../../src/integrations/codex/process.js";
 
 const execFileAsync = promisify(execFile);
 const enabled = process.env.AGENT_BOARD_LIVE_CODEX === "1";
@@ -22,6 +23,8 @@ test("installed Codex reports the narrow compatibility contract", { skip: !enabl
   }
   assert.equal(typeof result.stdout, "string");
   assert.match(`${result.stdout}\n${result.stderr}`, /\b\d+\.\d+\.\d+\b/u);
+  const compatibility = await new CodexProcessHost({ command }).compatibility();
+  assert.equal(compatibility.compatible, true, compatibility.reason);
 
   const outputRoot = await mkdtemp(join(tmpdir(), "agent-board-codex-schema-"));
   try {

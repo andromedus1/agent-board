@@ -1,7 +1,7 @@
-# Recommended Codex /statusline configuration. Agent Board's tested protocol
-# families are 0.147.x, 0.148.x, 0.149.x, 0.150.x, 0.152.x, 0.153.x, and 0.154.x;
-# 0.151.x remains explicitly excluded. The 0.154.0 schema/lifecycle probe does
-# not validate status-line visual rendering.
+# Recommended Codex /statusline configuration. Agent Board requires Codex
+# 0.147 or later, excluding 0.151.x, and checks newer untested releases for
+# compatible remote-TUI and app-server capabilities. These checks do not
+# validate status-line visual rendering.
 # Merge this table into ~/.codex/config.toml. Do not create a duplicate [tui]
 # table when that file already contains one.
 [tui]

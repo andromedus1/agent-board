@@ -1,18 +1,13 @@
 # Auto-generated. DO NOT EDIT BY HAND. Run /knowledge-index to regenerate.
-# Navigator layer — auto-loaded at session start (capped at 10KB by harness).
-# Provides corpus situational awareness only. Read knowledge-index.yaml for full index.
-
+# Frontmatter is the source of truth.
 schema_version: 3
-generated_at: 2026-09-12T14:30:39Z
+generated_at: '2026-10-07T01:31:26Z'
 generated_from: frontmatter
 total_docs: 25
-
 by_kind:
   planning: 6
   research: 18
   historical: 1
-
-# Substrate items (.work/) by tier. Query via .work/bin/work-view.
 substrate_summary:
   active:
     epic: 6
@@ -21,56 +16,50 @@ substrate_summary:
     release: 0
   backlog: 13
   releases: {}
-  archive: 22
-
-# Top 15 most-recently-updated docs (planning + research only).
+  archive: 23
 recent:
-  - path: docs/ARCHITECTURE.md
-    title: "Architecture: Agent Board"
-    kind: planning
-    updated: 2026-09-12
-  - path: docs/configuration.md
-    title: "Companion terminal configuration"
-    kind: planning
-    updated: 2026-09-12
-  - path: docs/VISION.md
-    title: "Agent Board vision"
-    kind: planning
-    updated: 2026-08-20
-  - path: docs/research-plan.md
-    title: "Agent Board research plan"
-    kind: planning
-    updated: 2026-08-20
-  - path: docs/SPEC.md
-    title: "Agent Board specification"
-    kind: planning
-    updated: 2026-08-20
-  - path: docs/PRINCIPLES.md
-    title: "Agent Board principles"
-    kind: planning
-    updated: 2026-08-14
-
-# Docs flagged with nav_priority: high in frontmatter — read at session start.
+- path: docs/research-plan.md
+  title: Agent Board research plan
+  kind: planning
+  updated: 2026-10-06
+- path: docs/configuration.md
+  title: Companion terminal configuration
+  kind: planning
+  updated: 2026-10-06
+- path: docs/ARCHITECTURE.md
+  title: 'Architecture: Agent Board'
+  kind: planning
+  updated: 2026-10-06
+- path: docs/VISION.md
+  title: Agent Board vision
+  kind: planning
+  updated: 2026-08-20
+- path: docs/SPEC.md
+  title: Agent Board specification
+  kind: planning
+  updated: 2026-08-20
+- path: docs/PRINCIPLES.md
+  title: Agent Board principles
+  kind: planning
+  updated: 2026-08-14
 load_bearing:
-  - path: docs/ARCHITECTURE.md
-    title: "Architecture: Agent Board"
-    kind: planning
-  - path: docs/configuration.md
-    title: "Companion terminal configuration"
-    kind: planning
-  - path: docs/VISION.md
-    title: "Agent Board vision"
-    kind: planning
-  - path: docs/PRINCIPLES.md
-    title: "Agent Board principles"
-    kind: planning
-  - path: docs/research-plan.md
-    title: "Agent Board research plan"
-    kind: planning
-  - path: docs/SPEC.md
-    title: "Agent Board specification"
-    kind: planning
-
-# On-demand layers (Read tool):
+- path: docs/ARCHITECTURE.md
+  title: 'Architecture: Agent Board'
+  kind: planning
+- path: docs/configuration.md
+  title: Companion terminal configuration
+  kind: planning
+- path: docs/VISION.md
+  title: Agent Board vision
+  kind: planning
+- path: docs/PRINCIPLES.md
+  title: Agent Board principles
+  kind: planning
+- path: docs/research-plan.md
+  title: Agent Board research plan
+  kind: planning
+- path: docs/SPEC.md
+  title: Agent Board specification
+  kind: planning
 full_index_path: docs/knowledge-index.yaml
 detail_index_path: docs/knowledge-index-detail.yaml

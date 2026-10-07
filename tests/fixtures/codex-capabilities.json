@@ -1,0 +1,37 @@
+{
+  "v2/ThreadLoadedListResponse.json": {
+    "type": "object",
+    "required": ["data"],
+    "properties": { "data": { "type": "array", "items": { "type": "string" } } }
+  },
+  "v2/ThreadReadResponse.json": {
+    "type": "object",
+    "required": ["thread"],
+    "properties": { "thread": { "$ref": "#/definitions/Thread" } },
+    "definitions": {
+      "Thread": {
+        "type": "object", "required": ["id", "status"],
+        "properties": { "id": { "type": "string" }, "status": { "$ref": "#/definitions/ThreadStatus" } }
+      }
+    }
+  },
+  "ServerNotification.json": {
+    "oneOf": [
+      { "properties": { "method": { "enum": ["thread/started"] } } },
+      { "properties": { "method": { "enum": ["thread/status/changed"] } } },
+      { "properties": { "method": { "enum": ["thread/closed"] } } },
+      { "properties": { "method": { "enum": ["turn/completed"] } } },
+      { "properties": { "method": { "enum": ["error"] } } }
+    ],
+    "definitions": {
+      "ThreadStatus": { "oneOf": [
+        { "properties": { "type": { "enum": ["notLoaded"] } } },
+        { "properties": { "type": { "enum": ["idle"] } } },
+        { "properties": { "type": { "enum": ["systemError"] } } },
+        { "properties": { "type": { "enum": ["active"] }, "activeFlags": { "type": "array", "items": { "$ref": "#/definitions/ThreadActiveFlag" } } }, "required": ["type", "activeFlags"] }
+      ] },
+      "ThreadActiveFlag": { "type": "string", "enum": ["waitingOnApproval", "waitingOnUserInput"] },
+      "TurnStatus": { "type": "string", "enum": ["completed", "interrupted", "failed", "inProgress"] }
+    }
+  }
+}

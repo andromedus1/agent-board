@@ -6,6 +6,8 @@ import { readBoardRows, waitForBoardRow } from "./support/board.js";
 
 test("packed golden journeys preserve board/title parity and independent session identity", async () => {
   const harness = await createPackageHarness({
+    // A future compatible version must survive the same upgrade gate as launch.
+    codex: { version: "codex-cli 0.999.0" },
     ghostty: {
       terminals: {
         "term-two": { windowId: "window-two", tabId: "tab-two", terminalId: "term-two", workingDirectory: "/tmp/second-project" },
@@ -14,6 +16,9 @@ test("packed golden journeys preserve board/title parity and independent session
   });
   let launcher;
   try {
+    const doctor = await harness.run("agent-board", ["doctor", "--json"]);
+    assert.equal(doctor.code, 0, doctor.stderr);
+    assert.match(doctor.stdout, /0\.999\.0 passed the managed observation capability probe/u);
     let result = await harness.run("agent-name", ["data-platform"], { stdinIsTTY: true });
     assert.equal(result.code, 0, result.stderr);
     await harness.writeScenario((scenario) => ({ ...scenario, renamePrompt: { response: "data-hub" } }));

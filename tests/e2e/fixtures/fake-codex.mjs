@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { createReadStream, readFileSync, watch } from "node:fs";
+import { createReadStream, mkdirSync, readFileSync, watch, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { WebSocketServer } from "ws";
 
 const scenarioPath = process.env.AGENT_BOARD_E2E_SCENARIO;
@@ -11,6 +12,22 @@ if (args[0] === "--version") {
   const scenario = load();
   process.stdout.write(`${scenario.codex?.version ?? "codex-cli 0.147.2"}\n`);
   process.exit(scenario.codex?.versionExitCode ?? 0);
+}
+
+if (args.includes("--help")) {
+  process.stdout.write(args[0] === "app-server" ? "--listen <URL>\n" : "--remote <ADDR>\n");
+  process.exit(0);
+}
+
+if (args[0] === "app-server" && args[1] === "generate-json-schema") {
+  const schemas = JSON.parse(readFileSync(new URL("../../fixtures/codex-capabilities.json", import.meta.url), "utf8"));
+  const root = args[args.indexOf("--out") + 1];
+  for (const [name, schema] of Object.entries(schemas)) {
+    const path = join(root, name);
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, JSON.stringify(schema));
+  }
+  process.exit(0);
 }
 
 if (args.includes("--remote")) {
