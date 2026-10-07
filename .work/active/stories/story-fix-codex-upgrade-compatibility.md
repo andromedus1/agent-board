@@ -1,7 +1,7 @@
 ---
 id: story-fix-codex-upgrade-compatibility
 kind: story
-stage: review
+stage: done
 tags: [bug, integration, cli]
 parent: null
 depends_on: []
@@ -96,3 +96,24 @@ changes are compatible. Runtime validators still report incompatible event shape
 No unrelated production bug appeared during verification. GitHub delivery targets
 `andromedus1/agent-board`, as explicitly requested by the user; authentication on the
 new Mac is being established before pushing the verified branch.
+
+## Review (2026-10-06)
+
+Verdict: approve. Effective weight: standard; one bounded inline standalone-story
+pass in the implementation context, with no independent or cross-model reviewer.
+Correctness, regression evidence, temporary-resource cleanup, shell-free bounded
+execution, compatibility behavior, and foundation assertions were checked against
+the final diff. No material code blockers remain. The separate documentation
+consistency audit returned zero Critical/High findings; its pre-existing Medium
+findings are outside this repair.
+
+The capability probe is a narrow preflight, not a universal schema-equivalence
+checker. Runtime validation remains necessary and tested. Compatible future
+versions no longer require a manual allowlist edit; real capability drift still
+fails closed. No persistent schema cache can outlive a Codex binary upgrade.
+
+GitHub authentication is now established as `andromedus1` through GitHub CLI using
+macOS keyring storage and HTTPS Git credentials. This repository defaults to its
+existing `andromedus1` remote, and local main tracks `andromedus1/main`. That remote
+main is an ancestor 320 commits behind the previously reviewed local main; delivery
+will use a pull request to synchronize current application history and this fix.
