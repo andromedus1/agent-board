@@ -1,7 +1,7 @@
 ---
 id: story-project-housekeeping
 kind: story
-stage: review
+stage: done
 parent: null
 depends_on: []
 tags: []
@@ -109,3 +109,25 @@ documentation audit, and bounded inline standalone-story review.
   latest installed Codex compatibility/schema probe on Node 26. All executable
   changes are covered by this run; remaining changes are audit/work records.
   PR #4 will require another green run at its final commit before merge.
+
+## Review (2026-10-06)
+
+**Verdict:** Approve. **Weight:** standard, bounded inline standalone-story
+review; no independent code reviewer. The separately delegated documentation
+audit is the documentation workflow's required consistency check.
+
+**Blockers:** none. **Important:** none. **Nits:** none. **Rejected:** none.
+
+Walked correctness, test value, design alignment, security, compatibility,
+foundation assertions, and naming/comments against the final diff. Work IDs,
+relationships, and full bodies remain recoverable; package dependencies are
+derived from the existing lockfile and offline installation remains enforced.
+The startup wait uses observable readiness and retains the original glyph
+assertion. Actions use pinned code and a read-only token; PRs receive no agent
+credentials. No application API, runtime behavior, secrets, or user state
+changed. Broader feature/epic integration lenses are inapplicable to this
+bounded maintenance item. All local and hosted verification is green.
+
+Delivery follows PR #4: final-commit CI, merge, main CI, local fast-forward, and
+removal of the merged housekeeping branch. Repository protection enforces the
+final-commit gate; GitHub retains the resulting delivery evidence.
