@@ -5,7 +5,7 @@ type: research-plan
 kind: planning
 status: locked
 nav_priority: high
-updated: 2026-08-20
+updated: 2026-10-06
 summary: |
   Scout and the focused Codex, Ghostty, and Codex-Claude engagements are complete. Managed remote TUI is accepted as the Codex V1 default, managed ordinary Claude with hooks is accepted as the Claude topology, and the mixed-provider terminal arc is implemented and verified. Follow-up research remains deliberately deferred until its entry conditions are met.
 decisions:
@@ -58,8 +58,9 @@ experience, normalized confidence contract, and possibly process topology.
 
 Result: both topologies are viable, but only managed app-server plus remote TUI
 provided authoritative active/idle transitions to a concurrent observer. Andrew
-accepted the managed recommendation as the V1 default; the implementation must
-version-gate the experimental interface.
+accepted the managed recommendation as the V1 default. The implementation guards
+the experimental interface with a minimum version, an explicit version exclusion,
+and automatic capability checks for newer untested releases.
 
 ### 2. Ghostty registration and liveness contract — `/research` complete
 
