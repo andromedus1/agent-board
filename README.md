@@ -21,7 +21,8 @@ in that tab.
 - macOS
 - Node.js 22 or later
 - Ghostty 1.3 or later
-- Codex 0.147.x, 0.148.x, 0.149.x, 0.150.x, 0.152.x, 0.153.x, or 0.154.x
+- Codex 0.147 or later with compatible app-server capabilities, excluding
+  0.151.x; newer untested releases are checked automatically before launch
 - Claude Code 2.1.226 or later (the 2.1.x family is tested; newer releases run
   with a warning as long as the packaged Agent Board plugin still validates)
 - npm
@@ -313,8 +314,10 @@ actions:
 - Grant macOS Automation permission.
 - Remove a fixed Ghostty `title` setting.
 - Add `no-title` to title bell features.
-- Install a supported Codex 0.147.x, 0.148.x, 0.149.x, 0.150.x, 0.152.x,
-  0.153.x, or 0.154.x release. `0.151.x` remains unsupported.
+- Install Codex 0.147 or later, excluding `0.151.x`. Newer untested releases
+  must pass the automatic remote-TUI and app-server capability check. If doctor
+  reports `CODEX_CAPABILITIES_UNSUPPORTED`, follow its specific failure message
+  and use a compatible Codex installation or update Agent Board.
 - Install a supported Claude Code 2.1.226 or later release; the 2.1.x family is
   tested, and newer releases run with a warning as long as the packaged
   plugin still validates.
@@ -360,14 +363,14 @@ npm test
 
 The suite builds and installs a packed artifact in temporary directories. It
 uses private executable substitutes and does not touch live Ghostty tabs, a
-live Codex install, or a live Claude Code install. The current suite contains
-231 tests; the three live compatibility and hardware probes below remain
-skipped until explicitly enabled.
+live Codex install, or a live Claude Code install. The three live compatibility
+and hardware probes below remain skipped until explicitly enabled.
 
-Three probes are opt-in. The Codex probe reads generated protocol schemas,
-including the `thread/loaded/list` ID response and the `thread/read` metadata
-response used during discovery. The Claude probe runs an installed `claude`
-binary directly to confirm its reported version and that `claude plugin
+Three probes are opt-in. The Codex probe runs the production compatibility
+check and reads generated protocol schemas, including the `thread/loaded/list`
+ID response and the `thread/read` metadata response used during discovery.
+The Claude probe runs an installed `claude` binary directly to confirm its
+reported version and that `claude plugin
 validate` accepts the packaged Agent Board hook plugin. The Ghostty probe
 creates and removes a disposable window.
 
