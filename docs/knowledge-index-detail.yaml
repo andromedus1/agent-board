@@ -1,6 +1,6 @@
 # Auto-generated. DO NOT EDIT BY HAND.
 # On-demand layer — load when surfacing a specific doc's full context.
-generated_at: '2026-10-07T01:31:26Z'
+generated_at: '2026-10-07T01:53:31Z'
 generated_from: frontmatter
 schema_version: 2
 documents:
@@ -33,9 +33,9 @@ documents:
       The domain stores orthogonal identity, activity, attention, health, adapter evidence, and terminal
       presence; visible statuses are derived centrally.
     - >-
-      Managed working projection uses an ephemeral, reconciliation-verified launcher process existence check
-      matched to the persisted launcher binding; the 60-second freshness threshold remains a fallback whenever
-      that proof is unavailable.
+      Managed Codex working projection bypasses the 60-second freshness threshold only with an ephemeral,
+      reconciliation-verified launcher process existence check matched to the persisted launcher binding;
+      Claude hook-based working evidence always ages through that threshold.
     - >-
       Ghostty 1.3+ AppleScript stable IDs and targeted tab-title overrides are the primary terminal contract.
     - >-
@@ -66,30 +66,34 @@ documents:
     - Future surfaces earn entry through observed demand.
     - Semantic actions require semantic capabilities.
   docs/SPEC.md:
-    summary: 'Agent Board registers one Codex or Claude session per Ghostty tab, stores provider-qualified
-      identity and observed state locally, projects five common attention symbols into machine-maintained
-      tab titles, and renders the same records through an `agents` command. The contract separates activity,
-      attention, health, capability, and evidence so simple labels remain truthful.
-
-      '
+    summary: >
+      Agent Board registers one Codex or Claude session per Ghostty tab, stores provider-qualified identity
+      and observed state locally, projects five common attention symbols into machine-maintained tab titles,
+      and renders the same records through an `agents` command. The contract separates activity, attention,
+      health, capability, and evidence so simple labels remain truthful.
     decisions:
     - One supervised agent per Ghostty tab is the first-release operating constraint.
     - Project labels are human-controlled presentation and never session identity.
-    - Stable Board and Ghostty identity survives managed relaunch; provider-native Codex thread or Claude
+    - >-
+      Stable Board and Ghostty identity survives managed relaunch; provider-native Codex thread or Claude
       session binding is scoped to one launcher lifetime.
-    - Five visible symbols are derived from orthogonal stored state rather than persisted as canonical
-      truth.
-    - Stale and ambiguous sessions never silently map to idle or error; process exit remains observation
+    - >-
+      Five visible symbols are derived from orthogonal stored state rather than persisted as canonical truth.
+    - >-
+      Stale and ambiguous sessions never silently map to idle or error; process exit remains observation
       evidence.
     - Registration captures validated stable Ghostty identity and renders the complete tab-title override.
-    - Managed Codex app-server plus remote TUI and managed ordinary Claude plus bundled hooks are the
-      supported provider topologies; ordinary unobserved mode remains diagnostic.
-    - Managed working evidence remains working only when reconciliation has positively verified that the
-      persisted launcher binding is alive; the existing freshness threshold is a conservative fallback
-      for unverified or unbound working evidence, and a missing launcher becomes stale diagnostic evidence
-      during reconciliation.
-    - The local store is versioned and atomically readable; a resident daemon is not a first-release requirement.
+    - >-
+      Managed Codex app-server plus remote TUI and managed ordinary Claude plus bundled hooks are the supported
+      provider topologies; ordinary unobserved mode remains diagnostic.
+    - >-
+      Managed Codex working evidence outlives the freshness window only when reconciliation has positively
+      verified that the persisted launcher binding is alive; Claude hook-based working evidence always ages,
+      and a missing launcher becomes stale diagnostic evidence during reconciliation for either provider.
+    - >-
+      The local store is versioned and atomically readable; a resident daemon is not a first-release requirement.
     - The first release is observation-only and exposes no semantic agent actions.
+
   docs/VISION.md:
     summary: 'Agent Board is a local attention router for one operator supervising several Codex and Claude
       terminal agents. Its current product slice makes trustworthy provider-qualified state visible through
@@ -132,28 +136,34 @@ documents:
       adapter, and future hardware observations remain useful historical input and preserved future options.
 
   docs/research-plan.md:
-    summary: 'Scout and the focused Codex, Ghostty, and Codex-Claude engagements are complete. Managed
-      remote TUI is accepted as the Codex V1 default, managed ordinary Claude with hooks is accepted as
-      the Claude topology, and the mixed-provider terminal arc is implemented and verified. Follow-up
-      research remains deliberately deferred until its entry conditions are met.
-
-      '
+    summary: >
+      Scout and the focused Codex, Ghostty, and Codex-Claude engagements are complete. Managed remote TUI
+      is accepted as the Codex V1 default, managed ordinary Claude with hooks is accepted as the Claude
+      topology, and the mixed-provider terminal arc is implemented and verified. Follow-up research remains
+      deliberately deferred until its entry conditions are met.
     decisions:
     - No deep-research or research-program campaign is warranted before the first proof.
-    - Codex detector topology is the first pre-architecture decision because it changes workflow friction
+    - >-
+      Codex detector topology is the first pre-architecture decision because it changes workflow friction
       and state fidelity.
-    - Ghostty scripting behavior requires an empirical integration check in addition to documentation
-      research.
-    - Store encoding and implementation language are well-understood reversible choices and need no external
+    - >-
+      Ghostty scripting behavior requires an empirical integration check in addition to documentation research.
+    - >-
+      Store encoding and implementation language are well-understood reversible choices and need no external
       research yet.
-    - Hardware, wireless, remote aggregation, and multi-agent research remain deferred until their entry
+    - >-
+      Hardware, wireless, remote aggregation, and multi-agent research remain deferred until their entry
       conditions are met.
-    - Ghostty 1.3+ AppleScript IDs and targeted tab-title overrides are validated for V1, with hierarchy-aware
+    - >-
+      Ghostty 1.3+ AppleScript IDs and targeted tab-title overrides are validated for V1, with hierarchy-aware
       liveness required for undo-close.
-    - Managed app-server plus remote TUI is the V1 default; ordinary Codex remains a degraded-confidence
-      fallback.
-    - Codex and Claude share outcome glyphs over asymmetric native evidence; Claude preserves its ordinary
+    - >-
+      Managed app-server plus remote TUI is the V1 default; ordinary Codex remains a registration-only diagnostic
+      state until managed observation attaches.
+    - >-
+      Codex and Claude share outcome glyphs over asymmetric native evidence; Claude preserves its ordinary
       interactive CLI and uses a bundled per-run observation plugin.
+
   .research/analysis/briefs/claude-code-adapter-feasibility.md:
     summary: '{inferred: feasibility from documented primitives and current repository boundaries} A hook-based
       Claude Code adapter is feasible and should be materially smaller than the Codex managed-app-server

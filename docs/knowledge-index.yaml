@@ -6,7 +6,7 @@
 #   2 = enforce (missing v2 fields are errors)
 # Set to 2 once the project's docs are fully backfilled to v2 frontmatter.
 schema_version: 2
-generated_at: '2026-10-07T01:31:26Z'
+generated_at: '2026-10-07T01:53:31Z'
 generated_from: frontmatter
 total_docs: 25
 
@@ -69,7 +69,7 @@ documents:
     title: Agent Board specification
     type: spec
     kind: planning
-    updated: 2026-08-20
+    updated: 2026-10-06
     status: draft
     nav_priority: high
     consumer_hint: >-
