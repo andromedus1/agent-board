@@ -1,7 +1,7 @@
 # Auto-generated. DO NOT EDIT BY HAND. Run /knowledge-index to regenerate.
 # Frontmatter is the source of truth.
 schema_version: 3
-generated_at: '2026-10-07T01:53:31Z'
+generated_at: '2026-10-07T01:58:43Z'
 generated_from: frontmatter
 total_docs: 25
 by_kind:
@@ -12,11 +12,11 @@ substrate_summary:
   active:
     epic: 0
     feature: 0
-    story: 1
+    story: 0
     release: 0
   backlog: 12
   releases: {}
-  archive: 116
+  archive: 117
 recent:
 - path: docs/research-plan.md
   title: Agent Board research plan
