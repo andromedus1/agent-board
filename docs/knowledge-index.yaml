@@ -6,28 +6,32 @@
 #   2 = enforce (missing v2 fields are errors)
 # Set to 2 once the project's docs are fully backfilled to v2 frontmatter.
 schema_version: 2
-generated_at: 2026-09-12T14:30:39Z
+generated_at: '2026-10-07T01:31:26Z'
 generated_from: frontmatter
 total_docs: 25
 
 documents:
-  # ── planning ──────────────────────────────────────────────────────────────
-
   - path: docs/ARCHITECTURE.md
-    title: "Architecture: Agent Board"
+    title: 'Architecture: Agent Board'
     type: architecture
     kind: planning
-    updated: 2026-09-12
+    updated: 2026-10-06
     status: locked
-    consumer_hint: Read this before implementing or changing Agent Board modules, process topology, state contracts, or external adapters.
+    nav_priority: high
+    consumer_hint: >-
+      Read this before implementing or changing Agent Board modules, process topology, state contracts,
+      or external adapters.
 
   - path: docs/configuration.md
     title: Companion terminal configuration
     type: design
     kind: planning
-    updated: 2026-09-12
+    updated: 2026-10-06
     status: locked
-    consumer_hint: Read this when configuring Ghostty tabs for Codex or Claude Code sessions and the Codex status line for the recommended Agent Board workflow.
+    nav_priority: high
+    consumer_hint: >-
+      Read this when configuring Ghostty tabs for Codex or Claude Code sessions and the Codex status line
+      for the recommended Agent Board workflow.
 
   - path: docs/VISION.md
     title: Agent Board vision
@@ -35,7 +39,9 @@ documents:
     kind: planning
     updated: 2026-08-20
     status: draft
-    consumer_hint: Read this to understand why Agent Board exists, who it serves first, and what product outcome matters.
+    nav_priority: high
+    consumer_hint: >-
+      Read this to understand why Agent Board exists, who it serves first, and what product outcome matters.
 
   - path: docs/PRINCIPLES.md
     title: Agent Board principles
@@ -43,15 +49,21 @@ documents:
     kind: planning
     updated: 2026-08-14
     status: draft
-    consumer_hint: Read this when a product or architecture tradeoff needs a decision heuristic rather than another feature request.
+    nav_priority: high
+    consumer_hint: >-
+      Read this when a product or architecture tradeoff needs a decision heuristic rather than another feature
+      request.
 
   - path: docs/research-plan.md
     title: Agent Board research plan
     type: research-plan
     kind: planning
-    updated: 2026-08-20
+    updated: 2026-10-06
     status: locked
-    consumer_hint: Read this for the completed pre-architecture research decisions and the entry conditions for deliberately deferred follow-up research.
+    nav_priority: high
+    consumer_hint: >-
+      Read this for the completed pre-architecture research decisions and the entry conditions for deliberately
+      deferred follow-up research.
 
   - path: docs/SPEC.md
     title: Agent Board specification
@@ -59,9 +71,10 @@ documents:
     kind: planning
     updated: 2026-08-20
     status: draft
-    consumer_hint: Read this to understand the first product contract, normalized domain model, behavior, constraints, and acceptance boundary.
-
-  # ── research ──────────────────────────────────────────────────────────────
+    nav_priority: high
+    consumer_hint: >-
+      Read this to understand the first product contract, normalized domain model, behavior, constraints,
+      and acceptance boundary.
 
   - path: .research/analysis/briefs/claude-code-adapter-feasibility.md
     title: Claude Code adapter feasibility
