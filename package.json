@@ -1,6 +1,7 @@
 {
   "name": "agent-board",
   "version": "0.1.0",
+  "license": "MIT",
   "description": "A local attention router for supervised coding agents",
   "type": "module",
   "engines": {

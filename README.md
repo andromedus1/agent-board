@@ -518,3 +518,7 @@ directory after all sessions have been removed or unregistered.
 Current product truth lives in [VISION](docs/VISION.md), [SPEC](docs/SPEC.md),
 [ARCHITECTURE](docs/ARCHITECTURE.md), and [PRINCIPLES](docs/PRINCIPLES.md).
 Grounded findings live under [`.research/`](.research/).
+
+## License
+
+Agent Board is licensed under the [MIT License](LICENSE).
