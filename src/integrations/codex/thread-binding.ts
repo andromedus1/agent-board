@@ -76,30 +76,25 @@ function fromStarted(notification: CodexNotification): LoadedThread | undefined 
   return notification.params.thread;
 }
 
-function remaining(deadline: number): number {
-  return Math.max(0, deadline - Date.now());
-}
-
-async function bounded<T>(promise: Promise<T>, deadline: number, signal: AbortSignal): Promise<T> {
-  const time = remaining(deadline);
-  if (time <= 0) throw failure("Timed out binding Codex root thread");
-  return new Promise<T>((resolvePromise, reject) => {
-    const timer = setTimeout(() => reject(failure("Timed out binding Codex root thread")), time);
-    const abort = () => reject(failure("Codex root-thread binding aborted"));
-    signal.addEventListener("abort", abort, { once: true });
-    promise.then(resolvePromise, reject).finally(() => {
-      clearTimeout(timer);
-      signal.removeEventListener("abort", abort);
-    }).catch(() => undefined);
-  });
-}
-
-async function nextBounded(
-  iterator: AsyncIterator<CodexNotification>,
-  deadline: number,
-  signal: AbortSignal,
-): Promise<IteratorResult<CodexNotification>> {
-  return bounded(iterator.next(), deadline, signal);
+async function bounded<T>(promise: Promise<T>, deadline: number | undefined, signal: AbortSignal): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let abort: (() => void) | undefined;
+  try {
+    return await new Promise<T>((resolvePromise, reject) => {
+      abort = () => reject(failure("Codex root-thread binding aborted"));
+      signal.addEventListener("abort", abort, { once: true });
+      if (signal.aborted) abort();
+      if (deadline !== undefined) {
+        const time = deadline - Date.now();
+        if (time <= 0) reject(failure("Timed out binding Codex root thread"));
+        else timer = setTimeout(() => reject(failure("Timed out binding Codex root thread")), time);
+      }
+      promise.then(resolvePromise, reject);
+    });
+  } finally {
+    clearTimeout(timer);
+    if (abort !== undefined) signal.removeEventListener("abort", abort);
+  }
 }
 
 export async function bindCodexThread(
@@ -110,7 +105,6 @@ export async function bindCodexThread(
   const expectedWorkingDirectory = options.expectedWorkingDirectory === undefined
     ? undefined
     : normalizedPath(options.expectedWorkingDirectory);
-  const deadline = Date.now() + options.timeoutMs;
   const controller = new AbortController();
   const abort = () => controller.abort();
   options.signal?.addEventListener("abort", abort, { once: true });
@@ -148,14 +142,20 @@ export async function bindCodexThread(
     if (options.signal?.aborted) throw failure("Codex root-thread binding aborted");
     // Subscription must be established before discovery: a root started during
     // thread/loaded/list remains queued on this exact iterator for the caller.
-    let loaded = await bounded(client.loadedThreads(controller.signal), deadline, controller.signal);
+    let loaded = await bounded(client.loadedThreads(controller.signal), Date.now() + options.timeoutMs, controller.signal);
+    // A healthy TUI may wait at a trust/login prompt before any thread exists.
+    // Bound discovery requests and matching after thread evidence, not the
+    // user's decision time. The launcher still owns process exits/cancellation.
+    let deadline = loaded.data.length > 0 ? Date.now() + options.timeoutMs : undefined;
     while (true) {
       const roots = candidates(loaded.data, expectedWorkingDirectory);
       if (roots.length > 1) throw failure(`Ambiguous Codex root-thread binding (${roots.length} viable candidates)`);
       if (roots.length === 1) return finish(roots[0]);
 
-      const event = await nextBounded(iterator, deadline, controller.signal);
+      const event = await bounded(iterator.next(), deadline, controller.signal);
       if (event.done) throw failure("Codex notification stream closed before root-thread binding");
+      // Every notification admitted by our protocol carries thread evidence.
+      deadline ??= Date.now() + options.timeoutMs;
       const started = fromStarted(event.value);
       if (started !== undefined) {
         if (viable(started, expectedWorkingDirectory)) {
@@ -168,7 +168,7 @@ export async function bindCodexThread(
       if (event.value.method === "thread/status/changed") {
         // A status event for an unknown thread may be the only evidence emitted
         // by a version that races thread/started. Refresh once per observation;
-        // the outer deadline is the bound against an event storm.
+        // the matching deadline is the bound against an event storm.
         const known = loaded.data.some((thread) => thread.id === event.value.params.threadId);
         if (!known) loaded = await bounded(client.loadedThreads(controller.signal), deadline, controller.signal);
       }

@@ -6,6 +6,13 @@ const MAX_SNAPSHOT_BYTES = 4 * 1024;
 // Mirrors Codex's exit cleanup: pop one keyboard-enhancement level, reset any
 // remaining levels, then disable xterm modifyOtherKeys reporting.
 const KEYBOARD_REPORTING_RESET = "\x1b[<u\x1b[<u\x1b[>4;0m";
+// A killed TUI cannot run its own teardown. Return from its alternate screen,
+// stop mouse/focus/paste reports, and show the shell cursor without resetting
+// unrelated terminal state. ESC 7 saves the current screen's cursor first:
+// 1049l always restores the primary saved cursor, even if already on primary.
+// This preserves normal exit output while retaining the pre-TUI primary cursor
+// when still on alternate (the two screens have separate save slots).
+const SCREEN_REPORTING_RESET = "\x1b[?1000;1002;1003;1004;1006;2004l\x1b7\x1b[?1049l\x1b[?25h";
 
 export interface TerminalModePort {
   capture(): string | undefined;
@@ -67,9 +74,9 @@ export class SttyTerminalMode implements TerminalModePort {
       });
     }
     try {
-      this.writeTerminal(KEYBOARD_REPORTING_RESET);
+      this.writeTerminal(KEYBOARD_REPORTING_RESET + SCREEN_REPORTING_RESET);
     } catch (error) {
-      throw new AgentBoardError("ADAPTER_FAILURE", "Unable to restore terminal keyboard reporting", {
+      throw new AgentBoardError("ADAPTER_FAILURE", "Unable to restore terminal screen and input reporting", {
         cause: error,
       });
     }

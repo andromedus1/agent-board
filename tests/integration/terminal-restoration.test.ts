@@ -33,73 +33,87 @@ function waitForMarker(child: ChildProcess, marker: string, output: { value: str
   });
 }
 
-test("forced managed shutdown restores the controlling PTY and keyboard cleanup", { skip: process.platform !== "darwin" ? "requires macOS controlling-PTY semantics" : false }, async () => {
-  const root = await mkdtemp(join(tmpdir(), "agent-board-pty-test-"));
-  const reportPath = join(root, "terminal-report.json");
-  const childPath = join(root, "pty-child.mjs");
-  const sourceUrl = new URL("../../src/cli/agent-codex.ts", import.meta.url).href;
-  const childSource = [
-    "import { execFileSync } from 'node:child_process';",
-    "import { writeFileSync } from 'node:fs';",
-    `import { runAgentCodexWithSignals } from ${JSON.stringify(sourceUrl)};`,
-    `const reportPath = ${JSON.stringify(reportPath)};`,
-    "const stty = () => execFileSync('/bin/stty', ['-g'], { encoding: 'utf8', stdio: [0, 'pipe', 'pipe'] }).trim();",
-    "const initial = stty();",
-    "execFileSync('/bin/stty', ['-echo', '-icanon'], { stdio: [0, 'ignore', 'pipe'] });",
-    "execFileSync('/bin/stty', [initial], { stdio: [0, 'ignore', 'pipe'] });",
-    "await new Promise((resolve) => setTimeout(resolve, 25));",
-    "const before = stty();",
-    "const result = await runAgentCodexWithSignals([], {",
-    "  launch: async (_args, signal) => {",
-    "    execFileSync('/bin/stty', ['-echo', '-icanon', 'min', '1', 'time', '0'], { stdio: [0, 'ignore', 'pipe'] });",
-    "    process.stdout.write('AGENT_BOARD_PTY_READY\\n');",
-    "    const keepAlive = setInterval(() => undefined, 1_000);",
-    "    setTimeout(() => process.kill(process.pid, 'SIGTERM'), 50);",
-    "    try { await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true })); } finally { clearInterval(keepAlive); }",
-    "    return { outcome: 'terminated', exitCode: 143 };",
-    "  },",
-    "  stdout: process.stdout,",
-    "  stderr: process.stderr,",
-    "}, process);",
-    "const after = stty();",
-    "writeFileSync(reportPath, JSON.stringify({ before, after, code: result }));",
-  ].join("\n");
-  await writeFile(childPath, childSource, "utf8");
-  const output = { value: "" };
-  let errorOutput = "";
-  const expectProgram = [
-    "log_user 1",
-    "set timeout 10",
-    "spawn -noecho /usr/bin/script -q /dev/null $env(AGENT_BOARD_NODE) --import tsx $env(AGENT_BOARD_CHILD)",
-    "expect eof",
-    "catch wait result",
-    "exit [lindex $result 3]",
-  ].join("\n");
-  const child = spawn("/usr/bin/expect", ["-c", expectProgram], {
-    cwd: process.cwd(),
-    env: { ...process.env, AGENT_BOARD_NODE: process.execPath, AGENT_BOARD_CHILD: childPath },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  child.stderr?.on("data", (chunk: Buffer) => { errorOutput += chunk.toString("utf8"); });
-  try {
-    await waitForMarker(child, "AGENT_BOARD_PTY_READY", output).catch((error: unknown) => {
-      throw new Error(`${error instanceof Error ? error.message : String(error)}; stderr: ${errorOutput}`);
+for (const provider of ["codex", "claude"]) {
+  test(`forced ${provider} shutdown restores input, screen, cursor, and reporting modes`, { skip: process.platform !== "darwin" ? "requires macOS controlling-PTY semantics" : false }, async () => {
+    const root = await mkdtemp(join(tmpdir(), "agent-board-pty-test-"));
+    const reportPath = join(root, "terminal-report.json");
+    const childPath = join(root, "pty-child.mjs");
+    const sourceUrl = new URL(`../../src/cli/agent-${provider}.ts`, import.meta.url).href;
+    const runner = provider === "codex" ? "runAgentCodexWithSignals" : "runAgentClaudeWithSignals";
+    const childSource = [
+      "import { execFileSync } from 'node:child_process';",
+      "import { writeFileSync } from 'node:fs';",
+      `import { ${runner} as runWithSignals } from ${JSON.stringify(sourceUrl)};`,
+      `const reportPath = ${JSON.stringify(reportPath)};`,
+      "const stty = () => execFileSync('/bin/stty', ['-g'], { encoding: 'utf8', stdio: [0, 'pipe', 'pipe'] }).trim();",
+      "const initial = stty();",
+      "execFileSync('/bin/stty', ['-echo', '-icanon'], { stdio: [0, 'ignore', 'pipe'] });",
+      "execFileSync('/bin/stty', [initial], { stdio: [0, 'ignore', 'pipe'] });",
+      "await new Promise((resolve) => setTimeout(resolve, 25));",
+      "const before = stty();",
+      "const result = await runWithSignals([], {",
+      "  launch: async (_args, signal) => {",
+      "    execFileSync('/bin/stty', ['-echo', '-icanon', 'min', '1', 'time', '0'], { stdio: [0, 'ignore', 'pipe'] });",
+      // Modes observed in the real Codex remote TUI after forced shutdown.
+      "    process.stdout.write('\\x1b[?1049h\\x1b[?25l\\x1b[?1000;1002;1003;1004;1006;2004h');",
+      "    process.stdout.write('AGENT_BOARD_PTY_READY\\n');",
+      "    const keepAlive = setInterval(() => undefined, 1_000);",
+      "    setTimeout(() => process.kill(process.pid, 'SIGTERM'), 50);",
+      "    try { await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true })); } finally { clearInterval(keepAlive); }",
+      "    return { outcome: 'terminated', exitCode: 143 };",
+      "  },",
+      "  stdout: process.stdout,",
+      "  stderr: process.stderr,",
+      "}, process);",
+      "const after = stty();",
+      "writeFileSync(reportPath, JSON.stringify({ before, after, code: result }));",
+    ].join("\n");
+    await writeFile(childPath, childSource, "utf8");
+    const output = { value: "" };
+    let errorOutput = "";
+    const expectProgram = [
+      "log_user 1",
+      "set timeout 10",
+      "spawn -noecho /usr/bin/script -q /dev/null $env(AGENT_BOARD_NODE) --import tsx $env(AGENT_BOARD_CHILD)",
+      "expect eof",
+      "catch wait result",
+      "exit [lindex $result 3]",
+    ].join("\n");
+    const child = spawn("/usr/bin/expect", ["-c", expectProgram], {
+      cwd: process.cwd(),
+      env: { ...process.env, AGENT_BOARD_NODE: process.execPath, AGENT_BOARD_CHILD: childPath },
+      stdio: ["ignore", "pipe", "pipe"],
     });
-    const [code, signal] = await new Promise<[number | null, NodeJS.Signals | null]>((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("PTY child did not exit after forced shutdown")), 5_000);
-      child.once("close", (exitCode, exitSignal) => {
-        clearTimeout(timer);
-        resolve([exitCode, exitSignal]);
+    child.stderr?.on("data", (chunk: Buffer) => { errorOutput += chunk.toString("utf8"); });
+    try {
+      await waitForMarker(child, "AGENT_BOARD_PTY_READY", output).catch((error: unknown) => {
+        throw new Error(`${error instanceof Error ? error.message : String(error)}; stderr: ${errorOutput}`);
       });
-    });
-    assert.equal(signal, null);
-    assert.equal(code, 0, errorOutput);
-    const report = JSON.parse(await readFile(reportPath, "utf8")) as TerminalReport;
-    assert.equal(report.code, 143);
-    assert.equal(report.after, report.before, "forced shutdown must restore the exact captured termios mode");
-    assert.ok(output.value.includes("\u001b[<u\u001b[<u\u001b[>4;0m"), "cleanup must reset CSI-u and modifyOtherKeys reporting");
-  } finally {
-    if (child.exitCode === null && child.signalCode === null) child.kill("SIGKILL");
-    await rm(root, { recursive: true, force: true });
-  }
-});
+      const [code, signal] = await new Promise<[number | null, NodeJS.Signals | null]>((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error("PTY child did not exit after forced shutdown")), 5_000);
+        child.once("close", (exitCode, exitSignal) => {
+          clearTimeout(timer);
+          resolve([exitCode, exitSignal]);
+        });
+      });
+      assert.equal(signal, null);
+      assert.equal(code, 0, errorOutput);
+      const report = JSON.parse(await readFile(reportPath, "utf8")) as TerminalReport;
+      assert.equal(report.code, 143);
+      assert.equal(report.after, report.before, "forced shutdown must restore the exact captured termios mode");
+      const modes = new Map<number, boolean>();
+      for (const match of output.value.matchAll(/\x1b\[\?([0-9;]+)([hl])/gu)) {
+        for (const mode of match[1]!.split(";")) modes.set(Number(mode), match[2] === "h");
+      }
+      for (const mode of [1049, 1000, 1002, 1003, 1004, 1006, 2004]) {
+        assert.equal(modes.get(mode), false, `terminal mode ${mode} must be disabled after forced shutdown`);
+      }
+      assert.equal(modes.get(25), true, "cursor must be visible after forced shutdown");
+      assert.ok(output.value.includes("\u001b[<u\u001b[<u\u001b[>4;0m"), "cleanup must reset CSI-u and modifyOtherKeys reporting");
+    } finally {
+      if (child.exitCode === null && child.signalCode === null) child.kill("SIGKILL");
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+}
