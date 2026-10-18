@@ -70,3 +70,32 @@ test("stty terminal mode reports emulator cleanup write failure after restoring 
   assert.throws(() => mode.restore("saved-mode"), /Unable to restore terminal screen and input reporting/u);
   assert.deepEqual(calls, [["saved-mode"]]);
 });
+
+test("screen cleanup preserves the shell cursor whether the TUI already left the alternate screen or not", () => {
+  let output = "";
+  const mode = new SttyTerminalMode({
+    spawn: (() => ({ status: 0 })) as unknown as typeof spawnSync,
+    write: (value) => { output += value; },
+  });
+  mode.restore("saved-mode");
+
+  for (const initiallyAlternate of [false, true]) {
+    // Ghostty's ESC 7 saves per screen, whereas 1049l always restores the
+    // primary saved cursor, including when already on the primary screen.
+    // A stale saved cursor must not rewind normal shell/exit output.
+    const screens = {
+      primary: { cursor: 12, saved: initiallyAlternate ? 12 : 3 },
+      alternate: { cursor: 28, saved: 0 },
+    };
+    let active: "primary" | "alternate" = initiallyAlternate ? "alternate" : "primary";
+    for (const match of output.matchAll(/\x1b(?:7|\[\?1049l)/gu)) {
+      if (match[0] === "\x1b7") screens[active].saved = screens[active].cursor;
+      else {
+        active = "primary";
+        screens.primary.cursor = screens.primary.saved;
+      }
+    }
+    assert.equal(active, "primary");
+    assert.equal(screens.primary.cursor, 12, `shell cursor must stay put (alternate=${initiallyAlternate})`);
+  }
+});
