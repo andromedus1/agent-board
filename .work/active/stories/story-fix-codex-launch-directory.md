@@ -126,3 +126,22 @@ Verification:
 Adjacent issues remain unbound: `idea-managed-terminal-screen-cleanup` and
 `idea-codex-startup-prompt-timeout`. The new startup-prompt issue involves
 interactive readiness and is outside this directory-correlation repair.
+
+## Review (2026-10-18)
+
+**Verdict:** Approve; completion awaits PR CI.
+
+**Blockers:** none. **Important:** the separately tracked startup-prompt
+timeout and terminal-emulator cleanup. **Nits:** none.
+
+One bounded inline standalone-story pass examined correctness, regression
+evidence, process ownership, CLI forwarding, path resolution, schema impact,
+and foundation alignment. The fix replaces the incorrect source of directory
+evidence without relaxing binding guards or changing durable identity. Both
+children use the same captured base directory, forwarded arguments remain
+unchanged, and no shell interpolation or new dependencies are introduced.
+The shared Board schema and on-disk records need no migration. Existing
+foundation assertions remain accurate; README owns the new usage guidance.
+No independent/fresh-context/cross-model review ran. The live checks exercised
+real Codex in a disposable PTY with simulated Ghostty, so they do not claim a
+full visual Ghostty acceptance pass.
