@@ -1,7 +1,7 @@
 ---
 id: story-license-and-backlog-refresh
 kind: story
-stage: review
+stage: done
 tags: [prose]
 parent: null
 depends_on: []
@@ -84,11 +84,13 @@ standalone-story review; no independent or cross-model reviewer.
   to main after removing the new root license field.
 - All 19 local README links/anchors resolve; git diff --check passes.
 - Knowledge/substrate lint: zero errors, five unchanged research metadata warnings.
-- Required Node 22/26 PR CI remains pending before completion and merge.
+- Required CI run 39169059174 passed on Node 22 and 26 at dffb702: each suite
+  passed 247 tests with zero failures and three opt-in skips. The Node 26 job
+  also passed the latest installed-Codex compatibility/schema probe (1/1).
 
 ## Review (2026-10-18)
 
-**Verdict:** Approve, pending required CI. **Weight:** standard project default;
+**Verdict:** Approve. **Weight:** standard project default;
 one bounded inline standalone-story pass, no independent/cross-model reviewer.
 
 **Blockers:** none. **Important:** none. **Nits:** none. **Rejected:** none.
@@ -98,7 +100,9 @@ package/lockfile agreement, packed-artifact inclusion, documentation links, and
 the narrow confirmed backlog scope against the final diff. Both backlog items
 retain their remaining intent. Application/runtime behavior is unchanged, so
 runtime design/security lenses do not apply beyond the existing required CI.
-Completion is held at review until that CI passes; no second review is needed.
+Required CI passed after the documented stale-assertion correction. Acceptance
+criteria are satisfied; no second review is needed. PR #7 retains final-commit
+CI and merge evidence; normal merge preserves this full-body archival ref.
 
 ### CI test-debt correction
 
