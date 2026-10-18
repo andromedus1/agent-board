@@ -1,7 +1,7 @@
 ---
 id: story-license-and-backlog-refresh
 kind: story
-stage: implementing
+stage: review
 tags: [prose]
 parent: null
 depends_on: []
@@ -62,3 +62,25 @@ intent. Keep one canonical license file and link to it from README.
 
 One inline owner in prose mode. Standard project review weight, bounded inline
 standalone-story review; no independent or cross-model reviewer.
+
+## Implementation notes
+
+- Added LICENSE from GitHub's standard MIT template, with Andrew Clark / 2026.
+- Declared MIT in package.json and the lockfile root, and linked LICENSE in README.
+- Updated only the confirmed clauses and dates in both backlog entries; both
+  remain deferred, with their unfinished scope preserved.
+- Simplification: removed obsolete Claude/rename future work and Doctor wording.
+- No tests added: this changes prose and metadata only. No application changes,
+  dependency changes, design discrepancies, or adjacent issues were introduced.
+
+## Verification
+
+- LICENSE exactly matches the GitHub licenses/mit API template after substituting
+  only the selected copyright holder and year.
+- Built an actual npm tarball in a disposable directory; its LICENSE matches
+  byte-for-byte and its package.json declares MIT. Temporary artifact removed.
+- Root package license values match, and parsed lockfile content is identical
+  to main after removing the new root license field.
+- All 19 local README links/anchors resolve; git diff --check passes.
+- Knowledge/substrate lint: zero errors, five unchanged research metadata warnings.
+- Required Node 22/26 PR CI remains pending before completion and merge.
