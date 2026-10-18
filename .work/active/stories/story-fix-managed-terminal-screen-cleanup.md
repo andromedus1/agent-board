@@ -50,3 +50,24 @@ Extend shared terminal cleanup with targeted resets for modes observed in the re
 - README recovery instructions now describe the cleanup and retain manual reset
   guidance for cases where the launcher cannot complete restoration.
 - Adjacent issues: none newly parked. Required CI pending.
+
+## Review (2026-10-18)
+
+**Verdict**: Approve implementation after verified correction; required CI pending.
+**Blockers**: Initial unconditional `1049l` could restore a stale saved cursor
+when the TUI had already returned to the primary screen. Fixed by saving the
+current screen’s cursor with `ESC 7` before leaving alternate. Ghostty maintains
+separate save slots for primary and alternate screens, so this preserves normal
+exit output and still restores the pre-TUI primary cursor after forced shutdown.
+See [Ghostty cursor and screen-switch implementation](https://github.com/ghostty-org/ghostty/blob/main/src/terminal/Terminal.zig).
+**Important / Nits / Rejected**: None.
+
+Bounded inline standalone-story review, one host pass plus correction
+verification; no independent/cross-model reviewer or repeat review. The new
+protocol-state regression failed before the correction (primary cursor moved
+from 12 to stale saved position 3); both primary and alternate cases now pass.
+Controlling-PTY tests pass for both launchers; typecheck passes. Reviewed normal
+exit, launch failure, forced shutdown, non-TTY skip and reporting-write failure.
+No full reset or new input query, dependency, schema, or public argument.
+README is current; no contradictory foundation assertion found. Required CI
+will verify the complete final patch before closure.

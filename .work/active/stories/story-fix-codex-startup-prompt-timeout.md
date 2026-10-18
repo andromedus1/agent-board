@@ -51,3 +51,18 @@ Keep initial discovery bounded. Wait abortably without a wall-clock deadline whi
   owned children. No prompt was approved and no model task was sent.
 - README now describes startup waiting and retained failure bounds.
 - Adjacent issues: none newly parked. Required CI pending.
+
+## Review (2026-10-18)
+
+**Verdict**: Approve implementation; required CI pending.
+**Blockers**: None in the implementation.
+**Important / Nits / Rejected**: None.
+
+Bounded inline standalone-story review, one host pass; no independent or
+cross-model reviewer. Inspected deadline ownership, subscription/discovery race,
+abort and timeout cleanup, stream closure, process lifecycle, fresh startup
+projection and preserved binding guards. Empty startup waits carry no claim of
+native agent state. Requests and matching after thread evidence remain bounded;
+no permission response is synthesized. No CLI/schema migration or foundation
+assertion drift. Red/green regressions and the real unanswered trust-prompt
+probe support the behavior. Completion remains at review until Node 22/26 CI.
