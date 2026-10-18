@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { launchManagedCodex, type ManagedClient, type ManagedLaunchDependencies } from "../../src/application/launch-managed-codex.js";
+import { projectSession } from "../../src/domain/projection.js";
 import { AgentBoardError } from "../../src/domain/errors.js";
 import type { SessionStore } from "../../src/domain/ports.js";
 import type { SessionRecord } from "../../src/domain/session.js";
@@ -330,3 +331,77 @@ test("failure to persist the final outcome is raised as a bounded adapter error"
       /state directory unavailable/.test(error.message),
   );
 });
+
+
+test("startup stays diagnostic beyond the binding budget, then observes the eventual root", async () => {
+  const never = deferred<ProcessExit>();
+  const fixture = dependencies(never.promise, never.promise, { exitCode: null, signal: "SIGTERM" });
+  await fixture.dependencies.store.mutate("session-1", (current) => ({
+    ...current,
+    agent: { ...current.agent, mode: "managed", nativeThreadId: "old-root", activity: "working", confidence: "authoritative" },
+  }));
+  const waiting = deferred<void>();
+  const bound = deferred<void>();
+  const mutate = fixture.dependencies.store.mutate;
+  fixture.dependencies.store.mutate = async (id, mutation) => {
+    const updated = await mutate(id, mutation);
+    if (updated.agent.nativeThreadId === "root" && updated.agent.activity === "idle") bound.resolve();
+    return updated;
+  };
+  let deliver!: (event: IteratorResult<CodexNotification>) => void;
+  const connected = client(fixture.events);
+  connected.loadedThreads = async () => ({ data: [] });
+  connected.notifications = (signal) => ({
+    [Symbol.asyncIterator]() {
+      return {
+        next: () => new Promise((resolve) => {
+          deliver = resolve;
+          if (signal?.aborted) resolve({ done: true, value: undefined });
+          else signal?.addEventListener("abort", () => resolve({ done: true, value: undefined }), { once: true });
+          waiting.resolve();
+        }),
+      };
+    },
+  });
+  fixture.dependencies = { ...fixture.dependencies, connectClient: async () => connected, bindTimeoutMs: 20 };
+  const controller = new AbortController();
+  const launched = launchManagedCodex(fixture.dependencies, [], controller.signal);
+  try {
+    await waiting.promise;
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    assert.deepEqual(fixture.stopped, [], "startup must not kill the TUI while the user decides");
+    assert.equal(fixture.current().agent.nativeThreadId, undefined);
+    const projection = projectSession(fixture.current(), { now: new Date(at), workingFreshForMs: 60_000, verifiedLauncherPid: process.pid });
+    assert.equal(projection.glyph, "?", "a previous runtime's working state is not evidence about startup");
+    assert.match(projection.diagnostics.join("; "), /Waiting for Codex/);
+    deliver({ done: false, value: { method: "thread/started", params: { thread: { id: "root", cwd: "/repo", parentThreadId: null, status: { type: "idle" } } } } });
+    await Promise.race([bound.promise, launched]);
+    assert.equal(fixture.current().agent.nativeThreadId, "root");
+    assert.equal(fixture.current().agent.confidence, "authoritative");
+    assert.equal(fixture.current().agent.detail, undefined);
+  } finally {
+    controller.abort();
+    await launched;
+  }
+});
+
+for (const ending of ["tui", "server", "abort"] as const) {
+  test(`startup waiting ends promptly on ${ending}`, async () => {
+    const serverExit = deferred<ProcessExit>();
+    const tuiExit = deferred<ProcessExit>();
+    const fixture = dependencies(serverExit.promise, tuiExit.promise, { exitCode: null, signal: "SIGTERM" });
+    const connected = client(fixture.events);
+    connected.loadedThreads = async () => ({ data: [] });
+    fixture.dependencies = { ...fixture.dependencies, connectClient: async () => connected };
+    const controller = new AbortController();
+    const launched = launchManagedCodex(fixture.dependencies, [], controller.signal);
+    await new Promise((resolve) => setImmediate(resolve));
+    if (ending === "tui") tuiExit.resolve({ exitCode: 0, signal: null });
+    else if (ending === "server") serverExit.resolve({ exitCode: 1, signal: null });
+    else controller.abort();
+    const result = await launched;
+    assert.equal(result.outcome, ending === "tui" ? "clean" : ending === "server" ? "failed" : "terminated");
+    assert.deepEqual(fixture.stopped, ending === "tui" ? [10] : [11, 10]);
+    assert.equal(fixture.current().agent.launcherPid, undefined);
+  });
+}

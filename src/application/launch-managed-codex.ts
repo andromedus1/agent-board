@@ -125,9 +125,20 @@ export async function launchManagedCodex(
       const { nativeThreadId: _previousThread, ...agent } = current.agent;
       return {
         ...current,
-        agent: { ...agent, mode: "managed", launcherPid: process.pid },
+        agent: {
+          ...agent,
+          mode: "managed",
+          launcherPid: process.pid,
+          activity: "unknown",
+          health: "live",
+          observedAt: timestamp(dependencies.clock),
+          evidenceKind: "codex.launcher.starting",
+          confidence: "inferred",
+          detail: "Waiting for Codex to start a root thread",
+        },
       };
     });
+    await bestEffortReconcile(dependencies, sessionId);
     client = await dependencies.connectClient(appServer.endpoint);
     await client.initialize({ name: "agent-board", version: "0.1.0" });
 

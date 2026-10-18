@@ -86,8 +86,72 @@ test("cwd presence without an expected match is never authoritative", async () =
   assert.equal(missingParent.confidence, "corroborated");
 });
 
-test("timeout releases the notification iterator", async () => {
+test("unmatched thread activity still times out and releases the notification iterator", async () => {
   const queue = new Queue();
-  await assert.rejects(bindCodexThread(client(queue, loaded([])), { timeoutMs: 10 }), (error: unknown) => error instanceof AgentBoardError && error.code === "ADAPTER_FAILURE");
+  await assert.rejects(bindCodexThread(client(queue, loaded([{ id: "child", parentThreadId: "parent", status: idle }])), { timeoutMs: 10 }), (error: unknown) => error instanceof AgentBoardError && error.code === "ADAPTER_FAILURE");
   assert.equal(queue.returned, true);
+});
+
+
+test("startup may wait beyond the binding budget before a root thread exists", async () => {
+  const queue = new Queue();
+  const controller = new AbortController();
+  const binding = bindCodexThread(client(queue, loaded([])), {
+    timeoutMs: 20, expectedWorkingDirectory: "/repo", signal: controller.signal,
+  });
+  // Handle an early rejection so the old implementation fails as an assertion.
+  const outcome = binding.then((value) => ({ value }), (error: unknown) => ({ error }));
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    assert.equal(queue.returned, false, "waiting for a startup prompt must not close observation");
+    queue.push({ method: "thread/started", params: { thread: { id: "root", cwd: "/repo", parentThreadId: null, status: idle } } });
+    const result = await outcome;
+    assert.ok("value" in result, "root must bind after the user finishes startup");
+    assert.equal(result.value.threadId, "root");
+    await result.value.notifications.return?.();
+  } finally {
+    controller.abort();
+    await outcome;
+  }
+});
+
+test("startup discovery still bounds an unresponsive app-server request", async () => {
+  const queue = new Queue();
+  await assert.rejects(bindCodexThread({
+    notifications: () => queue,
+    loadedThreads: () => new Promise(() => undefined),
+  }, { timeoutMs: 10 }), /Timed out binding Codex root thread/);
+  assert.equal(queue.returned, true);
+});
+
+test("waiting for the first thread remains abortable", async () => {
+  const queue = new Queue();
+  const controller = new AbortController();
+  const binding = bindCodexThread(client(queue, loaded([])), { timeoutMs: 100, signal: controller.signal });
+  const rejection = assert.rejects(binding, /binding aborted/);
+  await new Promise((resolve) => setImmediate(resolve));
+  controller.abort();
+  await rejection;
+  assert.equal(queue.returned, true);
+});
+
+
+test("thread evidence starts a matching deadline after interactive startup", async () => {
+  const queue = new Queue();
+  const binding = bindCodexThread(client(queue, loaded([])), { timeoutMs: 20, expectedWorkingDirectory: "/repo" });
+  const rejection = assert.rejects(binding, /Timed out binding Codex root thread/);
+  await new Promise((resolve) => setTimeout(resolve, 60));
+  assert.equal(queue.returned, false);
+  queue.push({ method: "thread/started", params: { thread: { id: "foreign", cwd: "/other", parentThreadId: null, status: idle } } });
+  await rejection;
+  assert.equal(queue.returned, true);
+});
+
+test("notification stream closure fails startup without waiting for a thread", async () => {
+  const queue = new Queue();
+  const binding = bindCodexThread(client(queue, loaded([])), { timeoutMs: 100 });
+  const rejection = assert.rejects(binding, /notification stream closed before root-thread binding/);
+  await new Promise((resolve) => setImmediate(resolve));
+  await queue.return();
+  await rejection;
 });
