@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
+import { mkdtemp, mkdir, realpath, rm, symlink } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
 
 import type { ProcessRequest, ProcessResult, ProcessRunner } from "../../../src/integrations/process-runner.js";
@@ -14,6 +17,23 @@ class FakeChild extends EventEmitter {
 class FakeRunner implements ProcessRunner {
   async run(_request: ProcessRequest): Promise<ProcessResult> { return { stdout: "codex-cli 0.147.0\n", stderr: "", exitCode: 0 }; }
 }
+
+test("process host resolves launch cwd and standard directory overrides to physical paths", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-board-codex-cwd-"));
+  try {
+    await mkdir(join(root, "project"));
+    await symlink(join(root, "project"), join(root, "alias"), "dir");
+    const host = new CodexProcessHost({ workingDirectory: root });
+    assert.equal(await host.workingDirectory([]), await realpath(root));
+    const expected = await realpath(join(root, "project"));
+    for (const args of [["-C", "alias"], ["--cd", "alias"], ["--cd=alias"], ["-Calias"], ["-C=alias"], ["-C", join(root, "project")]]) {
+      assert.equal(await host.workingDirectory(args), expected, JSON.stringify(args));
+    }
+    await assert.rejects(host.workingDirectory(["--cd"]), /directory/u);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
 
 test("process host uses split stream readiness and exact remote argv", async () => {
   const children: FakeChild[] = [];
@@ -37,12 +57,14 @@ test("process host uses split stream readiness and exact remote argv", async () 
   ]);
   assert.deepEqual(requests[1]?.args, ["--full-auto", "--remote", "ws://127.0.0.1:45/", "-c", "tui.terminal_title=[]"]);
   assert.deepEqual(requests[1]?.options, {
+    cwd: process.cwd(),
     shell: false,
     detached: false,
     stdio: "inherit",
     env: { ...process.env, AGENT_BOARD_SESSION_ID: "session-1" },
   });
   assert.deepEqual(requests[0]?.options, {
+    cwd: process.cwd(),
     shell: false,
     detached: true,
     stdio: ["ignore", "pipe", "pipe"],

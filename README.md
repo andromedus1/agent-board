@@ -9,12 +9,18 @@ renders the same state through `agents`, regardless of which agent is running
 in that tab.
 
 ```text
-● data-platform        working
-! acquisition          needs input
-✓ agent-board          finished
-○ legacy-engine        idle
-× reporting            error
+AGENT BOARD
+
+! acquisition          needs input (claude)
+✓ agent-board          finished (codex)
+● data-platform        working (codex)
+○ legacy-engine        idle (claude)
+× reporting            error (codex)
 ```
+
+Quick links: [Install](#install-from-a-checkout) · [Start a session](#start-the-first-managed-session) ·
+[Commands](#command-reference) · [State and recovery](#state-and-recovery) ·
+[Current limits](#current-limits) · [Tests](#test-the-checkout) · [Uninstall](#uninstall).
 
 ## Requirements
 
@@ -132,7 +138,8 @@ codex --version
 agent-board doctor
 ```
 
-Then start `agent-codex` in a fresh Ghostty tab. Newer untested Codex releases
+Then start `agent-codex` in a new tab or reuse the registered tab after its
+previous managed session has exited. Newer untested Codex releases
 must pass an automatic capability check before launch. If doctor reports
 `CODEX_CAPABILITIES_UNSUPPORTED`, follow its failure message; changes to the
 required protocol may need an Agent Board update or a compatible Codex release.
@@ -167,6 +174,12 @@ TUI. It forwards supported extra Codex arguments unchanged; Agent Board reserves
 the remote transport and terminal-title override, so arguments that set
 `--remote` or `tui.terminal_title` are rejected.
 
+Each `agent-codex` run uses your current working directory, or the directory
+selected with Codex's `-C` / `--cd` option. You can launch from a repository
+subdirectory or change directories before relaunching in the same tab; the
+Board session and project label stay the same. A new directory can still trigger
+Codex's startup trust prompt; see the [startup timeout limitation](#current-limits).
+
 `agent-claude` launches an ordinary, interactive Claude Code session — the same
 TUI you get from running `claude` directly — with a per-run, observation-only
 Agent Board plugin loaded alongside it. The plugin only reports Claude's own
@@ -199,6 +212,23 @@ current tab with a label derived from its repository or working directory.
 
 Start another project in another Ghostty tab. Repeat the same commands there.
 
+## Command reference
+
+| Command | Purpose |
+| --- | --- |
+| `agent-name <label>` | Register the current tab or rename its session; quote labels containing spaces. |
+| `agent-name` | Open a native rename dialog for the focused registered tab. |
+| `agent-codex [Codex arguments]` | Start managed Codex in the current tab. |
+| `agent-claude [Claude arguments]` | Start managed interactive Claude Code in the current tab. |
+| `agents [--json]` | Reconcile registered sessions and print one board snapshot. |
+| `agent-board ack [session-id]` | Clear unread completion for the focused tab or an exact session ID. |
+| `agent-board unregister [session-id]` | Release the title and remove the selected registration. |
+| `agent-board doctor [--json]` | Check local prerequisites and provider compatibility. |
+
+`ack` and `unregister` use Ghostty focus when no ID is supplied, even when run
+from inside an agent. Use the full ID from `agents --json` for an explicit target;
+labels and abbreviated IDs are not accepted as session selectors.
+
 ## Use the board
 
 Run the human-readable board from any terminal:
@@ -217,6 +247,11 @@ Use JSON when a script needs session IDs or diagnostic details:
 ```bash
 agents --json
 ```
+
+JSON output contains a `schemaVersion` and `sessions` array with each session's
+ID, provider, state, confidence, observation time, adapter capabilities, and
+diagnostics. Duplicate labels receive a short ID prefix in the board display;
+the saved labels and tab titles remain unchanged.
 
 The five normal symbols apply only to managed sessions with live observation:
 
@@ -241,10 +276,15 @@ launcher is still positively alive. Claude Code's working evidence is
 corroborated rather than launcher-verified — a submitted prompt is observed,
 but interruption is not natively observable — so a managed Claude session ages
 from `● working` to a `?` diagnostic if no new hook evidence arrives within the
-freshness window, instead of guessing that it is still running. Each `agents`
+60-second freshness window, instead of guessing that it is still running. Each `agents`
 read reconciles the registered launcher before rendering the board; if that
 launcher has vanished or cannot be probed, the session degrades to a `?`
 diagnostic until new managed evidence is available.
+
+Claude completion hooks distinguish a stopped response with active background
+tasks (still working) from completion with scheduled session work pending
+(finished, with a diagnostic). The board reports this evidence without running
+or controlling those tasks.
 
 When you close a managed tab with `⌘W`, there is no normal cleanup command to
 run. The next `agents` refresh takes one validated Ghostty snapshot and removes
@@ -311,6 +351,9 @@ registered tab. From another application, pass the exact ID from `agents --json`
 agent-board ack 7b470263-224b-4f1f-a59b-e9537d23d152
 ```
 
+Acknowledgement clears only unread completion. It never answers a permission
+request or clears a `!` input-required state; respond inside the agent itself.
+
 Use unregister only when you deliberately want to release an open or hidden tab,
 when troubleshooting, or before uninstalling Agent Board:
 
@@ -319,7 +362,8 @@ agent-board unregister
 ```
 
 You may also pass an exact session ID. Unregister clears Agent Board's title
-override before it removes the session record.
+override before it removes the session record. Exit the managed agent first;
+unregister does not stop its processes.
 
 ## State and recovery
 
@@ -331,6 +375,20 @@ Agent Board stores local state under:
 
 Set `AGENT_BOARD_STATE_DIR` to choose a different base directory. Agent Board
 adds its `v1` directory below that base.
+
+Use the same state directory for all five commands to share a board. Agent
+Board has no separate configuration file. Optional executable overrides are:
+
+| Environment variable | Default / use |
+| --- | --- |
+| `AGENT_BOARD_CODEX_COMMAND` | `codex`; managed launch and doctor |
+| `AGENT_BOARD_CLAUDE_COMMAND` | `claude`; managed launch and doctor |
+| `AGENT_BOARD_GHOSTTY_COMMAND` | `ghostty`; doctor version check |
+| `AGENT_BOARD_OSASCRIPT_COMMAND` | `/usr/bin/osascript`; Ghostty control and rename dialog |
+
+Overrides must be absolute executable paths, without arguments or shell
+fragments. `AGENT_BOARD_SESSION_ID` is supplied automatically to managed
+processes for targeting; do not set it globally in your shell profile.
 
 The state store uses ordinary JSON files, atomic replacement, and bounded file
 locks. It stores project and terminal metadata, not prompt content or secrets.
@@ -363,13 +421,17 @@ actions:
 If title clearing fails, Agent Board keeps the session record. Repair Ghostty,
 then retry `agent-board unregister` with the exact session ID.
 
-Both `agent-codex` and `agent-claude` capture the exact terminal mode before
-launching their agent. After every managed exit path, including observer,
-app-server, or hook failure, each launcher restores that exact mode and clears
-the CSI-u and modifyOtherKeys keyboard reporting the agent may have enabled. If
-capture fails on a terminal, the agent does not launch. Only if restoration
-itself fails does Agent Board print a recovery message: run `reset` and press
-Return to recover that shell; if necessary, follow with `stty sane`.
+Both launchers capture the terminal's input mode before starting an agent and
+attempt to restore it and clear CSI-u/modifyOtherKeys keyboard reporting on
+exit. Capture failure prevents launch; restoration failure prints a recovery
+message.
+
+A forced Codex shutdown can still leave the alternate screen, hidden cursor,
+or mouse/focus/paste reporting active even when input-mode restoration succeeds.
+If the shell looks wrong or input behaves strangely, type `reset` and press
+Return, even if no recovery message appeared. If needed, follow with `stty sane`;
+open a new Ghostty tab if the display remains unusable. Complete emulator-mode
+cleanup is a known outstanding issue.
 
 ## Current limits
 
@@ -377,7 +439,13 @@ Return to recover that shell; if necessary, follow with `stty sane`.
 - Managed launch through `agent-codex` or `agent-claude` provides the
   supported state fidelity.
 - A separately started `codex` or `claude` process is not attached after
-  launch.
+  launch. Registering that tab with `agent-name` provides a diagnostic-only
+  entry; unregistered external processes do not appear on the board.
+- Codex has a fixed 10-second startup deadline for establishing observation.
+  Waiting at a Folder access trust prompt can trigger `Timed out binding Codex
+  root thread` and stop the session. Correct directory matching does not fix
+  this separate startup limitation. Agent Board does not answer trust prompts
+  for you, and there is currently no CLI option to extend the deadline.
 - One supervised agent per Ghostty tab is supported; a tab already managed by
   one provider cannot be adopted by the other.
 - `agent-claude` runs Claude Code's own interactive TUI unchanged; the
@@ -427,17 +495,19 @@ Do not run the Ghostty probe when disposable window creation is unacceptable.
 
 ## Uninstall
 
-1. Run `agents` after closing any tabs you no longer need; it removes ordinary
-   closed-tab registrations. Unregister any remaining open or hidden sessions
+1. Exit running managed agents. Run `agents` after closing tabs you no longer
+   need; it removes closed-tab registrations. Unregister remaining open or hidden sessions
    from their tab or exact session ID.
 
-2. Remove the global npm link.
+2. Remove the global npm link or installed package.
 
    ```bash
-   npm unlink --global agent-board
+   npm uninstall --global agent-board
    ```
 
-3. Remove the checkout when you no longer need it.
+3. Remove any optional rename Shortcut and merged configuration you no longer
+   want, following the [configuration rollback guide](docs/configuration.md#roll-back).
+   Remove the checkout when you no longer need it.
 
 Agent Board leaves its local state directory in place. You may remove that
 directory after all sessions have been removed or unregistered.
