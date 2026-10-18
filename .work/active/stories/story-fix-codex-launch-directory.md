@@ -1,7 +1,7 @@
 ---
 id: story-fix-codex-launch-directory
 kind: story
-stage: review
+stage: done
 parent: null
 depends_on: []
 release_binding: null
@@ -129,7 +129,7 @@ interactive readiness and is outside this directory-correlation repair.
 
 ## Review (2026-10-18)
 
-**Verdict:** Approve; completion awaits PR CI.
+**Verdict:** Approve.
 
 **Blockers:** none. **Important:** the separately tracked startup-prompt
 timeout and terminal-emulator cleanup. **Nits:** none.
@@ -145,3 +145,7 @@ foundation assertions remain accurate; README owns the new usage guidance.
 No independent/fresh-context/cross-model review ran. The live checks exercised
 real Codex in a disposable PTY with simulated Ghostty, so they do not claim a
 full visual Ghostty acceptance pass.
+
+PR #5 CI run 39162816263 passed both macOS jobs (Node 22 and Node 26),
+including the latest installed-Codex compatibility probe in the Node 26 job.
+All acceptance criteria and required verification are complete.
