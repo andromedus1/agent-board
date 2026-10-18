@@ -1,7 +1,7 @@
 ---
 id: story-fix-codex-startup-prompt-timeout
 kind: story
-stage: review
+stage: done
 tags: [bug, integration, cli]
 parent: null
 depends_on: []
@@ -54,7 +54,7 @@ Keep initial discovery bounded. Wait abortably without a wall-clock deadline whi
 
 ## Review (2026-10-18)
 
-**Verdict**: Approve implementation; required CI pending.
+**Verdict**: Approve.
 **Blockers**: None in the implementation.
 **Important / Nits / Rejected**: None.
 
@@ -66,3 +66,12 @@ native agent state. Requests and matching after thread evidence remain bounded;
 no permission response is synthesized. No CLI/schema migration or foundation
 assertion drift. Red/green regressions and the real unanswered trust-prompt
 probe support the behavior. Completion remains at review until Node 22/26 CI.
+
+## Completion
+
+Required CI passed on macOS Node 22 and Node 26 at commit `ee1809c`:
+[run 39167107362](https://github.com/andromedus1/agent-board/actions/runs/39167107362).
+Both jobs passed typecheck and the complete final suite; the Node 26 job also
+passed the latest-Codex capability/schema probe. The bounded review approval is
+complete, with no unresolved blockers. This supersedes the earlier pending-CI
+notes. No additional independent review was run.

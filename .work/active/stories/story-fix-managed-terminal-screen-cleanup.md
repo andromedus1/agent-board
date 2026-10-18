@@ -1,7 +1,7 @@
 ---
 id: story-fix-managed-terminal-screen-cleanup
 kind: story
-stage: review
+stage: done
 tags: [bug, integration, cli]
 parent: null
 depends_on: []
@@ -53,7 +53,7 @@ Extend shared terminal cleanup with targeted resets for modes observed in the re
 
 ## Review (2026-10-18)
 
-**Verdict**: Approve implementation after verified correction; required CI pending.
+**Verdict**: Approve after verified correction.
 **Blockers**: Initial unconditional `1049l` could restore a stale saved cursor
 when the TUI had already returned to the primary screen. Fixed by saving the
 current screen’s cursor with `ESC 7` before leaving alternate. Ghostty maintains
@@ -71,3 +71,12 @@ exit, launch failure, forced shutdown, non-TTY skip and reporting-write failure.
 No full reset or new input query, dependency, schema, or public argument.
 README is current; no contradictory foundation assertion found. Required CI
 will verify the complete final patch before closure.
+
+## Completion
+
+Required CI passed on macOS Node 22 and Node 26 at commit `ee1809c`:
+[run 39167107362](https://github.com/andromedus1/agent-board/actions/runs/39167107362).
+Both jobs passed typecheck and the complete final suite; the Node 26 job also
+passed the latest-Codex capability/schema probe. The bounded review approval is
+complete, with no unresolved blockers. This supersedes the earlier pending-CI
+notes. No additional independent review was run.
