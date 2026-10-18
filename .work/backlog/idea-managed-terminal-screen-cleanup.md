@@ -7,7 +7,7 @@ tags: [bug, integration, cli]
 
 Andrew reported that a failed plain `agent-codex` launch leaves a strange
 terminal display rather than the normal shell. Investigation of
-`idea-same-tab-repo-relaunch` reproduced this with installed Codex 0.160.1 in a
+`story-fix-codex-launch-directory` reproduced this with installed Codex 0.160.1 in a
 disposable controlling PTY, using the production process host and
 `runAgentCodexWithSignals`, without touching a live Ghostty tab.
 

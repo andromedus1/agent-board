@@ -1,4 +1,6 @@
 import { spawn as nodeSpawn, type ChildProcess } from "node:child_process";
+import { realpath } from "node:fs/promises";
+import { resolve } from "node:path";
 
 import { AgentBoardError } from "../../domain/errors.js";
 import type { ProcessRunner } from "../process-runner.js";
@@ -31,6 +33,7 @@ export interface StartedAppServer {
 
 export interface CodexProcessHostOptions {
   readonly command?: string;
+  readonly workingDirectory?: string;
   readonly runner?: ProcessRunner;
   readonly spawn?: typeof nodeSpawn;
   readonly kill?: typeof process.kill;
@@ -113,6 +116,7 @@ function forbiddenForwardedArgs(args: readonly string[]): string | undefined {
 
 export class CodexProcessHost {
   private readonly command: string;
+  private readonly cwd: string;
   private readonly runner: ProcessRunner;
   private readonly spawnProcess: typeof nodeSpawn;
   private readonly killProcess: typeof process.kill;
@@ -124,6 +128,7 @@ export class CodexProcessHost {
 
   constructor(options: CodexProcessHostOptions = {}) {
     this.command = options.command ?? "codex";
+    this.cwd = options.workingDirectory ?? process.cwd();
     this.runner = options.runner ?? new NodeProcessRunner();
     this.spawnProcess = options.spawn ?? nodeSpawn;
     this.killProcess = options.kill ?? process.kill;
@@ -131,6 +136,24 @@ export class CodexProcessHost {
     this.shutdownGraceMs = positive("shutdownGraceMs", options.shutdownGraceMs ?? DEFAULT_SHUTDOWN_GRACE_MS);
     this.maxStartupOutputBytes = positive("maxStartupOutputBytes", options.maxStartupOutputBytes ?? DEFAULT_STARTUP_OUTPUT_BYTES);
     this.maxDiagnosticTailBytes = positive("maxDiagnosticTailBytes", options.maxDiagnosticTailBytes ?? DEFAULT_DIAGNOSTIC_TAIL_BYTES);
+  }
+
+  async workingDirectory(args: readonly string[]): Promise<string> {
+    let directory = this.cwd;
+    for (let index = 0; index < args.length; index += 1) {
+      const argument = args[index];
+      if (argument === "--") break;
+      let override: string | undefined;
+      if (argument === "-C" || argument === "--cd") {
+        override = args[++index];
+        if (!override) throw failure("Codex directory override requires a directory");
+      } else if (argument.startsWith("--cd=")) override = argument.slice(5);
+      else if (argument.startsWith("-C")) override = argument.slice(2).replace(/^=/u, "");
+      if (override !== undefined) directory = resolve(this.cwd, override);
+    }
+    // Codex reports physical paths; the Board's saved Git root is identity
+    // metadata and can differ after cd, in subdirectories, or through symlinks.
+    return realpath(directory);
   }
 
   async compatibility(signal?: AbortSignal): Promise<CodexCompatibility> {
@@ -168,6 +191,7 @@ export class CodexProcessHost {
     let child: StreamChild;
     try {
       child = this.spawnProcess(this.command, ["app-server", "--listen", "ws://127.0.0.1:0", ...config], {
+        cwd: this.cwd,
         shell: false,
         detached: true,
         stdio: ["ignore", "pipe", "pipe"],
@@ -255,6 +279,7 @@ export class CodexProcessHost {
     let child: ChildProcess;
     try {
       child = this.spawnProcess(this.command, args, {
+        cwd: this.cwd,
         shell: false,
         detached: false,
         stdio: "inherit",

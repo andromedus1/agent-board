@@ -10,7 +10,7 @@ import { AgentBoardError } from "../domain/errors.js";
 
 export interface ManagedLaunchDependencies {
   readonly register: () => Promise<RegisterSessionResult>;
-  readonly processes: Pick<CodexProcessHost, "version" | "startAppServer" | "startRemoteTui" | "stop">;
+  readonly processes: Pick<CodexProcessHost, "workingDirectory" | "version" | "startAppServer" | "startRemoteTui" | "stop">;
   readonly connectClient: (endpoint: StartedAppServer["endpoint"]) => Promise<ManagedClient>;
   readonly store: SessionStore;
   readonly terminal: ReconciliationTerminalPort & FocusedTerminalPort;
@@ -118,6 +118,7 @@ export async function launchManagedCodex(
   let removeSignalAbort: (() => void) | undefined;
 
   try {
+    const workingDirectory = await dependencies.processes.workingDirectory(forwardedArgs);
     await dependencies.processes.version(signal);
     appServer = await dependencies.processes.startAppServer(signal, sessionId);
     await dependencies.store.mutate(sessionId, (current) => {
@@ -138,7 +139,7 @@ export async function launchManagedCodex(
       clock: dependencies.clock,
       bindTimeoutMs: dependencies.bindTimeoutMs,
       onRecord: async () => { await reconcile(); },
-    }, { sessionId, expectedWorkingDirectory: registered.record.identity.repoPath }, observerController.signal);
+    }, { sessionId, expectedWorkingDirectory: workingDirectory }, observerController.signal);
     const observerRace = observerPromise.then(
       () => ({ kind: "observer" as const }),
       (error) => ({ kind: "failure" as const, error }),

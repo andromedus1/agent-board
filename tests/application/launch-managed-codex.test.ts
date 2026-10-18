@@ -87,6 +87,7 @@ function dependencies(
     dependencies: {
       register: async () => ({ record: state.current(), created: true }),
       processes: {
+        async workingDirectory() { return "/repo"; },
         async version() { events.push("version"); return "0.147.0"; },
         async startAppServer(_signal, sessionId) { events.push(`start-server:${sessionId ?? "missing"}`); return { child: server, endpoint: { websocketUrl: new URL("ws://127.0.0.1:45") } }; },
         async startRemoteTui(_endpoint, _args, sessionId) { events.push(`start-tui:${sessionId ?? "missing"}`); return tui; },
@@ -234,6 +235,41 @@ test("managed relaunch replaces the previous runtime thread binding", async () =
   assert.deepEqual(await launched, { sessionId: "session-1", outcome: "clean", exitCode: 0 });
   assert.equal(fixture.current().agent.nativeThreadId, "root");
 });
+
+for (const directory of ["/repo/src", "/another-repo"]) {
+  test(`managed launch binds in ${directory} independently of the saved repository root`, async () => {
+    const never = deferred<ProcessExit>();
+    const tuiExit = deferred<ProcessExit>();
+    const fixture = dependencies(never.promise, tuiExit.promise, { exitCode: 0, signal: null });
+    const bound = deferred<void>();
+    const mutate = fixture.dependencies.store.mutate;
+    fixture.dependencies.store.mutate = async (id, mutation) => {
+      const updated = await mutate(id, mutation);
+      if (updated.agent.nativeThreadId === "root") bound.resolve();
+      return updated;
+    };
+    fixture.dependencies.processes.workingDirectory = async () => directory;
+    const connected = client(fixture.events);
+    connected.loadedThreads = async () => ({
+      data: [{ id: "root", cwd: directory, parentThreadId: null, status: { type: "idle" } }],
+    });
+    fixture.dependencies = { ...fixture.dependencies, connectClient: async () => connected };
+
+    const controller = new AbortController();
+    const launched = launchManagedCodex(fixture.dependencies, [], controller.signal);
+    try {
+      await Promise.race([bound.promise, launched]);
+      assert.equal(fixture.current().agent.nativeThreadId, "root", fixture.current().agent.detail);
+      assert.equal(fixture.current().identity.repoPath, "/repo");
+      assert.equal(fixture.current().identity.projectLabel, "board");
+      tuiExit.resolve({ exitCode: 0, signal: null });
+      assert.equal((await launched).outcome, "clean");
+    } finally {
+      controller.abort();
+      await launched;
+    }
+  });
+}
 
 test("app-server failure remains launcher evidence after cleanup stops the TUI", async () => {
   const serverExit = deferred<ProcessExit>();

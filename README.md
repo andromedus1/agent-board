@@ -167,6 +167,11 @@ TUI. It forwards supported extra Codex arguments unchanged; Agent Board reserves
 the remote transport and terminal-title override, so arguments that set
 `--remote` or `tui.terminal_title` are rejected.
 
+Each `agent-codex` run uses your current working directory, or the directory
+selected with Codex's `-C` / `--cd` option. You can launch from a repository
+subdirectory or change directories before relaunching in the same tab; the
+Board session and project label stay the same.
+
 `agent-claude` launches an ordinary, interactive Claude Code session — the same
 TUI you get from running `claude` directly — with a per-run, observation-only
 Agent Board plugin loaded alongside it. The plugin only reports Claude's own

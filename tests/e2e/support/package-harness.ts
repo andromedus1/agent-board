@@ -66,7 +66,7 @@ export interface PackageHarness {
   readScenario(): Promise<Scenario>;
   writeScenario(mutator: (current: Scenario) => Scenario): Promise<void>;
   run(name: "agent-name" | "agent-codex" | "agent-claude" | "agents" | "agent-board", args?: readonly string[], options?: { timeoutMs?: number; stdinIsTTY?: boolean; env?: NodeJS.ProcessEnv }): Promise<{ code: number; stdout: string; stderr: string }>;
-  start(name: "agent-name" | "agent-codex" | "agent-claude" | "agents" | "agent-board", args?: readonly string[]): RunningProcess;
+  start(name: "agent-name" | "agent-codex" | "agent-claude" | "agents" | "agent-board", args?: readonly string[], options?: { cwd?: string }): RunningProcess;
   close(): Promise<void>;
 }
 
@@ -187,8 +187,8 @@ export async function createPackageHarness(initial?: Partial<Scenario>): Promise
         stderr: result.stderr,
       };
     },
-    start: (name, args = []) => {
-      const running = processResult(spawn(harness.bin(name), [...args], { cwd: projectRoot, env, shell: false, stdio: ["ignore", "pipe", "pipe"] }));
+    start: (name, args = [], options = {}) => {
+      const running = processResult(spawn(harness.bin(name), [...args], { cwd: options.cwd ?? projectRoot, env, shell: false, stdio: ["ignore", "pipe", "pipe"] }));
       owned.add(running);
       void running.exit.finally(() => owned.delete(running));
       return running;
