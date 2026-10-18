@@ -70,7 +70,8 @@ standalone-story review; no independent or cross-model reviewer.
 - Updated only the confirmed clauses and dates in both backlog entries; both
   remain deferred, with their unfinished scope preserved.
 - Simplification: removed obsolete Claude/rename future work and Doctor wording.
-- No tests added: this changes prose and metadata only. No application changes,
+- No tests added. Updated the existing package-contents assertion to require
+  LICENSE after CI caught its obsolete file list. No application changes,
   dependency changes, design discrepancies, or adjacent issues were introduced.
 
 ## Verification
@@ -95,6 +96,16 @@ one bounded inline standalone-story pass, no independent/cross-model reviewer.
 Verified user authorization, canonical license text, repository author identity,
 package/lockfile agreement, packed-artifact inclusion, documentation links, and
 the narrow confirmed backlog scope against the final diff. Both backlog items
-retain their remaining intent. Source/test/runtime behavior is unchanged, so
+retain their remaining intent. Application/runtime behavior is unchanged, so
 runtime design/security lenses do not apply beyond the existing required CI.
 Completion is held at review until that CI passes; no second review is needed.
+
+### CI test-debt correction
+
+Run 39168870456 failed only the existing packaged-infrastructure file-list
+assertion on both Node versions: the actual installed package correctly gained
+LICENSE, but the expected list omitted it. Corrected the stale assertion to
+require LICENSE alongside README, assets, dist, and package.json. This preserves
+the source-free package boundary and strengthens its license-presence contract.
+The isolated packaged-infrastructure test now passes locally (1/1), and
+git diff --check remains clean. No production bug was exposed.
