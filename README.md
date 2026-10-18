@@ -177,8 +177,15 @@ the remote transport and terminal-title override, so arguments that set
 Each `agent-codex` run uses your current working directory, or the directory
 selected with Codex's `-C` / `--cd` option. You can launch from a repository
 subdirectory or change directories before relaunching in the same tab; the
-Board session and project label stay the same. A new directory can still trigger
-Codex's startup trust prompt; see the [startup timeout limitation](#current-limits).
+Board session and project label stay the same.
+
+Codex may ask you to trust a folder before starting a conversation. Agent Board
+waits while no thread exists, leaving that decision to you; it does not answer
+the prompt or impose a deadline on your response. During startup the board and
+tab show `?`, with the board diagnostic `Waiting for Codex to start a root thread`,
+until Codex provides evidence of its state. Unresponsive discovery requests,
+unmatched thread evidence, and ambiguous sessions still fail rather than being
+treated as a successful start.
 
 `agent-claude` launches an ordinary, interactive Claude Code session — the same
 TUI you get from running `claude` directly — with a per-run, observation-only
@@ -422,16 +429,15 @@ If title clearing fails, Agent Board keeps the session record. Repair Ghostty,
 then retry `agent-board unregister` with the exact session ID.
 
 Both launchers capture the terminal's input mode before starting an agent and
-attempt to restore it and clear CSI-u/modifyOtherKeys keyboard reporting on
-exit. Capture failure prevents launch; restoration failure prints a recovery
-message.
+attempt to restore it during managed exit cleanup. They also clear
+CSI-u/modifyOtherKeys keyboard reporting, disable mouse/focus/bracketed-paste
+reporting, leave the alternate screen, and show the cursor, including when
+the launcher stops its agent after a failure. Capture failure prevents launch;
+restoration failure prints a recovery message.
 
-A forced Codex shutdown can still leave the alternate screen, hidden cursor,
-or mouse/focus/paste reporting active even when input-mode restoration succeeds.
 If the shell looks wrong or input behaves strangely, type `reset` and press
 Return, even if no recovery message appeared. If needed, follow with `stty sane`;
-open a new Ghostty tab if the display remains unusable. Complete emulator-mode
-cleanup is a known outstanding issue.
+open a new Ghostty tab if the display remains unusable.
 
 ## Current limits
 
@@ -441,11 +447,6 @@ cleanup is a known outstanding issue.
 - A separately started `codex` or `claude` process is not attached after
   launch. Registering that tab with `agent-name` provides a diagnostic-only
   entry; unregistered external processes do not appear on the board.
-- Codex has a fixed 10-second startup deadline for establishing observation.
-  Waiting at a Folder access trust prompt can trigger `Timed out binding Codex
-  root thread` and stop the session. Correct directory matching does not fix
-  this separate startup limitation. Agent Board does not answer trust prompts
-  for you, and there is currently no CLI option to extend the deadline.
 - One supervised agent per Ghostty tab is supported; a tab already managed by
   one provider cannot be adopted by the other.
 - `agent-claude` runs Claude Code's own interactive TUI unchanged; the
