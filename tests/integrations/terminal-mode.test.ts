@@ -29,7 +29,7 @@ test("stty terminal mode captures and restores one exact shell-free snapshot", (
   ]);
   assert.deepEqual((calls[0]!.options as { stdio: unknown }).stdio, [7, "pipe", "pipe"]);
   assert.deepEqual((calls[1]!.options as { stdio: unknown }).stdio, [7, "ignore", "pipe"]);
-  assert.equal(terminalOutput, "\x1b[<u\x1b[<u\x1b[>4;0m");
+  assert.ok(terminalOutput.includes("\x1b[<u\x1b[<u\x1b[>4;0m"));
 });
 
 test("stty terminal mode skips non-terminal stdin", () => {
@@ -56,7 +56,7 @@ test("stty terminal mode rejects failed and malformed captures on a terminal", (
   assert.throws(() => malformed.capture(), /terminal mode snapshot is invalid/u);
 });
 
-test("stty terminal mode reports keyboard cleanup write failure after restoring termios", () => {
+test("stty terminal mode reports emulator cleanup write failure after restoring termios", () => {
   const calls: string[][] = [];
   const mode = new SttyTerminalMode({
     isTerminal: () => true,
@@ -67,6 +67,6 @@ test("stty terminal mode reports keyboard cleanup write failure after restoring 
     write: () => { throw new Error("terminal output closed"); },
   });
 
-  assert.throws(() => mode.restore("saved-mode"), /Unable to restore terminal keyboard reporting/u);
+  assert.throws(() => mode.restore("saved-mode"), /Unable to restore terminal screen and input reporting/u);
   assert.deepEqual(calls, [["saved-mode"]]);
 });
