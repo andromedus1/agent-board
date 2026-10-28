@@ -6,21 +6,20 @@
 #   2 = enforce (missing v2 fields are errors)
 # Set to 2 once the project's docs are fully backfilled to v2 frontmatter.
 schema_version: 2
-generated_at: '2026-10-07T01:58:43Z'
+generated_at: 2026-10-26T20:33:46Z
 generated_from: frontmatter
-total_docs: 25
+total_docs: 34
 
 documents:
+  # ── planning ──────────────────────────────────────────────────────────────
+
   - path: docs/ARCHITECTURE.md
-    title: 'Architecture: Agent Board'
+    title: "Architecture: Agent Board"
     type: architecture
     kind: planning
     updated: 2026-10-06
     status: locked
-    nav_priority: high
-    consumer_hint: >-
-      Read this before implementing or changing Agent Board modules, process topology, state contracts,
-      or external adapters.
+    consumer_hint: Read this before implementing or changing Agent Board modules, process topology, state contracts, or external adapters.
 
   - path: docs/configuration.md
     title: Companion terminal configuration
@@ -28,10 +27,7 @@ documents:
     kind: planning
     updated: 2026-10-06
     status: locked
-    nav_priority: high
-    consumer_hint: >-
-      Read this when configuring Ghostty tabs for Codex or Claude Code sessions and the Codex status line
-      for the recommended Agent Board workflow.
+    consumer_hint: Read this when configuring Ghostty tabs for Codex or Claude Code sessions and the Codex status line for the recommended Agent Board workflow.
 
   - path: docs/VISION.md
     title: Agent Board vision
@@ -39,9 +35,7 @@ documents:
     kind: planning
     updated: 2026-08-20
     status: draft
-    nav_priority: high
-    consumer_hint: >-
-      Read this to understand why Agent Board exists, who it serves first, and what product outcome matters.
+    consumer_hint: Read this to understand why Agent Board exists, who it serves first, and what product outcome matters.
 
   - path: docs/PRINCIPLES.md
     title: Agent Board principles
@@ -49,10 +43,7 @@ documents:
     kind: planning
     updated: 2026-08-14
     status: draft
-    nav_priority: high
-    consumer_hint: >-
-      Read this when a product or architecture tradeoff needs a decision heuristic rather than another feature
-      request.
+    consumer_hint: Read this when a product or architecture tradeoff needs a decision heuristic rather than another feature request.
 
   - path: docs/research-plan.md
     title: Agent Board research plan
@@ -60,10 +51,7 @@ documents:
     kind: planning
     updated: 2026-10-06
     status: locked
-    nav_priority: high
-    consumer_hint: >-
-      Read this for the completed pre-architecture research decisions and the entry conditions for deliberately
-      deferred follow-up research.
+    consumer_hint: Read this for the completed pre-architecture research decisions and the entry conditions for deliberately deferred follow-up research.
 
   - path: docs/SPEC.md
     title: Agent Board specification
@@ -71,10 +59,9 @@ documents:
     kind: planning
     updated: 2026-10-06
     status: draft
-    nav_priority: high
-    consumer_hint: >-
-      Read this to understand the first product contract, normalized domain model, behavior, constraints,
-      and acceptance boundary.
+    consumer_hint: Read this to understand the first product contract, normalized domain model, behavior, constraints, and acceptance boundary.
+
+  # ── research ──────────────────────────────────────────────────────────────
 
   - path: .research/analysis/briefs/claude-code-adapter-feasibility.md
     title: Claude Code adapter feasibility
@@ -198,6 +185,76 @@ documents:
     kind: research
     updated: 2026-08-20
     consumer_hint: "Agentic Research campaign: Herdr prior art: terminal-level symmetry, inference-bound provider state"
+
+  - path: .research/analysis/campaigns/remote-persistent-supervision/acquisitions.md
+    title: Acquisition candidates
+    type: campaign
+    kind: research
+    updated: 2026-10-26
+    consumer_hint: "Agentic Research campaign: Acquisition candidates"
+
+  - path: .research/analysis/campaigns/remote-persistent-supervision/campaign-evaluation.md
+    title: Campaign evaluation (isolated)
+    type: campaign
+    kind: research
+    updated: 2026-10-26
+    consumer_hint: "Agentic Research campaign: Campaign evaluation (isolated)"
+
+  - path: .research/analysis/campaigns/remote-persistent-supervision/dispatch.md
+    title: Remote-persistent supervision landscape dispatch
+    type: campaign
+    kind: research
+    updated: 2026-10-26
+    status: locked
+    consumer_hint: Registration for the prior-art landscape of phone-driven, remote-persistent agent supervision.
+
+  - path: .research/analysis/campaigns/remote-persistent-supervision/parent.md
+    title: Remote-persistent supervision landscape
+    type: campaign
+    kind: research
+    updated: 2026-10-26
+    status: active
+    research_method: /scout
+    consumer_hint: Read this before scoping phone-driven or remote-host supervision for Agent Board, or before a build-versus-migrate call; it maps how existing tools keep coding-agent sessions alive on an always-on host and surface their status to a phone.
+
+  - path: .research/analysis/campaigns/remote-persistent-supervision/specialists/diy-persistent-mobile-stack.md
+    title: "Facet: diy-persistent-mobile-stack"
+    type: campaign
+    kind: research
+    updated: 2026-10-26
+    status: draft
+    consumer_hint: Prior-art facet brief on the generic composable stack (host multiplexer or session daemon, roaming transport, phone terminal client, always-on host) for supervising Codex and Claude Code sessions from a phone, with emphasis on window/tab naming and status-line mechanics.
+
+  - path: .research/analysis/campaigns/remote-persistent-supervision/specialists/mobile-first-supervisors.md
+    title: Mobile-first supervisors and web-terminal bridges
+    type: campaign
+    kind: research
+    updated: 2026-10-26
+    status: draft
+    consumer_hint: Prior-art survey of phone-first agent supervisors, web-terminal bridges and push-notification relays, answered against a common grid for the remote-persistent supervision campaign.
+
+  - path: .research/analysis/campaigns/remote-persistent-supervision/specialists/mux-agent-supervisors.md
+    title: Multiplexer-shaped agent supervisors
+    type: campaign
+    kind: research
+    updated: 2026-10-26
+    status: draft
+    consumer_hint: Prior-art survey of multiplexer-shaped coding-agent supervisors (Herdr remote facet, agent-deck, claude-squad, ccmux, Codirigent, tmai, a zellij status plugin) against the remote-persistent-supervision grid.
+
+  - path: .research/analysis/campaigns/remote-persistent-supervision/specialists/provider-native-remote.md
+    title: Provider-native remote surfaces
+    type: campaign
+    kind: research
+    updated: 2026-10-26
+    status: draft
+    consumer_hint: Facet brief on the providers' own remote, mobile and cloud surfaces for Claude Code and Codex, answered on a common six-question grid.
+
+  - path: .research/analysis/campaigns/remote-persistent-supervision/verification-checklist.md
+    title: "Verification checklist: remote-persistent-supervision parent"
+    type: campaign
+    kind: research
+    updated: 2026-10-26
+    consumer_hint: "Agentic Research campaign: Verification checklist: remote-persistent-supervision parent"
 
   - path: .research/analysis/campaigns/agent-board-prior-art/dispatch.md
     title: Agent Board prior-art landscape

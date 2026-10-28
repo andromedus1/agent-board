@@ -1,0 +1,60 @@
+# claude --help (local, read-only)
+2.1.285 (Claude Code)
+  --allowedTools, --allowed-tools <tools...>
+      Comma or space-separated list of tool names to allow (e.g. "Bash(git *)
+      Edit")
+--
+                                        credentials. Skills still resolve via
+                                        /skill-name. Explicitly provide context
+                                        via: --system-prompt[-file],
+--
+                                        list
+  --cloud [description|session_id|url]  Create a cloud session with the given
+                                        description, or attach to an existing
+--
+  --disallowedTools, --disallowed-tools <tools...>
+      Comma or space-separated list of tool names to deny (e.g. "Bash(git *)
+      Edit")
+--
+                                        (low, medium, high, xhigh, max)
+  --environment <environment_id>        Create a new cloud session that runs on
+                                        the given self-hosted environment
+--
+                                        validation. Example:
+                                        {"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}
+  --max-budget-usd <amount>             Maximum dollar amount to spend on API
+--
+                                        'fable', 'opus', or 'sonnet') or a
+                                        model's full name.
+  -n, --name <name>                     Set a display name for this session
+                                        (shown in the prompt box, /resume
+--
+                                        preset: "true")
+  --remote-control [name]               Start an interactive session with Remote
+                                        Control enabled (optionally named)
+  --remote-control-session-name-prefix <prefix>
+      Prefix for auto-generated Remote Control session names (default: hostname)
+  --replay-user-messages                Re-emit user messages from stdin back on
+--
+                                        code-running tools) and WebFetch unless
+                                        --tools names them, and ignores user,
+                                        project and local settings files
+--
+                                        enabled. (choices: "on", "off")
+  --teleport [session]                  Resume a teleport session, optionally
+                                        specify session ID
+--
+                                        tools, "default" to use all tools, or
+                                        specify tool names (e.g.
+                                        "Bash,Edit,Read").
+--
+  -v, --version                         Output the version number
+  -w, --worktree [name]                 Create a new git worktree for this
+                                        session (optionally specify a name)
+
+--
+                                        works once it is stopped
+  ultrareview [options] [target]        Run a cloud-hosted multi-agent code
+                                        review of the current branch (or a PR
+
+# claude remote-control --help

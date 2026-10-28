@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [mosh-devel] Tmux integration escape code
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:mosh-devel%40mit.edu?Subject=%5Bmosh-devel%5D%20Tmux%20integration%20escape%20code&In-Reply-To=CAMzhQmNNokAX1q0bsncNWpkhsua%2B0kY78wQeiof%3De%3DdHdEUTtw%40mail.gmail.com">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000550.html">
+   <LINK REL="Next"  HREF="000552.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[mosh-devel] Tmux integration escape code</H1>
+    <B>George Nachman</B> 
+    <A HREF="mailto:mosh-devel%40mit.edu?Subject=%5Bmosh-devel%5D%20Tmux%20integration%20escape%20code&In-Reply-To=CAMzhQmNNokAX1q0bsncNWpkhsua%2B0kY78wQeiof%3De%3DdHdEUTtw%40mail.gmail.com"
+       TITLE="[mosh-devel] Tmux integration escape code">gnachman at llamas.org
+       </A><BR>
+    <I>Sat Jul 27 21:47:10 EDT 2013</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000550.html">[mosh-devel] Tmux integration escape code
+</A></li>
+        <LI>Next message: <A HREF="000552.html">[mosh-devel] Toyota vai pagar 2x mais que outros MMN
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#551">[ date ]</a>
+              <a href="thread.html#551">[ thread ]</a>
+              <a href="subject.html#551">[ subject ]</a>
+              <a href="author.html#551">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Sat, Jul 27, 2013 at 2:08 PM, Keith Winstein &lt;<A HREF="http://mailman.mit.edu/mailman/listinfo/mosh-devel">keithw at mit.edu</A>&gt; wrote:
+
+&gt;<i> Hi George,
+</I>&gt;<i>
+</I>&gt;<i> Thanks for getting in touch. Definitely open to this in principle. Here's
+</I>&gt;<i> a few questions:
+</I>&gt;<i>
+</I>&gt;<i> (1) Is there a way for mosh-client to tell if the host terminal supports
+</I>&gt;<i> these device control strings? (E.g. a capability in terminfo? An
+</I>&gt;<i> environment variable you set?) Alternately, have you tested / are you
+</I>&gt;<i> pretty sure that nothing bad will happen if we pass these along to the
+</I>&gt;<i> popular terminal emulators that aren't iTerm2 (e.g., iTerm1, Terminal.app,
+</I>&gt;<i> xterm, VTE, Konsole, urxvt, PuTTY, screen, tmux)?
+</I>&gt;<i>
+</I>&gt;<i>
+</I>Hi Keith,
+
+No, there's nothing set to indicate support. Although iTerm2 does set
+&quot;TERM_PROGRAM=iTerm.app&quot;, that's not a great choice because other terminal
+emulators may start supporting this protocol as well. I'm open to ideas
+along these lines.
+
+The worst offenders are tmux and screen, which hang until they gets an ESC
+\. Terminal and iTerm 0.x just print P100p to the screen. I'm still
+checking on vt1, konsole, urxvt, and putty.
+
+
+&gt;<i> (2) Mosh works by representing the state of the terminal at the server and
+</I>&gt;<i> at the client, and synchronizing the states by sending &quot;diffs&quot; between the
+</I>&gt;<i> state the server thinks the client has and the state the server wants it to
+</I>&gt;<i> have. We like for the &quot;diffs&quot; between any pair of states (e.g. state #4 and
+</I>&gt;<i> state #3,927) to be bounded in size, so that we can quickly resynchronize
+</I>&gt;<i> the client's terminal if it comes back to the network after a long time
+</I>&gt;<i> away.
+</I>&gt;<i>
+</I>&gt;<i> Right now I don't think there's anything an application can do to make the
+</I>&gt;<i> diff grow without bound -- we only store a certain number of combining
+</I>&gt;<i> characters per cell on the screen, we compress repeated &quot;rendition&quot; changes
+</I>&gt;<i> down to the minimum diff necessary, etc. (E.g. if the application turns on
+</I>&gt;<i> and off &quot;bold&quot; on a character 50,000 times, we compress that down into just
+</I>&gt;<i> one flip if necessary.)
+</I>&gt;<i>
+</I>&gt;<i> So my preference would be not to pass these device control strings through
+</I>&gt;<i> literally, because then we'd have to queue them up and have some sort of
+</I>&gt;<i> flow control to make sure we don't end up with 90 megabytes of pending
+</I>&gt;<i> updates from a misbehaving app. (Timo Rinne has done a huge amount of work
+</I>&gt;<i> to support ssh-agent forwarding, which presents the same issues for us, and
+</I>&gt;<i> before we make a protocol change to support flow-controlled octet
+</I>&gt;<i> sequences, I want to make sure it's at the right layer.)
+</I>&gt;<i>
+</I>&gt;<i> If it's possible for us to parse these updates and represent &quot;the state&quot;
+</I>&gt;<i> that the client is supposed to have as part of our Terminal::Framebuffer
+</I>&gt;<i> object (like everything else), that would be way better. Is the protocol
+</I>&gt;<i> documented somewhere? Is somebody from iTerm2 willing to do this and submit
+</I>&gt;<i> a pull request along these lines?
+</I>&gt;<i>
+</I>&gt;<i>
+</I>By contrast, if you really do need just a reliable flow-controlled
+&gt;<i> octet-stream, I think you'll have to wait until we decide where in the
+</I>&gt;<i> protocol stack we want that to go and we commit to a protocol change we're
+</I>&gt;<i> willing to live with going forward.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>The protocol is documented in tmux's man page under the &quot;Control mode&quot;
+section. In terms of parsing the protocol, it would be an amazing feat of
+engineering but probably not worth the effort to try to emulate the state
+on both ends of the connection (you'd have to remember window positions,
+split pane arrangements, not to mention the state of each virtual terminal
+within tmux).
+
+When you do get around to implementing a reliable octet stream, please keep
+this case in mind. Even though we wouldn't get all the benefits that mosh
+has to offer for a vanilla terminal session, it would still be a better
+transport than ssh for lots of users.
+
+Thanks,
+George
+
+Best regards,
+&gt;<i> Keith
+</I>&gt;<i>
+</I>&gt;<i> On Sat, Jul 27, 2013 at 3:26 PM, George Nachman &lt;<A HREF="http://mailman.mit.edu/mailman/listinfo/mosh-devel">gnachman at llamas.org</A>&gt;wrote:
+</I>&gt;<i>
+</I>&gt;&gt;<i> Hi mosh-devel,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I'm the maintainer for iTerm2, a terminal emulator for Mac OS. About a
+</I>&gt;&gt;<i> year ago we added a feature to support a deep integration with tmux
+</I>&gt;&gt;<i> (details here: <A HREF="https://code.google.com/p/iterm2/wiki/TmuxIntegration">https://code.google.com/p/iterm2/wiki/TmuxIntegration</A>).
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> This integration works by passing messages between the terminal emulator
+</I>&gt;&gt;<i> and the tmux client using a custom protocol. While it works over ssh, it
+</I>&gt;&gt;<i> fails on mosh because mosh doesn't pass through the escape code that
+</I>&gt;&gt;<i> signals the terminal emulator to begin speaking the tmux protocol.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> The escape code used is DCS 1000p (ESC P1000p), which is based on the
+</I>&gt;&gt;<i> ReGIS codes (<A HREF="http://www.vt100.net/docs/vt3xx-gp/chapter1.html">http://www.vt100.net/docs/vt3xx-gp/chapter1.html</A>). While I
+</I>&gt;&gt;<i> don't expect mosh to support ReGIS any time soon, would you consider
+</I>&gt;&gt;<i> passing this one escape code through?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Thanks for your consideration,
+</I>&gt;&gt;<i> George
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> mosh-devel mailing list
+</I>&gt;&gt;<i> <A HREF="http://mailman.mit.edu/mailman/listinfo/mosh-devel">mosh-devel at mit.edu</A>
+</I>&gt;&gt;<i> <A HREF="http://mailman.mit.edu/mailman/listinfo/mosh-devel">http://mailman.mit.edu/mailman/listinfo/mosh-devel</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="http://mailman.mit.edu/pipermail/mosh-devel/attachments/20130727/d8eaf5c8/attachment.html">http://mailman.mit.edu/pipermail/mosh-devel/attachments/20130727/d8eaf5c8/attachment.html</A>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000550.html">[mosh-devel] Tmux integration escape code
+</A></li>
+	<LI>Next message: <A HREF="000552.html">[mosh-devel] Toyota vai pagar 2x mais que outros MMN
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#551">[ date ]</a>
+              <a href="thread.html#551">[ thread ]</a>
+              <a href="subject.html#551">[ subject ]</a>
+              <a href="author.html#551">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="http://mailman.mit.edu/mailman/listinfo/mosh-devel">More information about the mosh-devel
+mailing list</a><br>
+</body></html>

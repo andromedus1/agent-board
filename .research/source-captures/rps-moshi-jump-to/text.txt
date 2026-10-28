@@ -1,0 +1,193 @@
+
+Jump To Any tmux Window or Herdr Tab
+Search
+⌘
+K
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+Search
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+browse
+Jump to…
+start
+What Moshi does
+Install and prepare a host
+Run your first session
+connections
+Connections and authentication
+Terminal sessions
+Tailscale
+multiplexer
+Multiplexers
+tmux
+Zellij
+Herdr
+Jump to…
+input
+Scrolling and scrollback
+Voice and dictation
+Gestures
+Clipboard and copy/paste
+Keyboard and shortcuts
+CJK and IME input
+settings
+Licensing and sharing
+Personalization
+Free vs Pro
+Security and sync
+integrations
+Agents & Usages
+Apple Watch
+Image and file paste
+Install moshi-hook
+Install Moshi Desktop
+Hooks
+Hook settings
+Chat View
+Moshi CLI
+Moshi Skill
+Live Activity
+Diff viewer
+Browser preview
+Simulator preview
+Push notifications and webhooks
+Files and image sharing
+help
+Troubleshooting
+Debugging the gateway
+Debugging the session picker
+Debugging Chat View
+Reporting a bug
+Docs
+/
+Multiplexer
+/
+Jump to…
+feature
+Jump to…
+One sheet that maps the whole session — bounce straight to any tmux window or Herdr tab, with live agent status.
+updated 
+2 months ago
+3 min read
+page 
+11
+ / 
+42
+copy
+Multiplexer sessions grow: a window per project, a tab per agent, and suddenly getting to the right one means cycling through everything in between. 
+Jump to…
+ replaces the cycling with a map. Open the sheet and Moshi shows the current session as a two-level tree — tmux sessions and their windows, or Herdr workspaces and their tabs — fetched live from the host. Tap a row and you're there.
+The whole session, one tap away
+Every tmux window or Herdr tab in the current session, with the focused one marked Current. Tap to switch.
+Tap to play full
+Opening it
+Toolbar
+ — tap 
+Jump
+ in the terminal toolbar. It's in the default toolbar layout; if you've customized yours, re-add it under 
+Settings -> Input
+.
+Gestures
+ — bind the 
+Jump to Window/Tab
+ action to a keyboard-button double-tap, a keyboard-button long-press, or a toolbar swipe under 
+Settings -> Input -> Gestures
+. See 
+Gestures
+.
+Jump To is an in-session navigator and does not generate URLs. For links from a dashboard, Shortcut, or notification, use the separate 
+active-session deep links
+. A link can focus a single-digit tmux window after resume or switch an active Herdr session card by workspace ID; Herdr tabs and multiplexer panes are not public deep-link targets.
+What's in the sheet
+The tree adapts to whichever multiplexer the session is running:
+tmux
+ — sessions, each expanding to its windows.
+Herdr
+ — workspaces, each expanding to its tabs. Because 
+Herdr
+ tracks agent state, each row also carries a status dot for the agent running there, and the header sums it up with a 
+waiting
+ count — so "2 waiting" tells you two agents are blocked on input before you even scroll.
+The node you're currently on is marked 
+Current
+; tapping it just closes the sheet. Tapping anything else switches immediately — Moshi focuses the window or tab on the host, no prefix chords involved.
+Layouts
+The switcher in the sheet's top-right corner offers three layouts, and Moshi remembers your pick:
+List
+ — every group and its children in one scrollable list. The default.
+Accordion
+ — collapsed groups; tap a workspace or session to expand its tabs or windows.
+Grid
+ — mission-control style cards, one per group, with tabs as chips.
+How it works
+The sheet asks 
+moshi-hook
+ on the host for a live snapshot of the multiplexer, so it needs the hook daemon running there. It works inside tmux and Herdr sessions; a bare shell or a Zellij session has nothing to enumerate, and the sheet says so.
+Jump to… is a Pro feature. Opening the sheet and browsing is always free; the first 10 actual switches are free too, after which switching asks for 
+Pro
+.
+Troubleshooting
+"The Moshi hook isn't available for this session"
+The host isn't running moshi-hook, or it's an older build without workspace support. Install or update it — see 
+Hooks & the Inbox
+ — and reconnect.
+"No tmux or herdr session here"
+The current session isn't inside tmux or Herdr. Start one — see 
+tmux
+ or 
+Herdr
+ — and open the sheet from inside it. Zellij isn't supported yet.
+"Nothing to jump to"
+The multiplexer reported an empty tree — usually a session that only has the one window or tab you're already on. Create more windows or tabs and they'll appear.
+Next steps
+Herdr workspaces and tabs
+tmux window switching
+Agents board for blocked work
+mobile Herdr workflow
+ previous
+Herdr
+next 
+Scrolling and scrollback
+on this page
+read
+0
+%
+Every coding agent, in your pocket. Real SSH & Mosh to your own machine.
+App Store
+Google Play
+Product
+Moshi
+Moshi Desktop
+Mata
+Pricing
+Resources
+Docs
+Learn
+Themes
+GitHub
+Compare
+T3 Code
+Orca
+Paseo
+Termius
+Blink Shell
+Secure ShellFish
+Happy
+Kittylitter
+Claude Code Remote Control
+© 2026 Moshi. Made with love and cat hair.
+Support
+Report a bug
+Twitter / X
+Brand
+Privacy
+Terms

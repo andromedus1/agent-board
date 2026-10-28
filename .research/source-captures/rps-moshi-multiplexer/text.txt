@@ -1,0 +1,320 @@
+
+tmux, Zellij & Herdr Support Matrix
+Search
+⌘
+K
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+Search
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+browse
+Multiplexers
+start
+What Moshi does
+Install and prepare a host
+Run your first session
+connections
+Connections and authentication
+Terminal sessions
+Tailscale
+multiplexer
+Multiplexers
+tmux
+Zellij
+Herdr
+Jump to…
+input
+Scrolling and scrollback
+Voice and dictation
+Gestures
+Clipboard and copy/paste
+Keyboard and shortcuts
+CJK and IME input
+settings
+Licensing and sharing
+Personalization
+Free vs Pro
+Security and sync
+integrations
+Agents & Usages
+Apple Watch
+Image and file paste
+Install moshi-hook
+Install Moshi Desktop
+Hooks
+Hook settings
+Chat View
+Moshi CLI
+Moshi Skill
+Live Activity
+Diff viewer
+Browser preview
+Simulator preview
+Push notifications and webhooks
+Files and image sharing
+help
+Troubleshooting
+Debugging the gateway
+Debugging the session picker
+Debugging Chat View
+Reporting a bug
+Docs
+/
+Multiplexer
+/
+Multiplexers
+overview
+Multiplexers
+Which terminal multiplexers Moshi supports and how deeply — detection, session picker, remote approvals, shortcut panels, hooks, and the moshi launcher.
+updated 
+3 weeks ago
+7 min read
+page 
+7
+ / 
+42
+copy
+A terminal multiplexer keeps shells, agents, and TUIs running on the host when the mobile terminal disconnects or the network drops. Moshi treats multiplexers as first-class: it detects them on connect, lists their sessions in the picker, and ships per-multiplexer shortcut panels.
+Support comes in two tiers. 
+Herdr and tmux
+ get the deepest integration — automatic reattach after a full reconnect, remote approvals from the Inbox, the Jump To session tree, session deep links, and (for tmux) the 
+moshi DIR
+ project launcher. 
+Zellij
+ covers the core connect flow — detection, picker, initial auto-attach, remote approvals, and its own shortcut panel — but sits out reconnect auto-attach and the navigation extras.
+This page is the support matrix. For setup and day-to-day use, jump to the page for your multiplexer.
+One picker over every multiplexer
+A session picker over the agent-aware Herdr, tmux, and Zellij — tap an agent's event and land in the exact pane it's blocked on.
+Tap to play full
+What we support today
+Capability
+Herdr
+tmux
+Zellij
+Detect on connect
+Session picker from saved connections
+Auto-attach selected session on connect
+Auto-attach same session after reconnect
+Works inside mosh
+Open from Agent Events
+Remote approve / deny from the Inbox
+Answering on the host clears the phone
+Remote answers to agent questions
+Image paste into the agent pane
+Jump To session tree
+Agent status in Jump To rows
+Blocked / working / done
+Session deep links (moshi://)
+Session + workspace
+Session + window
+Shortcut panel tab
+Window / tab quick-access row
+Tab 1–20
+Window 1–20
+Tab 1–20
+Swipe gesture to switch window / tab
+Tab
+Window
+Tab
+Two-finger swipe to switch pane
+Two-finger vertical swipe to switch session / workspace
+Workspace
+Session
+Customizable prefix key
+Hide selector toggle
+moshi-hook context reporting
+kind=herdr + session/workspace/tab
+kind=tmux + pane + cwd
+kind=zellij + session/pane
+Project launcher (moshi DIR)
+Legend: a check means full support, a dash means not implemented or not applicable, and a string is a one-line clarification of the cell.
+A few rows deserve a sentence:
+Auto-attach same session after reconnect
+ — if the phone kills Moshi or the connection has to start fresh, Pro remembers the tmux session or Herdr session and workspace behind that terminal card and attaches it again automatically. The work survives on the host, and you do not have to recover it with an attach command. Zellij can auto-attach a session you select during a new connection, but does not yet restore it after reconnect.
+Remote approve / deny from the Inbox
+ — tapping Approve or Deny on a pending agent action injects the right keys into the exact pane, after 
+moshi-hook
+ has re-captured the screen and verified the prompt is still the one you saw. All three multiplexers expose the capture and send-keys primitives this needs.
+Answering on the host clears the phone
+ — if you answer an approval directly in the terminal instead, the daemon notices the prompt disappear and closes the pending action (and Live Activity) on the phone.
+Remote answers to agent questions
+ and 
+image paste
+ ride the same per-pane bridge, so they too work in all three.
+Jump To session tree
+ — the 
+Jump to…
+ sheet maps the current session as a two-level tree: Herdr workspaces and their tabs, or tmux sessions and their windows. Herdr rows additionally carry each agent's blocked/working/done status. Zellij has nothing to enumerate here yet.
+Session deep links
+ — the 
+public 
+moshi://
+ grammar
+ can open a Herdr session card at a workspace or a tmux session at a window. There is no Zellij deep-link form.
+Herdr
+Herdr
+ is an agent-aware multiplexer with persistent named sessions, workspaces, tabs, and panes. Moshi detects 
+herdr
+, lists running sessions via 
+herdr session list --json
+, and ships a Herdr shortcut panel pre-bound to the default 
+Ctrl-B
+ prefix (configurable, like tmux). Hook integration surfaces 
+kind=herdr
+ plus the session, workspace, and tab in inbox events, and Herdr's own agent awareness feeds blocked/working/done status into the Jump To sheet.
+The only gap versus tmux is a 
+moshi DIR
+ project-launcher equivalent. Everything else — remote approvals, question answering, image paste, Jump To, workspace deep links, the tab 1–20 quick-access row, the 
+Hide tab selector
+ toggle — is at parity. See 
+Herdr
+ for setup and the keybinds Moshi pre-binds.
+tmux
+The default workspace Moshi is built around, and the only multiplexer with the 
+moshi DIR
+ project launcher. See 
+tmux
+ for attach patterns, windows and panes, the agent workflow, and the most common detection issue (tmux missing from the non-interactive SSH 
+PATH
+).
+Zellij
+Detected on connect and surfaced in the session picker, with a dedicated shortcut panel, a tab quick-access row, and the full remote-control bridge: approvals, question answering, and image paste all work, and tap-to-open straight from an agent event lands in the right session. The gaps versus Herdr and tmux are navigation extras — no Jump To tree, no deep links, no configurable prefix — plus the 
+moshi DIR
+ launcher. See 
+Zellij
+ for the full feature set.
+Picking one
+For the tmux-versus-Herdr decision in full — the honest cases for each, and when to run both — see 
+tmux or Herdr?
+. The short form:
+Agent-heavy workflows where you want blocked/working/done state in the multiplexer itself: pick 
+Herdr
+. You give up only the 
+moshi DIR
+ launcher; you keep prefix customization, the tab quick-access row, remote approvals, Jump To with live agent status, workspace deep links, and full hook context — and Herdr's own agent awareness layers on top.
+New hosts and long-running agents that need the most battle-tested path: pick 
+tmux
+. It's the only one with the 
+moshi DIR
+ project launcher, it has the most-tested detection path, and it's what both 
+moshi-hook
+ and the 
+moshi CLI
+ optimize for.
+Already on 
+Zellij
+: keep it. Moshi detects it, lists sessions, shows the right shortcut panel, and remote approvals work the same as on the other two.
+Mixing several on one host: also fine. Each multiplexer is detected independently and the session picker groups them under separate tabs.
+Recent directories
+When a host has no live multiplexer sessions — or alongside the ones it does — the picker offers a 
+Recent
+ tab of the project folders you last worked in, pulled from your Claude, Codex, Cursor, and OpenCode history on the host. Each row shows the folder, its parent path, how long ago it was touched, and an icon for every agent that used it.
+Pick up where your agents left off
+The Recent tab lists project folders from your Claude, Codex, Cursor, and OpenCode history — tap one to start there.
+Tap to play full
+Tap a folder to land in it: a fresh tmux session rooted there when tmux is available and enabled, or a plain 
+cd
+ into a login shell otherwise. Moshi builds the list with 
+moshi-hook cwd-list
+ when 
+the hook
+ is installed, falling back to a read-only scan of the agents' transcript files over SSH. Toggle it under 
+Settings → Integration → Shell
+ with 
+Detect recent directories on connect
+.
+How detection works
+On connect, Moshi runs an SSH preflight that probes 
+command -v herdr
+, 
+command -v tmux
+, and 
+command -v zellij
+ over a non-interactive shell, then lists sessions for whichever it finds. The probe has a short timeout so a slow host does not block the terminal opening.
+If a multiplexer is installed but Moshi does not detect it, the cause is almost always the non-interactive SSH 
+PATH
+ missing the directory that holds the binary. The 
+tmux troubleshooting section
+ covers the fix; the same approach applies to Herdr and Zellij.
+On a native Windows host the preflight is a PowerShell command that resolves 
+herdr.exe
+ instead, and it needs OpenSSH's default shell set to PowerShell — see 
+Native Windows hosts
+.
+For example, if Herdr is installed but its sessions are missing from the picker, compare both environments:
+multiplexer detection
+copy
+$
+ssh <host> 'command -v herdr; command -v tmux; command -v zellij'
+$
+moshi-hook doctor
+The SSH command shows what the picker can resolve. The 
+Multiplexers
+ checks in 
+moshi-hook doctor
+ show what daemon-backed features can resolve, and flag a duplicate tmux or Herdr install that differs from your running server. (
+moshi-hook doctor
+ needs moshi-hook 0.4.3 or newer; older versions show this as the 
+multiplexers (daemon)
+ section of 
+moshi-hook status
+.) A missing path in only one output identifies which environment needs its 
+PATH
+ fixed. If Herdr appears in both but no workspace is listed, make sure its session server is running with 
+herdr session list --json
+. See 
+multiplexer path troubleshooting
+ for the full checklist.
+Next steps
+phone-friendly tmux workspace
+Herdr as the agent-aware option
+honest tmux vs Herdr decision
+sessions missing from the picker
+Zellij reference
+ previous
+Tailscale
+next 
+tmux
+on this page
+read
+0
+%
+Every coding agent, in your pocket. Real SSH & Mosh to your own machine.
+App Store
+Google Play
+Product
+Moshi
+Moshi Desktop
+Mata
+Pricing
+Resources
+Docs
+Learn
+Themes
+GitHub
+Compare
+T3 Code
+Orca
+Paseo
+Termius
+Blink Shell
+Secure ShellFish
+Happy
+Kittylitter
+Claude Code Remote Control
+© 2026 Moshi. Made with love and cat hair.
+Support
+Report a bug
+Twitter / X
+Brand
+Privacy
+Terms

@@ -1,0 +1,135 @@
+
+How can I keep Termius sessions alive in the background on iOS/iPadOS? | Help Center | termius.docs
+⌘
+Ctrl
+k
+GitBook Assistant
+Ask
+Product
+Pricing
+Log in
+Sign up
+More
+Documentation
+Changelog
+Help Center
+GitBook Assistant
+GitBook Assistant
+arrow-up-right-and-arrow-down-left-from-center
+GitBook Assistant
+I'm here to help you with the docs.
+What is this page about?
+What should I read next?
+Can you give an example?
+⌘
+Ctrl
+i
+AI
+Based on your context
+Send
+Welcome to Termius Help Center
+FAQ
+Frequently Asked Questions
+Is it possible to reset the Encryption Password without losing data?
+How can I keep Termius sessions alive in the background on iOS/iPadOS?
+What will happen when my Pro subscription expires?
+How does Termius detect a leaked Encryption Password?
+Resellers FAQ
+How can I cancel the trial?
+How can I request a refund?
+How can I get Termius for free with GitHub Student Developer Pack?
+How to set a default SFTP path?
+How can I hide the AI widget?
+Why am I required to create an account?
+Can Termius be localized to other languages?
+How to migrate from MultiKey to SSH ID?
+Troubleshooting
+Troubleshooting
+Port Forwarding or SSH connections stop working when switching apps on Android
+My App Store subscription is not active
+I can't log in or synchronize data
+I can't enter some characters (pipe, backslash, etc.) in the terminal
+I can't connect to a local device on iOS or macOS
+I get a 'host is unreachable' error on iOS
+I can't find the local terminal option in the desktop app
+Connection drops after a successful authentication
+Serial connections don't work on Microsoft Windows Store builds
+I'm unable to link my GitHub account
+I can't connect to a host
+Powered by GitBook
+On this page
+For the complete documentation index, see 
+llms.txt
+. This page is also available as 
+Markdown
+.
+GitBook Assistant
+Ask
+On this page
+Help Center
+FAQ
+How can I keep Termius sessions alive in the background on iOS/iPadOS?
+This article explains why sessions disconnect and port forwarding stops after you send the app to the background on iOS or iPadOS. It also covers a few ways to reduce the impact.
+Termius, like most other apps, cannot keep running in the background because of iOS and iPadOS restrictions. Recent versions stop background activity almost immediately, usually within 20 to 30 seconds. Older versions could allow it for 2 to 3 minutes.
+These restrictions help preserve battery life and device performance. They can also interrupt SSH sessions and port forwarding. Here are a few ways to work around that.
+Location tracking
+When you connect in Termius, the app logs the session. This log gives you an activity history and lets you add previous sessions as hosts.
+If you enable location tracking, you can also see where a connection was made on a map. As a side effect, background connections are less likely to be interrupted.
+Split view on iPad
+On iPad, you can use 
+Split View
+ to keep Termius open alongside another app.
+screen / tmux
+screen
+ or 
+tmux
+ can preserve your terminal session if the connection drops. However, they do not help if the app goes to the background while port forwarding is active.
+tmux
+ and 
+screen
+ may not be available on some devices, especially routers and switches.
+Note:
+ You can use a startup snippet to launch 
+tmux
+ or 
+screen
+ automatically when you connect. To learn more, see 
+Snippets
+. 
+Previous
+Is it possible to reset the Encryption Password without losing data?
+Next
+What will happen when my Pro subscription expires?
+Last updated 
+3 months ago
+Was this helpful?
+Download
+iPad
+iPhone
+Android
+macOS
+Windows
+Linux
+Resources
+Customer Support
+System Status
+Feature Requests
+Beta Program
+For Open Source
+For Students
+Company
+About Us
+Blog
+Careers
+Terms of Use
+Privacy Policy
+Responsible Disclosure
+Security
+x-twitter
+linkedin
+discord
+Ⓒ 2026 Termius Corporation. All rights reserved.
+Location tracking
+Split view on iPad
+screen / tmux
+Was this helpful?

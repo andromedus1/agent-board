@@ -1,0 +1,130 @@
+
+Claude Code: process.title is set to version number instead ... · #49852
+›_
+Claude Code Issues
+Status
+Search
+Updates
+Fix
+☰
+Fix
+Status
+Search
+Updates
+Subscribe
+For agents
+About
+Claude Code Issues
+ / 
+#49852
+process.title is set to version number instead of "claude", breaking tmux window names
+Status
+Closed — not planned
+Reported on
+v2.1.112
+Maintainer reply
+None cached
+Workaround
+✓ Mentioned in description ↑
+Activity
+ 6 comments · opened Apr 17, 2026  · closed May 30, 2026 
+Description
+When Claude Code starts, it sets 
+process.title
+ to its version string (e.g. 
+2.1.112
+). On macOS (and Linux), Node.js propagates this to the OS-level process name via 
+pthread_setname_np()
+ / 
+prctl()
+. Tools that read the process name — most notably tmux's 
+automatic-rename
+ — then display the version number as the window name instead of 
+claude
+.
+Steps to reproduce
+Open a tmux session with 
+automatic-rename
+ enabled (the default)
+Run 
+claude
+ in a pane
+Observe the window name becomes e.g. 
+2.1.112
+ instead of 
+claude
+Expected behavior
+Window name shows 
+claude
+ (or 
+claude code
+).
+Actual behavior
+Window name shows the version string, e.g. 
+2.1.112
+.
+Root cause
+process.title
+ is being set to the version number. The fix is a one-liner:
+// before
+process.title = version; // e.g. "2.1.112"
+// after
+process.title = "claude";
+Notes
+This is distinct from #21409 (which is about OSC 2 escape sequences for the terminal emulator title bar) — this bug affects the OS process name, which is what tmux reads for window naming.
+Workaround: wrap 
+claude
+ in a shell function that manually renames the tmux window and disables 
+automatic-rename
+ for the duration of the process.
+View original on GitHub ↗
+ This issue has 6 comments on GitHub. 
+Read the full discussion on GitHub ↗
+Related Claude Code issues
+Matched on shared title terms, labels, topic and reported release — ranked so issues with
+          real discussion come first.
+[Feature Request] Allow customization of tmux window name instead of auto-renaming to version number
+Resolved
+💬 2
+v2.1.139
+#58386
+[Bug] Session names auto-overwritten, ignoring user-set names
+Resolved
+💬 3
+v2.1.110
+#49712
+Terminal title set to bare version number — should include "Claude Code"
+Resolved
+💬 2
+v2.1.128
+#56166
+[BUG] /resume picker doesn't show session names set via /rename
+Resolved
+💬 3
+#39414
+[BUG] /resume still not showing custom session names set via Ctrl+R rename
+Resolved
+💬 6
+#39199
+[Bug] Session names swapped across sessions, breaking resume identification
+Open
+💬 0
+v2.1.301
+#102803
+VS Code: terminal tabs show the version number ("2.1.294") and lose custom names on reload
+Open
+💬 0
+v2.1.294
+#100548
+/resume doesn't search by session names set via /rename
+Resolved
+💬 3
+#43963
+Browse by topic
+Browse all Claude Code issue topics →
+An independent, searchable mirror of 
+anthropics/claude-code
+. Not affiliated with Anthropic.
+About
+Subscribe
+For agents

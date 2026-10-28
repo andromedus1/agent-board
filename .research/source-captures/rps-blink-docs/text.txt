@@ -1,0 +1,236 @@
+
+Quick Start Guide – Blink Shell
+Blink Shell
+Top mobile terminal for Apple devices.
+GitHub
+GitHub
+Discord
+Discord
+Quick Start
+What is Blink Shell
+Basics
+Hosts
+SSH Keys
+Notifications
+Commands
+Snips
+Customize
+Tips & Tricks
+Advanced
+SSH
+WebAuthn: Passkeys & Secure Keys
+Mosh
+Files.app
+Bookmarked Locations
+Vim
+Code
+UNIX Roundup
+SOCKS
+Creating Fonts & Themes
+Integrations
+Tailscale + Mosh
+Cloud Providers
+Amazon Web Services
+Digital Ocean
+Hetzner
+Build
+Getting Started
+Storage
+Build Up
+VS Code Server
+Go
+Next.js
+Python + Flask
+Ruby on Rails
+Rust
+What's New?
+FAQ
+(Closed) Blink Shell 14
+Quick Start
+Installing Blink Shell
+Navigating Blink Shell
+Gestures
+Keyboard shortcuts
+SMART KEYS
+Configuration
+Connecting to a Server or Computer using Blink
+Support and Community
+What is Blink Shell
+Basics
+Hosts
+SSH Keys
+Notifications
+Commands
+Snips
+Customize
+Tips & Tricks
+Advanced
+SSH
+WebAuthn: Passkeys & Secure Keys
+Mosh
+Files.app
+Bookmarked Locations
+Vim
+Code
+UNIX Roundup
+SOCKS
+Creating Fonts & Themes
+Integrations
+Tailscale + Mosh
+Cloud Providers
+Amazon Web Services
+Digital Ocean
+Hetzner
+Build
+Getting Started
+Storage
+Build Up
+VS Code Server
+Go
+Next.js
+Python + Flask
+Ruby on Rails
+Rust
+What's New?
+FAQ
+(Closed) Blink Shell 14
+light
+On This Page
+Installing Blink Shell
+Navigating Blink Shell
+Gestures
+Keyboard shortcuts
+SMART KEYS
+Configuration
+Connecting to a Server or Computer using Blink
+Mosh
+SSH
+Support and Community
+Edit this page on GitHub
+Quick Start
+Quick Start Guide
+Installing Blink Shell
+Download Blink Shell on the App Store:
+Start a Free Trial of Blink+Build or buy Blink+, the Shell of choice for developers, depending on your needs.
+Navigating Blink Shell
+Welcome! You can now start using Blink. Here is a quick tour:
+Using Blink Shell is similar to most other terminals - you simply type commands and hit the 
+RETURN
+ key.
+Navigate command history with the 
+up
+ and 
+down
+ arrow keys.
+Type 
+help
+ to get a quick list of available 
+commands
+ and features.
+Gestures
+Touchscreen gestures:
+To create a new shell, tap the screen with two fingers ✌️.
+To switch between active shells, swipe side to side ⬅️👆➡️.
+To adjust size of current terminal, pinch the screen 👌.
+To start selection mode, Tap and drag 👆🔘🔼.
+You can drag selections to other apps, or from other apps into Blink. It will be pasted where the cursor is located.
+To show the Context bar, tap the iOS Home Bar twice or press 
+CMD ⌘
+ twice.
+In the bar you can: Create or Close a tab, access Snips, and toggle Lock and Geo.
+Change the Context Bar appearance in the 
+…
+ menu.
+Keyboard shortcuts
+If you have a keyboard connected, press and hold 
+CMD ⌘
+ key to see available shortcuts.
+SMART KEYS
+Smart Keys provide special keys to use in your terminal session. Smart Keys are 
+only
+ visible when using the on screen keyboard, and hidden when using an external keyboard.
+Modifiers (i.e. 
+CTRL
+ ^, 
+ALT
+ ⌥, and 
+ESC
+ ⎋) for key combinations like 
+CTRL
++
+C
+.
+Arrow keys.
+Function and Alternate Cursor keys like Home, End, Page Down and Page Up when pressing 
+CMD
+ ⌘.
+Scrollable area in the center with more keys
+Hold a modifier to chain multiple combinations, useful in applications like Emacs where you use chains like 
+C-x
+, 
+C-c
+.
+Configuration
+To access the Settings menu type 
+config
+ in the shell or press 
+CMD ⌘
+ and 
+,
+ together:
+Hosts: create hosts that can be accessed with only the hostname. 
+Read more.
+Keys: Create SSH key pairs for a more secure, password-less access to your servers. 
+Read more.
+Appearance: Style your terminal with 
+themes
+ and 
+fonts
+.
+Keyboard: add shortcuts, modifier keys and custom key presses. 
+Read more.
+Get in contact with us through the Support or Feedback options.
+Connecting to a Server or Computer using Blink
+Mosh
+Make sure you have mosh installed in your desired destination.
+In Blink type 
+mosh [user@]hostname
+. For example : 
+mosh irwin@irwinvb
+.
+Or use the IP Address. For example: 
+mosh irwin@100.10.222.33
+.
+Read more about Mosh.
+SSH
+Make sure you have ssh set up on your desired destination.
+In Blink type 
+ssh [user@]hostname
+. For example : 
+ssh irwin@irwinvb
+.
+Or use the IP Address. For example: 
+ssh irwin@100.10.222.33
+.
+Follow Blink instructions for password, accepting the remote host key, etc.
+Read more about SSH.
+Support and Community
+We sincerely appreciate your support and use of Blink. You can contact us via 
+email
+ but ideally it is best to file issues on our 
+GitHub Discussions
+ so that all of the community is aware of the issue. Not only does it help make Blink better but another user may help you solve your issue.
+VERY IMPORTANT: Reporting a problem in your review in the App Store will not help us solve issues that you might be experiencing. Please make sure to contact us too!
+When a crash occurs in the application we receive a crash report. When this happens, please 
+email
+ us or open a 
+GitHub Issue
+.
+Do you have an idea for a feature? Join our community on 
+GitHub Discussions
+ to send us your suggestions!
+What is Blink Shell
+light
+© 
+2025
+ Blink Shell is developed by Blink Shell Inc.
