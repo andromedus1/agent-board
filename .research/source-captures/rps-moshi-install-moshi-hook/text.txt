@@ -1,0 +1,379 @@
+
+Install moshi-hook on macOS, Linux, Windows & WSL
+Search
+⌘
+K
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+Search
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+browse
+Install moshi-hook
+start
+What Moshi does
+Install and prepare a host
+Run your first session
+connections
+Connections and authentication
+Terminal sessions
+Tailscale
+multiplexer
+Multiplexers
+tmux
+Zellij
+Herdr
+Jump to…
+input
+Scrolling and scrollback
+Voice and dictation
+Gestures
+Clipboard and copy/paste
+Keyboard and shortcuts
+CJK and IME input
+settings
+Licensing and sharing
+Personalization
+Free vs Pro
+Security and sync
+integrations
+Agents & Usages
+Apple Watch
+Image and file paste
+Install moshi-hook
+Install Moshi Desktop
+Hooks
+Hook settings
+Chat View
+Moshi CLI
+Moshi Skill
+Live Activity
+Diff viewer
+Browser preview
+Simulator preview
+Push notifications and webhooks
+Files and image sharing
+help
+Troubleshooting
+Debugging the gateway
+Debugging the session picker
+Debugging Chat View
+Reporting a bug
+Docs
+/
+Integrations
+/
+Install moshi-hook
+setup
+Install moshi-hook
+Every way to install the moshi-hook daemon on a host — the one-line script, Homebrew, WSL, the experimental Windows preview, and manual binaries — plus running it as a service, updating, and uninstalling.
+updated 
+3 weeks ago
+6 min read
+page 
+22
+ / 
+42
+copy
+moshi-hook
+ is the companion daemon that makes the terminal agent-aware: it installs hook config for Claude Code, Codex, OpenCode, and the rest, owns the local Unix socket agents post events to, serves the host gateway on 
+127.0.0.1:24543
+, and keeps the WebSocket to Moshi for approvals and status.
+It is a single Go binary with no runtime dependencies, and it runs on 
+macOS and Linux
+ (x86_64 and arm64). Native 
+Windows
+ builds exist as an 
+experimental preview
+; the stable path on Windows is still 
+WSL
+.
+This page is only about getting the binary onto a host. For what the hooks do once installed — the event matrix, agent config files, and diagnostics — see 
+Agent hooks and Live Activities
+.
+One-line install
+The fastest path on any supported host:
+install script
+copy
+$
+curl -fsSL https://getmoshi.app/install.sh | sh
+The script detects your OS and architecture, downloads the matching release from 
+cdn.getmoshi.app
+, installs 
+moshi-hook
+ into 
+~/.local/bin
+, and adds a 
+moshi
+ symlink next to it. If 
+~/.local/bin
+ is not on your 
+PATH
+, the script prints the line to add to your shell config.
+It also runs a short first-run prompt for discovery and usage settings. Skip it in scripted setups with 
+MOSHI_HOOK_SKIP_FIRST_RUN=1
+, then run 
+moshi-hook set --first-run
+ later.
+Homebrew (macOS)
+Homebrew is the better choice on a Mac you use daily: it manages upgrades and can run the daemon under 
+brew services
+.
+homebrew
+copy
+$
+brew tap rjyo/moshi
+$
+brew trust rjyo/moshi
+$
+brew install moshi-hook
+Linux and WSL
+Use the install script above, then start the daemon as a systemd 
+user
+ service so it survives logout and reboots:
+systemd user service
+copy
+$
+curl -fsSL https://getmoshi.app/install.sh | sh
+$
+moshi-hook service install
+$
+moshi-hook service status
+On WSL, run exactly the same commands inside the distro, and enable the OpenSSH server there (
+sudo apt install openssh-server
+) so Moshi can reach the host. If your WSL distro has systemd disabled, run 
+moshi-hook serve
+ from your shell startup or under any process manager instead.
+Windows (experimental)
+warn
+Native Windows support is 
+experimental
+. The binaries are unsigned, the agent matrix is narrower than macOS and Linux, and 
+Herdr
+ is the only supported multiplexer — tmux and Zellij do not run natively. For a stable setup, install inside WSL using the Linux steps above.
+From a normal PowerShell window — no elevation needed:
+powershell
+copy
+$
+powershell -ExecutionPolicy Bypass -c "irm https://getmoshi.app/install.ps1 | iex"
+The installer resolves the latest release, verifies the published ZIP against the release checksums, and installs it per-user under 
+%USERPROFILE%\.moshi\packages\standalone\releases
+. A directory junction at 
+%LOCALAPPDATA%\Programs\Moshi Hook\bin
+ points at the active version and is added to your user 
+PATH
+; the three newest releases are retained so you can roll back.
+Because the preview binaries are not yet Authenticode-signed, SmartScreen may ask you to choose 
+More info → Run anyway
+.
+Open a new PowerShell window, then pair and run the daemon at logon:
+windows setup
+copy
+$
+moshi-hook pair --token <token from Moshi>
+$
+moshi-hook install
+$
+moshi-hook service install
+On Windows, 
+moshi-hook service install
+ registers a current-user logon entry (
+HKCU\...\Run
+) and starts the daemon detached — no elevation, no Windows service. 
+moshi-hook update
+ works the same way as on Linux and replaces the running executable in place.
+warn
+Set OpenSSH's default shell to PowerShell. Moshi's connect-time Herdr probe is a PowerShell command, and OpenSSH for Windows runs remote commands through 
+cmd.exe
+ unless 
+HKLM\SOFTWARE\OpenSSH\DefaultShell
+ is set — without it, Moshi skips the Herdr picker and opens a plain shell. See 
+Native Windows hosts
+ for the one-line fix.
+Known experimental-preview limits: stopping an arbitrary dev-server process gracefully is unavailable (Windows has no 
+SIGTERM
+ equivalent), SSH-origin attribution is unavailable, and Kimi, Qwen, Cursor Agent, the Antigravity CLI, and Gemini CLI are not validated natively.
+Manual binary
+If you would rather not pipe a script to 
+sh
+, the same release archives are on the CDN. Pin a version and install directory explicitly:
+pinned install
+copy
+$
+curl -fsSL https://getmoshi.app/install.sh | MOSHI_HOOK_VERSION=v0.2.54 INSTALL_DIR=/usr/local/bin sh
+Both variables also work with a downloaded copy of the script, so you can read it first and run it yourself:
+MOSHI_HOOK_VERSION
+ — install a specific tag instead of the latest release.
+INSTALL_DIR
+ — where the binary lands. Defaults to 
+~/.local/bin
+.
+MOSHI_HOOK_SKIP_FIRST_RUN=1
+ — skip the interactive first-run settings.
+path
+Moshi's host check looks for the binary in 
+~/.local/bin
+, 
+~/bin
+, 
+/opt/homebrew/bin
+, 
+/usr/local/bin
+, and 
+/opt/local/bin
+ before falling back to your login shell's 
+PATH
+. Installing somewhere else still works, but the app may report 
+not installed
+ until that directory is on the login-shell 
+PATH
+.
+Verify and pair
+verify
+copy
+$
+moshi-hook version
+$
+moshi-hook status
+Then pair the host with your phone. Open 
+Settings → Hooks
+ in Moshi, copy the pairing token, and run:
+pair and install hooks
+copy
+$
+moshi-hook pair --token <token from Moshi>
+$
+moshi-hook install
+Then check the whole host with 
+moshi-hook doctor
+. It confirms the daemon, gateway, pairing, agent hooks, and tmux or Herdr, and prints which Moshi features work here with numbered fixes for anything missing. 
+doctor
+ needs moshi-hook 0.4.3 or newer; older versions show hook state in 
+moshi-hook status
+.
+check the host
+copy
+$
+moshi-hook doctor
+For a first-time host setup, 
+moshi-hook host setup
+ prints an Easy Pair QR that also creates the SSH connection — see 
+Install and prepare a host
+.
+Keep it running
+The daemon must be up for agent events, approvals, and Chat View. Pick the one that matches how you installed it:
+run the daemon
+copy
+# Homebrew on macOS
+$
+brew services start moshi-hook
+# systemd on Linux or WSL, logon startup on Windows
+$
+moshi-hook service install
+# anything else — foreground, under your own supervisor
+$
+moshi-hook serve
+moshi-hook service install
+ covers systemd on Linux and logon startup on Windows; on a manual macOS install, run 
+moshi-hook serve
+ or switch to Homebrew.
+Update
+Manual and script installs update themselves in place:
+update a manual install
+copy
+$
+moshi-hook update
+$
+moshi-hook update --version v0.2.54
+Homebrew installs upgrade through brew instead — 
+moshi-hook update
+ is not the right tool there:
+update a homebrew install
+copy
+$
+brew update
+$
+brew upgrade moshi-hook
+$
+brew services restart moshi-hook
+Pairing and installed agent hooks survive an upgrade, so there is no need to re-pair or re-run 
+moshi-hook install
+.
+Uninstall
+uninstall
+copy
+$
+moshi-hook uninstall
+$
+moshi-hook unpair
+# then remove the binary itself
+$
+moshi-hook service uninstall
+$
+brew uninstall moshi-hook
+$
+rm ~/.local/bin/moshi-hook ~/.local/bin/moshi
+moshi-hook uninstall
+ removes only the Moshi-owned entries from agent config files and leaves your own hooks alone.
+If the install fails
+The install script and Homebrew both pull binaries from 
+cdn.getmoshi.app
+. On rare networks Cloudflare serves a bot challenge to 
+curl
+ and the download returns HTTP 403 — 
+Troubleshooting
+ covers that case, along with the 
+not installed
+ dot and gateway checks.
+Next steps
+set up Moshi Desktop on top of it
+what the hooks do once installed
+the moshi CLI that ships with it
+fix a failed download or a not-installed dot
+tune discovery and usage settings
+ previous
+Image and file paste
+next 
+Install Moshi Desktop
+on this page
+read
+0
+%
+Every coding agent, in your pocket. Real SSH & Mosh to your own machine.
+App Store
+Google Play
+Product
+Moshi
+Moshi Desktop
+Mata
+Pricing
+Resources
+Docs
+Learn
+Themes
+GitHub
+Compare
+T3 Code
+Orca
+Paseo
+Termius
+Blink Shell
+Secure ShellFish
+Happy
+Kittylitter
+Claude Code Remote Control
+© 2026 Moshi. Made with love and cat hair.
+Support
+Report a bug
+Twitter / X
+Brand
+Privacy
+Terms
