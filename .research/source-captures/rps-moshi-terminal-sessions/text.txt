@@ -1,0 +1,166 @@
+
+How Moshi Keeps Mobile Sessions Alive
+Search
+⌘
+K
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+Search
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+browse
+Terminal sessions
+start
+What Moshi does
+Install and prepare a host
+Run your first session
+connections
+Connections and authentication
+Terminal sessions
+Tailscale
+multiplexer
+Multiplexers
+tmux
+Zellij
+Herdr
+Jump to…
+input
+Scrolling and scrollback
+Voice and dictation
+Gestures
+Clipboard and copy/paste
+Keyboard and shortcuts
+CJK and IME input
+settings
+Licensing and sharing
+Personalization
+Free vs Pro
+Security and sync
+integrations
+Agents & Usages
+Apple Watch
+Image and file paste
+Install moshi-hook
+Install Moshi Desktop
+Hooks
+Hook settings
+Chat View
+Moshi CLI
+Moshi Skill
+Live Activity
+Diff viewer
+Browser preview
+Simulator preview
+Push notifications and webhooks
+Files and image sharing
+help
+Troubleshooting
+Debugging the gateway
+Debugging the session picker
+Debugging Chat View
+Reporting a bug
+Docs
+/
+Connections
+/
+Terminal sessions
+terminal
+Terminal sessions
+How Moshi keeps sessions usable on mobile: mosh, SSH fallback, active sessions, reconnect behavior, and the MOSHI_CLIENT flag.
+updated 
+1 month ago
+2 min read
+page 
+5
+ / 
+42
+copy
+Moshi's terminal is designed around reconnecting to work that is already running on the host. The strongest setup is mosh for transport plus tmux for process lifetime.
+Sessions that survive everything
+Mosh keeps the terminal alive across sleep, network switches, even an app kill — it catches up the moment you return.
+Tap to play full
+Transport behavior
+SSH
+ gives you broad compatibility and works anywhere TCP SSH works.
+Mosh
+ starts through SSH, then uses UDP to keep the terminal responsive and resilient while the device changes networks. It is the better choice for mobile use when UDP is available.
+If mosh fails but SSH works, check host firewall rules and the configured UDP range before changing app settings.
+Active sessions
+Moshi tracks active terminal sessions so you can leave one connection, open another, and switch back. On iPad, the app can show more session context; on iPhone, the switcher keeps the terminal surface compact.
+Useful session actions include:
+Switch between active sessions.
+Close a session when you are done.
+Reconnect to a previous terminal route.
+Resume the last active session when opening the app.
+Scrollback
+Moshi keeps a fixed-size scrollback buffer in the app. The mosh protocol does not transmit history above the visible screen at connect time, so for durable, searchable scrollback run inside tmux. See 
+Scrolling and scrollback
+ for the full picture, including tmux copy mode.
+Reconnect expectations
+Mosh can survive network changes, but it does not keep the remote shell alive after the remote process exits. tmux handles that part.
+Use this pattern for important work:
+durable workspace
+copy
+$
+tmux new -s moshi
+$
+codex
+If the app gets killed or the connection has to start over, Pro reconnects to the host and automatically attaches the same tmux or Herdr session. The shell or agent keeps running on the host, and you do not have to type an attach command by hand. Zellij sessions can be selected and auto-attached when starting a new connection, but are not yet restored automatically after a reconnect.
+MOSHI_CLIENT environment flag
+Settings includes a 
+MOSHI_CLIENT env
+ toggle. When enabled, Moshi exports 
+MOSHI_CLIENT=1
+ into the remote shell so your shell startup files, tmux config, or scripts can detect Moshi-launched sessions.
+It is off by default to keep SSH startup behavior quiet and predictable.
+Next steps
+why Mosh beats plain SSH on a phone
+put long work inside tmux
+connection and auth options
+recover from drops and reconnect loops
+ previous
+Connections and authentication
+next 
+Tailscale
+on this page
+read
+0
+%
+Every coding agent, in your pocket. Real SSH & Mosh to your own machine.
+App Store
+Google Play
+Product
+Moshi
+Moshi Desktop
+Mata
+Pricing
+Resources
+Docs
+Learn
+Themes
+GitHub
+Compare
+T3 Code
+Orca
+Paseo
+Termius
+Blink Shell
+Secure ShellFish
+Happy
+Kittylitter
+Claude Code Remote Control
+© 2026 Moshi. Made with love and cat hair.
+Support
+Report a bug
+Twitter / X
+Brand
+Privacy
+Terms

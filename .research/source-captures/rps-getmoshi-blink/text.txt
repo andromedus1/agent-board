@@ -1,0 +1,453 @@
+
+Blink Shell vs Moshi (2026): AI Agents vs Power Terminal
+Search
+⌘
+K
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+Search
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+browse
+Blink Shell vs Moshi
+agent environments
+T3 Code vs Moshi
+Orca vs Moshi
+Paseo vs Moshi
+agent clients
+Claude Code Remote Control vs Moshi
+Happy vs Moshi
+Kittylitter vs Moshi
+ssh clients
+Termius vs Moshi
+Blink Shell vs Moshi
+Secure ShellFish vs Moshi
+Compare
+/
+SSH clients
+/
+Blink Shell vs Moshi
+comparison
+Blink Shell vs Moshi
+Blink Shell is the hacker's iOS terminal — open source, Mosh-native, and the most serious SSH client on the App Store. Moshi is the phone terminal built around AI coding agents: an approval inbox, push when an agent needs you, voice, image paste, and a diff viewer. Both speak Mosh; here's the honest split.
+updated 
+2 weeks ago
+10 min read
+page 
+6
+ / 
+9
+copy
+Blink Shell
+ has a special place on iOS. It's been around since 2016, it's open source (GPL-3.0), and for a decade it has been the answer when someone asks "what's the 
+real
+ terminal for iPhone and iPad?" It's built on Mosh and SSH, it puts keys in the Secure Enclave, it forwards ports and agents, and it pairs with a hardware keyboard like a desktop machine. If you live in a shell, Blink earns the loyalty it gets.
+Moshi overlaps with Blink in exactly one place — both are genuine, Mosh-native terminals on iOS — and then diverges hard. Blink's product 
+is
+ the terminal: get me a fast, durable shell on any host, from any Apple device, with the best keyboard ergonomics on the platform. Moshi's product is the loop 
+around
+ the terminal: kick off an AI coding agent on your own machine, get pulled in only when it needs a decision, answer from your lock screen, and review what it changed.
+So this isn't "which renders a nicer VT100." Both are good terminals. The real question is 
+what you do once you're connected
+ — type commands by hand, or steer an agent. This page lays out both sides honestly, including the places Blink is simply the better tool.
+Agents Moshi drives
+Claude Code
+Codex
+OpenCode
+Antigravity
+Kimi
+Cursor
+Grok Build
+Pi
+OMP
+Hermes
+Qoder
+Factory Droid
+Copilot
+Amp
+Devin
+OmO
+jcode
+Gemini
+Qwen Code
+native chat view
+Blink can 
+run
+ every one of these — it's a terminal, so 
+claude
+ or 
+codex
+ launches like any command, and Blink will keep that session alive over Mosh beautifully. What it doesn't do is treat them as agents: there's no approval inbox, no push when one is blocked on a 
+y/n
+, no diff viewer for what they touched. That gap is the whole comparison.
+The short version
+Capability
+Moshi
+Blink Shell
+Mosh-native mobile terminal
+Built around coding agents
+Native agent chat
+Experimental · Pro
+Agent inbox & lifecycle status
+Push & remote approvals
+Terminal alerts
+Usage & context reports
+Voice input
+On-device
+Prompt Mode
+Paste images & files
+Pro · no hook
+Diff, repo source & preview
+Pro
+Terminal / Blink Code
+Multiplexer UI
+tmux / Zellij / Herdr
+Runs tmux
+Remote file browsing
+Git-aware · read-only
+Files.app
+Advanced SSH tooling
+Core workflows
+Jump hosts / SOCKS5
+Android app
+Open source
+GPL-3.0
+Moshi's terminal, SSH, voice, and Pro image/file paste work without 
+moshi-hook
+. The optional helper adds the agent-aware inbox, usage, Chat View, approvals, and review surfaces; Chat View is experimental, Pro, and supports a smaller roster than the general inbox.
+The pattern is clean: the agent-workflow rows go to Moshi, and the deep-terminal and open-source rows go to Blink. Pick the list that matches how you actually spend time on your phone.
+Pay once, own it forever
+Moshi Pro unlocks the full agent workflow — approvals, voice, diff review, unlimited hosts. $7.99/mo, $69.99/yr, or a one-time $199 lifetime license.
+Compare plans
+Same foundation, different product
+Strip both apps to the metal and you find the same primitive: a Mosh client that survives network changes and keeps a shell alive while your phone sleeps. That's rarer than it sounds — most "terminal" apps on iOS are plain SSH and drop the moment you switch from Wi-Fi to cellular. Blink and Moshi both nailed this years apart, and it's why neither one strands an agent mid-run.
+Where they part ways is the layer above. Blink invests everything into being the best possible 
+shell
+: emulation accuracy, font ligatures, keyboard remapping, port forwarding, an SSH config parser, a File Provider for Files.app. Moshi treats the shell as table stakes and spends its budget on the 
+agent loop
+ — the inbox, the notifications, the diff viewer, the image paste. Same engine room, different ship.
+An inbox, not just a prompt
+Moshi opens to an agent inbox — every approval, question, and finished turn in one feed. Blink opens to a shell, which is exactly what a terminal should do.
+Tap to play full
+Approvals without watching the screen
+This is the feature with no Blink equivalent, because Blink has no concept of an agent. With Moshi's 
+host daemon
+ installed (
+brew install moshi-hook
+), an agent's permission prompts and turn events leave the terminal buffer and come to you:
+Inbox
+.
+ Every approval request, question, and finished turn lands as a card. Tap 
+Allow
+, 
+Deny
+, or open the session to read the full context first.
+Live Activity & Dynamic Island
+.
+ The active turn shows on the lock screen — watch a long run progress without unlocking.
+Push
+ & 
+Apple Watch
+.
+ Get notified the instant an agent needs you or finishes, and approve straight from your wrist.
+In Blink, an agent waiting on a prompt is just text sitting in a buffer. Blink's notifications are escape-sequence driven — a 
+BEL
+ or an 
+OSC 9
+ fires a banner 
+while you're looking at a connected session
+, but there's no server-push to reach you when the app is backgrounded or closed. So to learn that Claude Code is blocked, you open Blink, find the session, and read the scrollback. In Moshi it taps you on the shoulder — and a tap on your phone unblocks the process on the host instantly.
+Answer from the lock screen
+A permission prompt answered from the lock screen, Dynamic Island, and Apple Watch — no unlock, no hunting for the session.
+Tap to play full
+A dashboard for your agents, not just a shell
+Blink shows you a terminal. Moshi shows you the 
+state of every agent you're running
+ — the things that normally live buried in scrollback, or that simply have no home on a phone:
+Usage rings
+.
+ Moshi reads each agent's rate-limit windows straight off the host and draws them as rings: Claude Code's 5-hour and 7-day windows, Codex's rolling windows, OpenCode's provider-dependent limits. Before you kick off another long turn you can see whether you have headroom — in the app, or from an Apple Watch complication.
+Context "stamina."
+ Each active agent carries a ring showing how much of its model context window is left. Drop below ~15% and it's flagged, so you can tell the agent to summarize before it starts forgetting what it was doing. No terminal — Blink included — surfaces that.
+Recent directories.
+ Connect to a host with no live session and Moshi offers one-tap entries for the directories where Claude or Codex 
+recently ran
+, read from the agents' own transcripts on the host. You reconnect straight into the repo the agent was working in, instead of typing a path.
+None of this exists in a pure terminal, because a pure terminal has no idea an agent is running at all. Blink sees characters streaming through a PTY; Moshi sees sessions, limits, and context.
+model
+This is the clearest line between the two apps: Blink is a flawless pipe to a shell. Moshi reads the agent layer on top of that shell — limits, context budget, working directory — and turns it into a glanceable dashboard. A terminal can't show you any of it because, to a terminal, it's all just text.
+Voice, and the honest caveat
+Credit where it's due: Blink shipped a 
+Prompt Mode
+ in 2025 with voice input — you dictate a prompt and Blink drops the text into the terminal. It's a real, useful feature, and it's more than most terminals offer. If voice dictation into a shell is all you want, Blink has it.
+Moshi's 
+voice
+ goes further in two ways that matter for agents. First, it runs 
+on-device by default
+ — pick from NVIDIA's Parakeet, Apple's on-device SpeechAnalyzer (iOS 26+), or a local Whisper (
+large-v3-turbo
+ and smaller), with a metered cloud option only if you want it — so a dictated prompt never has to leave your phone. Second, it has two modes: a 
+chat mode
+ that opens a composer where you can edit a long prompt (and attach an image) before sending, and a 
+command mode
+ that types straight into the shell, with a transcription history you can re-send. "Write a migration that adds a nullable 
+deleted_at
+ to users, then show me the diff" — spoken while walking — is the difference between thumb-typing and just talking. Blink's Prompt Mode is a genuine, useful composer; Moshi's edge is that the recognition happens on the device and the same dictation can either draft a careful prompt or fire a raw command.
+Talk, don't thumb-type
+On-device or cloud dictation, in a chat composer you can edit or a command mode that types into the terminal.
+Tap to play full
+Paste a screenshot — or any file — into the agent
+This is one of the clearest workflow differences. On a desktop you screenshot a bug and drag it into Claude Code. On a phone there's normally no direct path from your camera roll to the running agent prompt. Moshi collapses it to one tap: pick a photo, screenshot, PDF, or log, and Moshi copies it to your host over SCP into 
+~/.moshi/uploads/
+, then hands the agent a local file path — exactly as if you'd pressed 
+Ctrl+V
+ in Claude Code or Codex. You can even crop or annotate the screenshot in-app first, and the same path carries arbitrary files, not just images. This direct transfer is a Pro feature but does not require 
+moshi-hook
+. See 
+Image and file paste
+.
+model
+Blink can transfer files through Files.app, while Moshi's flow is specifically designed to hand a selected image or file to the running agent prompt.
+One tap, straight into the prompt
+Pick a screenshot, photo, PDF, or log — Moshi SCPs it to your host and hands the agent a path.
+Tap to play full
+Review what the agent changed
+When an agent edits a dozen files, reading raw 
+git diff
+ in terminal scrollback on a phone is miserable. Moshi ships review surfaces Blink doesn't:
+Diff viewer
+ — a proper side-by-side (or stacked) read of the working tree, syntax-highlighted and tuned for a phone screen.
+A repository browser
+ — the diff app's 
+Browse
+ tab walks the file tree at the working tree or any past commit and opens files as syntax-highlighted source (TypeScript/JavaScript, Go, Swift, JSON, YAML, Markdown, shell, and more), so you can read around the changes, not just the changed lines.
+Browser preview
+ — tap a detected localhost port and the host's dev server opens in Moshi's in-app browser, tunneled over your existing session.
+In Blink you'd read that diff as plain terminal text, or jump over to 
+Blink Code
+ (its VS Code front-end) — capable, but a separate context, not a one-tap review of what just happened.
+Read diffs without squinting
+Review the working tree in a phone-tuned diff viewer, then preview the running app in-app over your session.
+Tap to play full
+Browse the repo, not just the diff
+Walk the file tree at any commit and open files as syntax-highlighted source, right in the diff app.
+Tap to play full
+The keyboard: Blink's home turf, retooled for agents
+Give Blink its due first — on a 
+hardware keyboard
+, it is the best terminal on iOS, full stop. Custom key remapping, Vim and Emacs modes, and an external-keyboard config that rivals a desktop. Pair an iPad with a Magic Keyboard and live in 
+vim
+, and Blink is unmatched; Moshi doesn't try to be.
+Where Moshi spent its keyboard budget is the 
+on-screen
+ keyboard you actually thumb one-handed while an agent works — and it's tuned for exactly that:
+A D-pad with agent-aware slots.
+ The on-screen 
+D-pad
+ has configurable corners — one defaults to 
+Interrupt
+ (clear the line, soft-cancel a runaway turn), another to a dedicated 
+Backspace
+ that exists specifically because some agent TUIs swallow the normal one.
+A shortcut builder.
+ Capture any sequence — 
+Ctrl+R
+, a tmux prefix chord, 
+Esc :wq
+, or a literal prompt fragment you send constantly — and bind it to a toolbar slot, a gesture, or a D-pad corner. There are per-agent shortcut sets for Claude Code, Codex, Cursor, and OpenCode.
+Gestures instead of precise taps.
+ Agents prompt every few seconds, and hitting a small on-screen target every time is miserable. Double-tap to paste, swipe to switch session or tmux window, pinch to zoom a pane — all 
+rebindable
+.
+Blink owns the laptop-with-a-keyboard experience. Moshi owns the thumb-on-a-phone-while-an-agent-runs experience.
+Built for thumbs, not just keyboards
+A customizable on-screen toolbar, a D-pad with an Interrupt and a Backspace slot, and bindable gestures — tuned for answering an agent one-handed.
+Tap to play full
+A note on the terminal engine
+Moshi's terminal is built on 
+Ghostty
+ and rendered on the GPU with Metal. Over the long, chatty output an agent produces, GPU rendering keeps scrolling smooth and pushes work off the CPU — gentler on battery, cooler in the hand. Blink's terminal is mature, fast, and excellent in its own right; it's CPU-drawn, which is perfectly fine for interactive shell work and only really shows up over thousands of lines of streaming agent output. Both keep sessions durable over Mosh; pair either with a multiplexer and the agent keeps running no matter what your phone does.
+Multiplexers: a picker, and an agent-aware one
+Keeping a long agent run alive across disconnects means pairing the session with a multiplexer — table stakes, and Blink handles it well as plain commands. Moshi builds UI on top of three of them. 
+tmux
+ gets a session picker and a 
+moshi <dir>
+ launcher that drops you straight into a project. 
+Zellij
+ gets the same picker plus a shortcut panel. And 
+Herdr
+ — an 
+agent-aware
+ multiplexer — gets the most: Moshi reads its per-pane 
+blocked / working / done
+ state, so tapping an agent event reattaches you to the exact pane that needs you. In Blink you'd 
+tmux attach
+ and then hunt for the right window yourself.
+Sessions that outlive your phone
+A multiplexer picker over tmux, Zellij, and the agent-aware Herdr — tap an agent's event and land in the exact pane it's blocked on.
+Tap to play full
+Built like a phone app, not a terminal in a window
+Blink is, by design, a terminal — a brilliant one, but a terminal. Moshi is a native iOS app that happens to contain a terminal, and a lot of the difference shows up in small, phone-shaped places:
+An app-switcher for sessions.
+ Sessions appear as cards with live preview thumbnails; swipe between them, minimize one to the home view, and Moshi restores it — buffer intact — when you come back.
+Biometric resume.
+ Face ID gates your saved keys and, optionally, resuming the app; while that check is pending, the live previews stay blurred so your terminal contents aren't on screen for a shoulder-surfer.
+Whole-app theming.
+ Pick one of nine themes and the 
+entire
+ UI flips — inbox cards, sheets, system bars — not just the terminal pane, with light themes that remap the 256-color ramp so 
+htop
+ and Neovim status lines stay readable.
+Live Activity
+.
+ A running agent turn lives on your lock screen and in the Dynamic Island, so a long build is a glance away without unlocking.
+These are the kinds of things a terminal app doesn't reach for and a phone app can't skip. It's the same split as everywhere else on this page: Blink optimizes the shell, Moshi optimizes the device around the agent.
+A theme for the whole app
+Nine themes that recolor the entire app, not just the terminal — with light modes tuned so TUIs stay legible.
+Tap to play full
+One inbox, many machines
+A terminal is one connection at a time. The agent workflow usually isn't — you might have Claude Code refactoring on your Mac, Codex running tests on a Linux box, and a second agent in another repo. Moshi's 
+inbox
+ collapses all of that into a single feed, grouped by 
+host
+ and by 
+project
+, so the same agent on two machines stays cleanly separated. A finished turn floats up, a pending approval pins to the top, and stale items archive themselves after a few hours so the list stays "what's happening now." In Blink, each of those would be a separate session you'd open and read in turn; there's no aggregated view because, again, Blink has no concept of a turn. You can absolutely run several agents from Blink — you just can't see them at a glance.
+Where Blink wins
+Blink is not a lesser terminal — for pure terminal work it's arguably the strongest on iOS, and it's genuinely better than Moshi at several things. If these describe you, Blink is the right pick:
+It's open source.
+ GPL-3.0, auditable, buildable yourself. For security-conscious users that's a real, principled advantage Moshi doesn't match.
+Deeper SSH.
+ Jump hosts, SSH agent forwarding, full local/remote/dynamic (SOCKS5) port forwarding, certificate auth, and SSH config parsing. Moshi's SSH is solid but deliberately simpler.
+SFTP through Files.app.
+ Mount remote hosts and browse, edit, and transfer 
+any
+ file in a real GUI. Moshi has a git-aware 
+file browser
+ in its diff app — the repo tree at any commit, with syntax-highlighted source — but no general SFTP mount or in-place editing, so for whole-filesystem file management Blink wins.
+Hardware keyboard & iPad power.
+ Best-in-class external-keyboard remapping, Vim/Emacs modes, iPad multi-window, and external-display support. Blink on an iPad with a keyboard is close to a laptop.
+An on-device dev stack.
+ A local sandbox of Unix tools, plus 
+Blink Code
+ (VS Code front-end) and 
+Blink Build
+ (on-demand cloud dev VMs over WireGuard). Moshi has no cloud-VM offering.
+Apple platforms breadth.
+ iPhone, iPad, and Vision Pro from one app. (Moshi runs on iOS and Android; Blink is Apple-only.)
+link
+If you mostly administer servers, write code in a mobile VS Code, and want the most capable keyboard-driven shell on iPad, Blink is hard to beat — and it costs less (see below).
+Pricing
+Here's where honesty matters most: for pure terminal use, 
+Blink is cheaper
+. Blink+ is a $19.99/year subscription — about $1.67/month — versus Moshi Pro at $69.99/year. Moshi costs more because the agent layer is the product, and Moshi is the only one of the two you can 
+buy once and own forever
+.
+Plan
+Moshi
+Blink Shell
+Free tier
+Paid monthly
+$7.99/mo
+—
+Paid yearly
+$69.99/yr
+$19.99/yr (Blink+)
+Lifetime — pay once, own it
+$199
+On-demand cloud dev VMs
+$7.99/mo (Build)
+A few things worth knowing behind the numbers:
+Blink+ is the cheaper subscription
+, full stop. If your day is hand-driven SSH and you don't need the agent features, that $19.99/yr is excellent value.
+Only Moshi offers a one-time license.
+ $199 buys Moshi outright; Blink is subscription-only.
+Blink Build is a separate product
+ — $7.99/mo for on-demand cloud dev machines, metered by credits. Moshi doesn't offer cloud compute; it's a client to 
+your
+ machine.
+Blink dropped its old one-time purchase in favor of annual Blink+. Both apps' free tiers cover real use; Moshi gates the agent layer, Blink gates cross-device cloud sync and some pro features.
+(Blink prices are from its App Store listing and can change by region; Moshi's $7.99 / $69.99 / $199 are standard rates, and founders/regional pricing may show you less.)
+The verdict
+Pick 
+Moshi
+ if…
+Your phone time is mostly driving Claude Code, Codex, or another agent
+You want approvals, questions, and "turn done" on your lock screen and watch
+You'd rather talk a prompt and drag in a screenshot than thumb-type
+You review diffs and preview the running app from the couch
+You'd rather pay $199 once than subscribe forever
+Pick 
+Blink Shell
+ if…
+You want the most capable, keyboard-driven shell on iPhone and iPad
+You value open source, deep SSH, SFTP, and arbitrary port forwarding
+You administer servers and write code by hand more than you steer agents
+You want a mobile VS Code and on-demand cloud dev VMs in one app
+You want the cheapest serious terminal subscription on iOS
+Plenty of people would happily run both: Blink for heavy hands-on terminal work and iPad coding, Moshi for steering agents from anywhere. If you're weighing the wider field, the 
+iOS terminal roundup
+ puts Moshi next to Blink, Termius, and Prompt, 
+Blink Shell vs Termius
+ compares the two incumbents directly, and the 
+Termius vs Moshi
+ page covers the cross-platform SSH-client angle.
+Ready when you are
+Keep your agents within reach. Moshi Pro is $7.99/mo, $69.99/yr, or $199 once — yours for good.
+See pricing
+link
+Ready to try the agent workflow? Start with 
+Moshi with Claude Code
+ for the end-to-end loop, or grab the app and connect to your machine in a couple of minutes.
+Next steps
+wider field: Moshi vs Blink, Termius, Prompt
+Blink vs Termius without Moshi in the middle
+agent workflow Moshi optimizes for
+iPad-focused terminal roundup
+See Moshi pricing
+ previous
+Termius vs Moshi
+next 
+Secure ShellFish vs Moshi
+on this page
+read
+0
+%
+Every coding agent, in your pocket. Real SSH & Mosh to your own machine.
+App Store
+Google Play
+Product
+Moshi
+Moshi Desktop
+Mata
+Pricing
+Resources
+Docs
+Learn
+Themes
+GitHub
+Compare
+T3 Code
+Orca
+Paseo
+Termius
+Blink Shell
+Secure ShellFish
+Happy
+Kittylitter
+Claude Code Remote Control
+© 2026 Moshi. Made with love and cat hair.
+Support
+Report a bug
+Twitter / X
+Brand
+Privacy
+Terms

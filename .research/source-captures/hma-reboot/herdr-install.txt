@@ -1,0 +1,152 @@
+Install Herdr | herdr
+Skip to content        herdr tui   ← Herdr app Docs Plugins Blog
+Documentation versionLatest 0.9.5Preview0.9.40.9.30.9.20.9.10.9.00.8.20.8.00.7.50.7.40.7.30.7.20.7.10.7.00.6.100.6.90.6.80.6.70.6.60.6.50.6.40.6.30.6.20.6.10.6.00.5.120.5.11     Search  CtrlK       Cancel
+GitHub
+Select theme   DarkLightAuto          Select language   English日本語简体中文
+Start here         Overview
+Install
+Quick start
+Concepts
+Keyboard
+Using Herdr         How to work with Herdr
+Agents
+Agent automation
+Session state and restore
+Persistence and remote access
+Connecting machines
+Configure         Configuration
+Config reference
+Plugins
+Marketplace
+Reference         CLI reference
+Socket API
+Integrations
+Agent skill file
+Windows support
+Build for Herdr         Add Herdr support to your agent
+Help         Troubleshooting
+Preview docs
+GitHub
+Select theme   DarkLightAuto          Select language   English日本語简体中文
+On this page   Overview
+Install
+Install with Homebrew
+Install with mise
+Install with Nix
+Download manually     Windows archive
+Verify
+Update
+Requirements
+On this page
+Overview
+Install
+Install with Homebrew
+Install with mise
+Install with Nix
+Download manually     Windows archive
+Verify
+Update
+Requirements
+Install Herdr
+Herdr publishes stable-channel binaries for Linux, macOS, and Windows. Windows is generally available, with documented platform-specific limitations and ongoing fixes.
+Install
+Section titled “Install”
+On Linux or macOS, run:
+Terminal windowcurl -fsSL https://herdr.dev/install.sh | sh
+On Windows, run:
+Terminal windowpowershell -ExecutionPolicy Bypass -c "irm https://herdr.dev/install.ps1 | iex"
+If endpoint security blocks that fileless PowerShell command, open Command Prompt and run:
+Terminal windowcurl.exe -fsSLo install.cmd https://herdr.dev/install.cmd && install.cmd && del install.cmd
+The installer downloads the release binary for your platform and places it on your PATH. New direct installs use the stable update channel. Existing Windows preview installs stay on preview until you switch them with herdr channel set stable
+. On Windows, PATH points to the active versioned release directory; the installer also updates the current
+and stable bin
+compatibility aliases, so updates do not need to overwrite a running herdr.exe
+.
+Install with Homebrew
+Section titled “Install with Homebrew”
+If you already use Homebrew:
+Terminal windowbrew install herdr
+Install with mise
+Section titled “Install with mise”
+If you already use mise:
+Terminal windowmise use -g herdr
+If mise reports herdr not found in mise tool registry
+, update mise and retry. Older mise versions predate the Herdr registry entry; mise use -g github:herdrdev/herdr
+works as a temporary fallback.
+Install with Nix
+Section titled “Install with Nix”
+If you already use Nix, Herdr provides a flake that builds Herdr from source:
+Terminal windownix run github:herdrdev/herdr/v0.x.y
+nix build github:herdrdev/herdr/v0.x.y
+nix profile install github:herdrdev/herdr/v0.x.y
+Replace v0.x.y
+with the latest release tag. You can omit the tag to track master
+, but release tags are recommended for normal installs.
+The flake also exposes a development shell:
+Terminal windownix develop github:herdrdev/herdr
+Use the same Nix workflow to update Herdr. For a profile install, list your profile entries and upgrade the Herdr entry:
+Terminal windownix profile list
+nix profile upgrade <index-or-name>
+">
+If Herdr is an input in your own flake, update that input and rebuild your system, Home Manager, or development environment:
+Terminal windownix flake update herdr
+Download manually
+Section titled “Download manually”
+You can also download a binary from GitHub releases.
+Choose the asset that matches your system:
+SystemAsset
+Linux x86_64herdr-linux-x86_64
+Linux aarch64herdr-linux-aarch64
+macOS Intelherdr-macos-x86_64
+macOS Apple siliconherdr-macos-aarch64
+Windows x86_64herdr-windows-x86_64.zip
+On Linux or macOS, make it executable and move it somewhere on your PATH.
+Terminal windowchmod +x herdr-linux-x86_64
+mv herdr-linux-x86_64 ~/.local/bin/herdr
+Windows archive
+Section titled “Windows archive”
+Stable releases and preview prereleases both include herdr-windows-x86_64.zip
+. The archive contains herdr.exe
+and its app-local ConPTY runtime. Keep the extracted directory together; do not copy only herdr.exe
+.
+Verify
+Section titled “Verify”
+Start Herdr:
+Terminal windowherdr
+If your shell cannot find herdr
+, restart the terminal or check that the install directory is on your PATH.
+Update
+Section titled “Update”
+Herdr checks for new releases and notifies you in the app. You can update manually:
+Terminal windowherdr update
+Use herdr update
+only for installs managed by Herdr’s own installer. Update Homebrew, mise, and Nix installs through those package managers instead.
+Direct installs on Linux, macOS, and Windows use the stable update channel by default. To opt into preview builds from master
+, set the channel:
+Terminal windowherdr channel set preview
+Switch a direct install back to stable the same way:
+Terminal windowherdr channel set stable
+For direct installs, changing channels checks the selected channel and installs its latest binary. If that update fails, run herdr update
+to retry from the configured channel.
+Preview builds are regularly published GitHub prereleases from the current development branch. They are useful when you want fixes before the next stable release, but they can regress. Homebrew, mise, and Nix installs do not use the preview channel.
+Stable is the recommended channel for normal Windows use. Preview receives fixes sooner but can regress, so opt in only when you want that tradeoff. Existing Windows preview installs remain on preview until you switch them explicitly. If an older preview build rejects herdr channel set stable
+, run herdr update
+once on preview, then retry the channel switch.
+By default, herdr update
+installs the new binary and leaves endpoint-generation-1 servers and their pane processes running. Start Herdr again to reconnect with the updated client. Client-only changes work immediately. A new server-side action stays unavailable until that server is updated and restarted; the client shows a notice instead of disconnecting. Servers from before endpoint generation 1 need one final stop during update.
+When it finishes, herdr update
+lists any running server still on the old version with the command that restarts it, and your saved SSH machines, which run their own Herdr. Run herdr update
+on each machine to update it too.
+To opt into experimental live server handoff for supported running sessions, run:
+Terminal windowherdr update --handoff
+When both servers support agent-status transfer, live handoff preserves hook-reported agent status until the next report arrives. Handoff from an older server can temporarily show a running agent as idle.
+Live handoff does not apply to Homebrew, mise, or Nix package-manager updates. For those installs, update with the package manager, then run Herdr again to reconnect with the updated client. The compatible old server keeps running. Restart it later with herdr server stop
+or herdr session stop <name>
+only when you want server-side changes from the new release.
+Requirements
+Section titled “Requirements”
+Stable-channel binaries are available for Linux, macOS, and Windows x86_64. See Windows support for supported workflows and known limitations. Windows ARM64 runs the x86_64 build under Windows emulation.
+Edit page
+Previous
+Overview      Next
+Quick start

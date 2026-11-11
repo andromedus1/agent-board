@@ -1,0 +1,36 @@
+{
+  "EnablePressuredExit" => false
+  "Label" => "com.apple.ioupsd"
+  "LaunchEvents" => {
+    "com.apple.iokit.matching" => {
+      "HIDDevice attached" => {
+        "DeviceUsagePairs" => [
+          0 => {
+            "DeviceUsagePage" => 132
+          }
+          1 => {
+            "DeviceUsagePage" => 133
+          }
+          2 => {
+            "DeviceUsage" => 20
+            "DeviceUsagePage" => 65280
+          }
+          3 => {
+            "DeviceUsage" => 6
+            "DeviceUsagePage" => 132
+          }
+        ]
+        "IOMatchLaunchStream" => false
+        "IOProviderClass" => "IOHIDDevice"
+      }
+      "SMCAccessory attached" => {
+        "IOMatchAll" => true
+        "IOMatchLaunchStream" => true
+        "IOPropertyExistsMatch" => "AccessoryDetails"
+        "IOProviderClass" => "IOPMPowerSource"
+      }
+    }
+  }
+  "ProcessType" => "Interactive"
+  "Program" => "/usr/libexec/ioupsd"
+}

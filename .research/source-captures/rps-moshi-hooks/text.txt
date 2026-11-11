@@ -1,0 +1,601 @@
+
+moshi-hook: Agent Approvals on Your Phone
+Search
+⌘
+K
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+Search
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+browse
+Hooks
+start
+What Moshi does
+Install and prepare a host
+Run your first session
+connections
+Connections and authentication
+Terminal sessions
+Tailscale
+multiplexer
+Multiplexers
+tmux
+Zellij
+Herdr
+Jump to…
+input
+Scrolling and scrollback
+Voice and dictation
+Gestures
+Clipboard and copy/paste
+Keyboard and shortcuts
+CJK and IME input
+settings
+Licensing and sharing
+Personalization
+Free vs Pro
+Security and sync
+integrations
+Agents & Usages
+Apple Watch
+Image and file paste
+Install moshi-hook
+Install Moshi Desktop
+Hooks
+Hook settings
+Chat View
+Moshi CLI
+Moshi Skill
+Live Activity
+Diff viewer
+Browser preview
+Simulator preview
+Push notifications and webhooks
+Files and image sharing
+help
+Troubleshooting
+Debugging the gateway
+Debugging the session picker
+Debugging Chat View
+Reporting a bug
+Docs
+/
+Integrations
+/
+Hooks
+hooks
+Hooks
+Install moshi-hook so supported coding agents can talk to Moshi — and see which integrations include inbox events, approvals, and the native Chat View.
+updated 
+2 weeks ago
+12 min read
+page 
+24
+ / 
+42
+copy
+moshi-hook
+ is the companion daemon that lets local coding agents report useful events to Moshi. It runs on your host, installs agent hook config, keeps a local Unix socket for hook calls, and maintains a WebSocket connection back to Moshi for approvals and status updates.
+For every persistent daemon option—including background discovery, usage polling, notification suppression, and Browser Preview port filtering—see 
+Hook settings
+.
+The same daemon powers the in-app 
+Diff viewer
+, 
+Browser preview
+, and 
+Simulator preview
+ (on macOS it runs the bundled 
+Mata
+ to stream iOS Simulators and Android emulators), and feeds the iOS 
+Live Activity
+.
+New to agent workflows? 
+Best iOS Terminal App for AI Coding Agents
+ covers why hooks, mosh, and push matter, and 
+Moshi Agent Hooks
+ is the deep dive on the inbox, Live Activities, and Apple Watch.
+Agent support tiers
+"Supported" can mean anything from "runs in the terminal" to a fully native conversation, so Moshi documents agent coverage in three cumulative tiers. An agent in Tier A also gets everything in Tiers B and C.
+Tier
+What Moshi supports
+A — Native Chat View
+Everything in Tier B, plus a transcript-backed 
+Chat View
+ with messages, tool cards, a native composer, and supported approval or question actions.
+B — Agent-aware
+Everything in Tier C, plus a managed 
+moshi-hook
+ integration that normalizes lifecycle events for Agents, notifications, Live Activity, and supported approval flows.
+C — Terminal/TUI
+The agent runs in Moshi's real terminal over SSH, Mosh, or Eternal Terminal, with normal keyboard input, scrollback, and tmux, Zellij, or Herdr persistence.
+The letters describe integration depth, not whether an agent is stable or usable.
+Tier A — Native Chat View
+Claude Code
+Codex
+OpenCode
+Antigravity
+Kimi
+Cursor
+Grok Build
+Pi
+OMP
+Hermes
+Qoder
+Factory Droid
+Copilot
+Amp
+Devin
+OmO
+jcode
+native chat view
+Tier B — Agent-aware hooks and inbox
+Gemini
+Qwen Code
+Tier B agents get the agent-aware feed but do not currently have a native transcript Chat View. Use their own TUI in Moshi's terminal to read and answer the session.
+Tier C — Every terminal agent
+Any interactive coding-agent CLI that runs in a normal host terminal runs in Moshi, even when it has no Moshi-specific integration. That includes agents such as Aider, Ante, Augment/Auggie, Autohand, Claude Agent Teams, Cline, Codebuff, Command Code, Continue, Crush, Goose, Kilo Code, Kiro, Mimo Code, Mistral Vibe, OpenClaude, OpenClaw, Prime Agent, Rovo Dev, Trae CLI, and other current or future TUIs.
+Tier C is terminal compatibility, not a claim that Moshi installs or detects that agent, parses its transcript, knows its models or slash commands, or can resume its native sessions. Start the CLI as you normally would; Moshi hosts and preserves the terminal session. A generic 
+webhook fallback
+ is available when you want completion notifications from an agent without a managed hook.
+What Chat View looks like
+A live Codex session rendered as Chat View — the same terminal transcript shown as messages, tool cards, and mini diffs.
+Tap to play full
+Chat View is currently experimental and requires a live host-gateway connection to the agent's terminal session. See 
+Chat View
+ for setup, the interface, transport details, and current limitations.
+The exact hook event surface differs by Tier A and B agent, but Moshi normalizes events into the same small set of inbox categories.
+Install on macOS
+This is the short path. 
+Install moshi-hook
+ covers every install method, running the daemon as a service, updating, and uninstalling.
+Open 
+Settings -> Hooks
+ in Moshi and copy your pairing token. Then run:
+macOS
+copy
+$
+brew tap rjyo/moshi
+$
+brew trust rjyo/moshi
+$
+brew install moshi-hook
+$
+moshi-hook pair --token <token from Moshi>
+$
+moshi-hook install
+$
+brew services start moshi-hook
+On macOS, secrets are stored in Keychain by default. If you pair from SSH and Keychain is locked, unlock it first or use file-backed storage:
+headless macOS
+copy
+$
+security unlock-keychain ~/Library/Keychains/login.keychain-db
+$
+moshi-hook pair --token <token from Moshi>
+$
+moshi-hook pair --token <token from Moshi> --store file
+Install on Linux (including WSL)
+Same steps on a bare-metal Linux box, a VPS, or 
+WSL on Windows
+ — enable OpenSSH in the distro, then:
+Linux / WSL
+copy
+$
+curl -fsSL https://getmoshi.app/install.sh | sh
+$
+moshi-hook pair --token <token from Moshi>
+$
+moshi-hook install
+$
+moshi-hook serve
+For a permanent Linux or WSL setup, run 
+moshi-hook serve
+ under your process manager of choice.
+Update
+On macOS, refresh the tap and upgrade:
+macOS
+copy
+$
+brew update
+$
+brew upgrade moshi-hook
+$
+brew services restart moshi-hook
+On Linux, re-run the install script and restart your 
+moshi-hook serve
+ process:
+Linux
+copy
+$
+curl -fsSL https://getmoshi.app/install.sh | sh
+Pairing and installed agent hooks survive an upgrade — no need to re-pair or re-run 
+moshi-hook install
+.
+What install changes
+moshi-hook install
+ writes Moshi-owned entries into supported agent config files. It is designed to leave user-owned hooks alone.
+Managed locations include:
+Claude Code: 
+~/.claude/settings.json
+.
+Codex: 
+~/.codex/hooks.json
+ and the needed Codex config flag. If Codex's shared background server (
+features.daemon_auto_start
+, on by default since Codex 0.157) is on, install asks before turning it off in 
+$CODEX_HOME/config.toml
+ — see 
+Codex 0.157+ background server
+.
+OpenCode: 
+.opencode/plugins/moshi-hooks.ts
+ in the current project.
+Gemini CLI: 
+~/.gemini/settings.json
+.
+Antigravity: 
+~/.gemini/config/hooks.json
+ (or 
+$ANTIGRAVITY_CONFIG_DIR/hooks.json
+).
+Cursor: 
+~/.cursor/hooks.json
+.
+Kimi: 
+$KIMI_CODE_HOME/config.toml
+ (defaults to 
+~/.kimi-code/config.toml
+; legacy Kimi CLI uses 
+$KIMI_SHARE_DIR/config.toml
+).
+Qwen: 
+~/.qwen/settings.json
+.
+Grok Build: 
+~/.grok/hooks/moshi-hooks.json
+.
+Pi: 
+~/.pi/agent/extensions/moshi-hooks.ts
+.
+OMP: 
+~/.omp/agent/extensions/moshi-hooks.ts
+ (or the selected OMP profile).
+Hermes: 
+~/.hermes/plugins/moshi-hooks
+ and the plugin entry in 
+~/.hermes/config.yaml
+.
+Qoder CLI: 
+~/.qoder/settings.json
+ (or 
+$QODER_CONFIG_DIR/settings.json
+).
+Factory Droid: 
+~/.factory/hooks.json
+.
+GitHub Copilot CLI: 
+~/.copilot/hooks/moshi-hooks.json
+.
+Amp: 
+~/.config/amp/plugins/moshi-hooks.ts
+.
+Devin CLI: the 
+hooks
+ key of 
+~/.config/devin/config.json
+.
+OmO: a global extension in OmO's agent directory.
+jcode: the 
+[hooks]
+ table in jcode's config.
+Use 
+moshi-hook uninstall
+ to remove Moshi-owned entries. It leaves Codex's 
+daemon_auto_start
+ setting as it is.
+What needs 
+moshi-hook serve
+moshi-hook
+ is both a CLI and a long-running daemon. Some features rely on the daemon being up (it owns the local Unix socket that agents post events to, and the gateway on 
+127.0.0.1:24543
+ that the iOS app forwards to); others are one-shot CLI calls that work whether or not the daemon is running.
+Needs 
+moshi-hook serve
+ running:
+Agent event delivery: every Tier A and Tier B integration posts hook events to the local Unix socket. Without the daemon, events go nowhere.
+Inbox notifications, 
+Live Activity
+, and approval round-trips.
+In-app 
+Diff viewer
+ opened from a Moshi terminal session (the iOS app talks to the gateway port 
+24543
+).
+In-app 
+Browser preview
+.
+Live multiplexer detection — the signal that drives the swipe-to-switch-window gesture and the "in tmux/Zellij/Herdr right now" badge on a session. SSH preflight alone only tells Moshi the multiplexer is 
+installed
+; the daemon's gateway tells it whether the current session is 
+inside
+ one.
+Works without 
+moshi-hook serve
+:
+moshi <dir>
+ — the 
+project tmux launcher
+. Pure exec, no daemon.
+moshi diff <dir>
+ — the standalone 
+diff viewer
+ opened in your laptop browser. Spawns its own short-lived server and exits when you close it; coexists with the daemon by falling back to an ephemeral port if 
+24543
+ is already taken.
+moshi-hook context
+ — one-shot terminal-context probe. Reads 
+$TMUX_PANE
+, 
+$ZELLIJ
+, 
+$HERDR_ENV
+ from your own shell and prints the detected kind, session, pane, and cwd as JSON. Useful for 
+debugging the tmux swipe gesture
+.
+moshi-hook pair
+, 
+install
+, 
+uninstall
+, 
+status
+, 
+update
+, 
+version
+ — all daemon-less.
+The short rule: anything that streams state to the iOS app or accepts pushes from a coding agent needs 
+serve
+; anything you invoke once from a shell does not.
+Inbox categories
+Moshi forwards a deliberately small set of events:
+approval_required
+An agent needs permission or a user answer.
+task_complete
+A turn or idle task finished.
+session_started
+A new agent session or first prompt started.
+tool_running
+A tool started running, throttled to reduce noise.
+tool_finished
+A tool finished, throttled to reduce noise.
+Moshi's inbox keeps one active row per agent session. New events for the same session update the row instead of creating a long stack of notifications.
+Data privacy
+moshi-hook
+ is built so that the heavy, sensitive data stays between your host and your phone, and only small notification summaries touch Moshi's server.
+Stays local, or goes directly between host and app:
+Full Claude Code and Codex transcripts. When you open a session's conversation in Moshi, the transcript streams from the host to the phone through the SSH-forwarded local gateway — it never passes through the Moshi backend.
+Diff payloads. The 
+Diff viewer
+ reads changes locally on the host and serves them to the app over the same local gateway.
+Your source files. File contents are never part of the cloud agent-event payload.
+Terminal traffic. Your actual sessions run over SSH, Mosh, or your Tailscale tailnet, directly to the host.
+Reaches Moshi's server:
+Notification and inbox event summaries — the 
+inbox categories
+ above.
+Up to 200 characters of your prompt, used as the event body.
+Up to 80 characters of the assistant's response, used as the event title.
+The command or question behind an approval request, up to 256 characters, so you can decide from the notification.
+Metadata: project name, session ID, agent, model, tool name, terminal identifiers, account ID, and context-window percentage.
+Pairing, usage synchronization, approval decisions, and WebSocket control traffic.
+Everything sent to the server is what you see rendered in a push notification or inbox row — nothing more is collected. For how the app itself stores credentials and what iCloud sync covers, see 
+Security and sync
+.
+Opt out of usage collection
+Background usage collection (rate-limit polls on the host and snapshot uploads) is optional. To stop it on a host without unpairing:
+moshi-hook 
+set
+ usage-collection off
+brew services restart moshi-hook                 
+# macOS / Homebrew
+systemctl --user restart moshi-hook.service      
+# Linux / systemd
+Approvals, inbox events, Chat View, and the local gateway keep working. Only the Usages rings stop updating from that host until you re-enable collection or run 
+moshi-hook usage --sync
+ by hand. See 
+Agents & Usages
+.
+Third-party harnesses
+Custom harnesses that are not installed through 
+moshi-hook
+, such as oh-my-pi notification plugins, can send completion messages through the custom webhook:
+curl -X POST https://api.getmoshi.app/api/webhook \
+  -H 
+"Content-Type: application/json"
+ \
+  -d 
+'{
+    "token": "YOUR_API_TOKEN",
+    "title": "Task complete",
+    "message": "oh-my-pi finished a turn"
+  }'
+Add 
+"unified": true
+ to notify every opted-in device on the same Moshi license. Host-resident daemons that need structured agent state, Live Activities, or approval routing should use 
+POST /api/v1/hosts/:hostId/events
+ with the host secret.
+Host status dot
+When 
+Show hook status
+ is on, each saved host carries a small colored dot on its server icon, reflecting the last 
+moshi-hook
+ probe. The same five states drive the filter chips above the host list:
+running
+Green. Installed, the daemon is up, and its gateway answers on 127.0.0.1:24543 — context detection, diff, and browser preview all work.
+update
+Amber. Running, but older than the moshi-hook version this build of Moshi expects. Upgrade it.
+wrong port
+Red. The daemon is running but nothing answers on 127.0.0.1:24543, usually because it bound to a different port. Restart it on the default address.
+not running
+Solid grey. The binary is installed but the daemon is not up. Start it.
+not installed
+Hollow grey. Moshi could not find moshi-hook on the host (or the probe could not run).
+Tapping a host's dot opens a sheet that explains the state and, when something needs attention, gives copy-paste fix commands for macOS or Linux. You can turn the dots off in Moshi's settings.
+Moshi runs the probe over a non-interactive 
+login
+ shell and resolves 
+moshi-hook
+ (and the 
+moshi
+ alias) from 
+~/.local/bin
+, 
+~/bin
+, 
+/opt/homebrew/bin
+, 
+/usr/local/bin
+, and 
+/opt/local/bin
+, then from your login shell's own 
+PATH
+. A standard Homebrew or 
+install.sh
+ install lands in one of those directories, so it is detected without any extra 
+PATH
+ setup. The 
+running
+ vs 
+not running
+ call is authoritative: Moshi opens a real connection to the gateway port rather than trusting a process name.
+A host that shows 
+not installed
+ when 
+moshi-hook
+ really is installed usually means a custom install location — see 
+moshi-hook is installed but shows as not installed
+.
+Diagnostics
+Useful commands:
+moshi-hook checks
+copy
+$
+moshi-hook doctor
+$
+moshi-hook status
+$
+moshi-hook status --json
+$
+moshi-hook logs -f
+$
+moshi-hook usage --sync
+$
+moshi-hook set
+$
+moshi-hook set suppress-push-while-unlocked on
+moshi-hook doctor
+ checks this host and prints, per Moshi feature — Agent inbox & alerts, Chat View, Workspaces & Jump To, Session picker, Diff viewer, Browser & Simulator preview, and Usage — whether it is 
+✓ Ready
+, 
+⚠ Partial
+, 
+✗ Broken
+, or 
+○ Off
+, with the reason and numbered fixes under 
+How to fix
+. It checks that the daemon is running; that the gateway answers on 
+127.0.0.1:24543
+ and runs the same version as the installed CLI; that pairing is still accepted by Moshi's server (a host removed in the app shows as broken); each agent's hook state (out-of-date hooks get a 
+moshi-hook install --target <agent>
+ fix); tmux and Herdr as the daemon resolves them, including duplicate installs that differ from your running server, tmux older than 2.6, the EL10 tmux 3.3a capture bug, and Herdr older than 0.9; git for the diff viewer; 
+scan-ports none
+ and usage collection being off (shown as Off); and 
+lsof
+ or 
+ss
+ for dev-server discovery. It ends with a 
+Check these yourself
+ checklist — notifications allowed for Moshi on the phone, the Live Activity toggle, the host added in the app and connected from there, agents started inside tmux or Herdr, and agents restarted after hook changes. 
+moshi-hook doctor --yes
+ applies the fixes doctor can make itself (currently turning off 
+Codex's shared background server
+) without asking.
+moshi-hook doctor
+ needs moshi-hook 0.4.3 or newer. From that version, the human-readable 
+moshi-hook status
+ shows pairing, paths, and server attachment, and points at 
+doctor
+; it no longer prints the hook table or the multiplexer paths. On older versions, 
+status
+ includes the hook table and a 
+multiplexers (daemon)
+ section with the tmux, Zellij, and Herdr paths resolved by the running daemon. 
+status --json
+ is unchanged and still includes 
+hooks
+. See 
+Hook settings
+ for every 
+moshi-hook set
+ option, or 
+A multiplexer works in the shell but Moshi still misses it
+ to distinguish a daemon-path problem from an SSH-preflight problem.
+If hooks are installed but Moshi does not update, check that 
+moshi-hook serve
+ or the macOS service is running and paired to the same Moshi account/token shown in the app.
+Next steps
+every way to install the daemon
+complete Claude Code mobile loop
+scan approvals and rate limits in Agents
+Live Activity and Dynamic Island
+how hooks, inbox, and Watch fit together
+ previous
+Install Moshi Desktop
+next 
+Hook settings
+on this page
+read
+0
+%
+Every coding agent, in your pocket. Real SSH & Mosh to your own machine.
+App Store
+Google Play
+Product
+Moshi
+Moshi Desktop
+Mata
+Pricing
+Resources
+Docs
+Learn
+Themes
+GitHub
+Compare
+T3 Code
+Orca
+Paseo
+Termius
+Blink Shell
+Secure ShellFish
+Happy
+Kittylitter
+Claude Code Remote Control
+© 2026 Moshi. Made with love and cat hair.
+Support
+Report a bug
+Twitter / X
+Brand
+Privacy
+Terms

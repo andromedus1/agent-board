@@ -1,0 +1,305 @@
+
+tmux with Moshi: Sessions & Windows
+Search
+⌘
+K
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+Search
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+browse
+tmux
+start
+What Moshi does
+Install and prepare a host
+Run your first session
+connections
+Connections and authentication
+Terminal sessions
+Tailscale
+multiplexer
+Multiplexers
+tmux
+Zellij
+Herdr
+Jump to…
+input
+Scrolling and scrollback
+Voice and dictation
+Gestures
+Clipboard and copy/paste
+Keyboard and shortcuts
+CJK and IME input
+settings
+Licensing and sharing
+Personalization
+Free vs Pro
+Security and sync
+integrations
+Agents & Usages
+Apple Watch
+Image and file paste
+Install moshi-hook
+Install Moshi Desktop
+Hooks
+Hook settings
+Chat View
+Moshi CLI
+Moshi Skill
+Live Activity
+Diff viewer
+Browser preview
+Simulator preview
+Push notifications and webhooks
+Files and image sharing
+help
+Troubleshooting
+Debugging the gateway
+Debugging the session picker
+Debugging Chat View
+Reporting a bug
+Docs
+/
+Multiplexer
+/
+tmux
+multiplexer
+tmux
+Use tmux as the durable workspace behind Moshi, including attach patterns, window switching, and agent workflows.
+updated 
+2 months ago
+4 min read
+page 
+8
+ / 
+42
+copy
+tmux is the recommended host-side workspace for Moshi. It keeps shells and agents running on the host even when the mobile terminal disconnects.
+For a real-world layout — organizing tmux windows for several agents at once — see 
+My Daily Moshi Workflow
+.
+Your tmux setup, on your phone
+Start tmux on your Mac, reconnect from the phone with every agent still running — dedicated picker, native shortcuts, and gestures.
+Tap to play full
+Start or attach
+After installing 
+moshi-hook
+, you also get a short 
+moshi
+ command for project sessions:
+host
+copy
+$
+cd ~/projects/app
+$
+moshi .
+$
+moshi ~/a/b/name
+It resolves the directory, names the tmux session from the directory basename, and replaces itself with 
+tmux new-session -A -s <name> -c <dir>
+. That means no Moshi wrapper process stays running; from the shell's point of view, you started tmux normally.
+Start a session the first time:
+host
+copy
+$
+tmux new -s moshi
+Reattach later from any new SSH or mosh connection:
+host
+copy
+$
+tmux a -t moshi
+If you'd rather use tmux directly, the equivalent attach-or-create form is 
+tmux new-session -A -s moshi
+.
+Agent workflow
+Inside tmux, start your agent normally:
+inside tmux
+copy
+$
+cd ~/projects/app
+$
+claude
+$
+codex
+tmux keeps the shell, working directory, and agent process alive when Moshi reconnects.
+An external app, dashboard, or notification can reopen an active Moshi card with 
+moshi://tmux?session=<URL-encoded session name>
+. Add 
+&window=<0-9>
+ to focus a single-digit window after resume. See 
+Session deep links and webhook actions
+ for the supported grammar and matching behavior.
+Windows and panes
+tmux windows are useful for separating projects, agents, logs, and servers. Panes are useful when you need a compact split, but on phone screens a one-window-per-task layout is usually easier to control.
+Common tmux commands:
+Ctrl
+B
+C
+Create a new window.
+Ctrl
+B
+N
+Next window.
+Ctrl
+B
+P
+Previous window.
+Ctrl
+B
+%
+Split pane horizontally.
+Ctrl
+B
+"
+Split pane vertically.
+Ctrl
+B
+D
+Detach from the session.
+Mobile-friendly tmux tips
+Use short session and window names.
+Keep one agent per window when possible.
+Increase shell history on the host if you rely on command recall.
+Use tmux copy mode for large output instead of selecting huge terminal regions on iOS.
+Pair tmux with 
+moshi-hook
+ so approvals and turn completion reach the Moshi inbox.
+When tmux is not needed
+You can use Moshi without tmux for short commands, SSH administration, and quick shell checks. For any long-running agent, build, test suite, or server process, tmux is the safer default.
+Troubleshooting
+Moshi doesn't detect tmux
+If tmux is installed and running on the host but Moshi doesn't detect it, the most common cause is that 
+tmux
+ isn't on the non-interactive SSH 
+PATH
+. Moshi runs detection over a non-login, non-interactive shell, which often skips 
+~/.bashrc
+, 
+~/.profile
+, or 
+~/.zshrc
+, so 
+/usr/local/bin
+, 
+/opt/homebrew/bin
+, or other directories that hold 
+tmux
+ may be missing.
+Check what the SSH session actually sees:
+laptop
+copy
+$
+ssh <host> 'echo PATH=$PATH; command -v tmux'
+If 
+command -v tmux
+ prints nothing, either symlink tmux into a directory already on 
+PATH
+ (for example 
+/usr/local/bin
+) or extend the non-interactive 
+PATH
+ in 
+~/.ssh/environment
+ or your shell's non-interactive rc file.
+Swipe to switch window does nothing
+The swipe gesture sends your tmux prefix followed by 
+n
+ (next) or 
+p
+ (previous), and only fires when Moshi's live detection says the current session is inside a tmux pane. If swiping does nothing, walk through these in order:
+Update 
+moshi-hook
+ on the host. Live tmux detection improves with newer daemon versions; older releases can miss attaches that happened after the session opened.
+Make sure 
+moshi-hook serve
+ is running.
+ The live "you're inside tmux right now" signal comes from the daemon's gateway, not from the SSH preflight. Without it, Moshi only knows tmux is 
+installed
+. Check with 
+moshi-hook status
+.
+Verify detection from your session.
+ Inside the tmux session on the host, run:
+inside tmux
+copy
+$
+moshi context
+It should print 
+kind: "tmux"
+ plus the session and pane. If it prints 
+kind: "shell"
+, the daemon does not see you as being inside tmux — usually a stale process tree or a tmux server started under a different user. Re-attach (
+tmux a
+) and rerun.
+Test the prefix bytes via the shortcut panel.
+ The gesture and the panel's Next window / Previous window buttons send the same 
+prefix + n
+ / 
+prefix + p
+ sequence. If those buttons also do nothing, the prefix configured under 
+Settings → Shortcuts → tmux
+ doesn't match your tmux config (
+set -g prefix C-x
+, etc.). Match the two and both the panel and the swipe will start working.
+For custom tmux keys the default panel does not cover — for example 
+prefix then Shift+T
+ — add a button with an 
+advanced binding
+ such as 
+C-b, S-t
+ (or 
+C-b, T
+) in the shortcut builder.
+Next steps
+build a full mobile tmux layout
+tmux vs Herdr for agents
+tmux sessions not showing on connect
+jump straight to a window
+daily window layout for Claude Code
+ previous
+Multiplexers
+next 
+Zellij
+on this page
+read
+0
+%
+Every coding agent, in your pocket. Real SSH & Mosh to your own machine.
+App Store
+Google Play
+Product
+Moshi
+Moshi Desktop
+Mata
+Pricing
+Resources
+Docs
+Learn
+Themes
+GitHub
+Compare
+T3 Code
+Orca
+Paseo
+Termius
+Blink Shell
+Secure ShellFish
+Happy
+Kittylitter
+Claude Code Remote Control
+© 2026 Moshi. Made with love and cat hair.
+Support
+Report a bug
+Twitter / X
+Brand
+Privacy
+Terms

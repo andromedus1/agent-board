@@ -1,0 +1,261 @@
+
+Tailscale + Mosh: Reach Home Hosts
+Search
+⌘
+K
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+Search
+Docs
+Learn
+Compare
+Themes
+Pricing
+Get Moshi
+browse
+Tailscale
+start
+What Moshi does
+Install and prepare a host
+Run your first session
+connections
+Connections and authentication
+Terminal sessions
+Tailscale
+multiplexer
+Multiplexers
+tmux
+Zellij
+Herdr
+Jump to…
+input
+Scrolling and scrollback
+Voice and dictation
+Gestures
+Clipboard and copy/paste
+Keyboard and shortcuts
+CJK and IME input
+settings
+Licensing and sharing
+Personalization
+Free vs Pro
+Security and sync
+integrations
+Agents & Usages
+Apple Watch
+Image and file paste
+Install moshi-hook
+Install Moshi Desktop
+Hooks
+Hook settings
+Chat View
+Moshi CLI
+Moshi Skill
+Live Activity
+Diff viewer
+Browser preview
+Simulator preview
+Push notifications and webhooks
+Files and image sharing
+help
+Troubleshooting
+Debugging the gateway
+Debugging the session picker
+Debugging Chat View
+Reporting a bug
+Docs
+/
+Connections
+/
+Tailscale
+network
+Tailscale
+Reach Macs, Linux hosts, and WSL on Windows with no public IP through your tailnet — addresses, mosh over Tailscale, sleep behavior, and common connection failures.
+updated 
+2 months ago
+6 min read
+page 
+6
+ / 
+42
+copy
+Tailscale is the most common way Moshi users reach a Mac, Linux box, WSL on Windows, or homelab machine that doesn't have a public IP. Moshi has no built-in Tailscale integration and doesn't need one — Tailscale runs at the OS layer on iOS, and Moshi treats your tailnet hosts as normal SSH or mosh targets.
+Moshi does not require a public IP. As long as the iOS device can reach the host through your tailnet, password auth, key auth, SSH, and mosh all work the same as on a LAN.
+Reach hosts with no public IP
+Tailscale runs at the OS layer on iOS; Moshi treats your tailnet hosts as normal SSH or mosh targets — no public IP, no port forwarding.
+Tap to view full
+Setup
+Install Tailscale on the iOS device and sign in.
+Install Tailscale on the host (Mac, Linux, VPS, or WSL on Windows) and sign in to the same tailnet.
+On the host, get its tailnet address:
+host
+copy
+$
+tailscale ip
+$
+tailscale status
+In Moshi, add a connection and put the host's Tailscale IP or MagicDNS name in the 
+Host
+ field. Username, port, and authentication are configured exactly as for a non-Tailscale host. Leave 
+Connection type
+ on 
+Auto
+ unless you have a reason to force SSH or mosh.
+tip
+Use the Tailscale IPv4 (e.g. 
+100.x.y.z
+), IPv6 (e.g. 
+fd7a:115c:...
+), or a MagicDNS name — either the short form (
+mac-mini
+) or the full FQDN (
+mac-mini.tail-scales.ts.net
+). Do 
+not
+ use the host's local LAN IP, public IP, or the Tailscale web SSH proxy URL — Moshi connects directly through the OS-level tunnel.
+Tailscale SSH is not SSH over Tailscale
+Two features sound alike but work in completely different ways, and mixing them up causes a connection that hangs for about a minute and then fails with a misleading auth error.
+SSH or mosh over Tailscale
+ — what the rest of this page covers. Moshi connects to the host's normal OpenSSH server (
+sshd
+) through the Tailscale tunnel. Password auth, key auth, SSH, and mosh all behave exactly as on a LAN, and this is the path 
+moshi-hook host setup
+ pairs against. This is the path you want.
+Tailscale SSH
+ — a separate, Tailscale-managed SSH server, turned on with 
+tailscale up --ssh
+ or 
+tailscale set --ssh=true
+ (it shows as 
+RunSSH: true
+ in 
+tailscale debug prefs
+). When it is on, Tailscale grabs port 22 for every tailnet connection and authenticates with your Tailscale identity, 
+bypassing the OS 
+sshd
+ and 
+authorized_keys
+ entirely.
+warn
+Do not use Tailscale SSH with key authentication.
+ Moshi pairs by adding a key to the host's 
+authorized_keys
+ and connecting key-based — but with Tailscale SSH enabled, that traffic is intercepted before it ever reaches the OS 
+sshd
+, so the key is never checked. The connection stalls for ~60 seconds and then reports a generic auth error, even though the key is authorized and the host is fully reachable.
+The tell-tale sign is that the host is reachable on every port 
+except
+ the one that matters: a plain server on, say, port 8080 loads instantly over the same Tailscale address, while port 22 hangs. Tailscale SSH has hijacked port 22. Check-mode ACLs (a 
+holdAndDelegate
+ / 
+"action": "check"
+ rule) make it worse — they require a browser approval that a key-based client cannot complete, so the handshake never finishes.
+Pick one path
+Key auth / 
+moshi-hook host setup
+ (recommended).
+ Turn Tailscale SSH off so port 22 returns to the OS 
+sshd
+:
+host
+copy
+$
+sudo tailscale set --ssh=false
+Key auth then works for Moshi and for every other SSH client.
+Tailscale SSH instead.
+ Leave the password and key fields empty in the Moshi connection — Tailscale handles auth through its identity layer, so Moshi has nothing to send. This is what the in-app hint to keep the password blank refers to. It only works with an accept-mode ACL, not a check-mode one, and mosh cannot bootstrap through Tailscale SSH because it is not real OpenSSH (see 
+Fix Mosh Connection Failed
+). For an agent setup, disabling Tailscale SSH above is the simpler, more reliable choice.
+Day-to-day use
+Once added, a Tailscale-backed connection behaves like any other saved connection: tap to connect, switch between active sessions, attach to tmux, run 
+moshi-hook
+ for agent events. There is no Tailscale-specific toggle anywhere in Moshi — bringing the tunnel up or down is done in the iOS Tailscale app.
+Mosh over Tailscale
+Mosh works fine over Tailscale: the SSH bootstrap and the UDP session both ride the tunnel. Use 
+Auto
+ or 
+Mosh
+ as the connection type. If mosh fails but SSH works, see 
+Mosh cannot connect
+ — the usual cause is 
+mosh-server
+ missing from the non-interactive 
+PATH
+, not Tailscale.
+Connection fails over Tailscale
+If you can 
+tailscale ping
+ the host but Moshi fails to connect:
+macOS hosts
+: turn on 
+System Settings -> General -> Sharing -> Remote Login
+. Tailscale connectivity alone is not enough; the host still needs SSH listening.
+Confirm the tunnel
+ from another tool (Terminal SSH, Tailscale ping) before debugging Moshi settings.
+Match auth mode
+: if the host requires a password, set Authentication to Password in Moshi (and vice versa for keys). The "unable to authorize" error usually means the auth type doesn't match what the host expects, even when Tailscale itself is fine.
+~60-second hang, then an auth error, with a key you know is authorized
+: the host almost certainly has Tailscale SSH enabled, hijacking port 22. See 
+Tailscale SSH is not SSH over Tailscale
+.
+OS Error 4
+ typically means the SSH handshake was interrupted — re-check Remote Login, the address, and that you're using the host's Tailscale identity (not a stale LAN entry).
+Mac sleep with Tailscale
+If sessions to a closed-lid Mac become "Unreachable (auto-retrying)" after a few minutes of idle:
+Mosh runs over UDP, and UDP traffic does not prevent macOS from entering low-power sleep when the lid is closed — even with 
+pmset
+ tweaks. TCP keepalives behave differently. Reconnecting from Moshi is fast because Moshi sends a wake-up probe when starting a new mosh connection, which wakes the Mac back up.
+If you want sessions to stay live without manual reconnects, keep the Mac lid open or use a tool like Amphetamine / 
+caffeinate
+ to block sleep entirely.
+Tailscale device re-auth
+Tailscale occasionally prompts for device re-authentication (key expiry, ACL changes). On iOS this surfaces in the Tailscale app, not in Moshi — but if Moshi suddenly stops reaching a host that worked yesterday, open Tailscale first and confirm the device is still in the tailnet.
+Built-in Tailscale picker
+There is no built-in Tailscale host picker in Moshi today. Add tailnet hosts as normal saved connections; reorder and rename them from the home list.
+Next steps
+full Tailscale walkthrough for agent hosts
+run Mosh through the tailnet
+fix Mosh failures over Tailscale SSH
+always-on Mac behind the tailnet
+ previous
+Terminal sessions
+next 
+Multiplexers
+on this page
+read
+0
+%
+Every coding agent, in your pocket. Real SSH & Mosh to your own machine.
+App Store
+Google Play
+Product
+Moshi
+Moshi Desktop
+Mata
+Pricing
+Resources
+Docs
+Learn
+Themes
+GitHub
+Compare
+T3 Code
+Orca
+Paseo
+Termius
+Blink Shell
+Secure ShellFish
+Happy
+Kittylitter
+Claude Code Remote Control
+© 2026 Moshi. Made with love and cat hair.
+Support
+Report a bug
+Twitter / X
+Brand
+Privacy
+Terms

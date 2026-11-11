@@ -1,0 +1,196 @@
+
+ [mosh-devel] Tmux integration escape code
+[mosh-devel] Tmux integration escape code
+George Nachman
+gnachman at llamas.org
+Sat Jul 27 21:47:10 EDT 2013
+Previous message: 
+[mosh-devel] Tmux integration escape code
+Next message: 
+[mosh-devel] Toyota vai pagar 2x mais que outros MMN
+Messages sorted by:
+[ date ]
+[ thread ]
+[ subject ]
+[ author ]
+On Sat, Jul 27, 2013 at 2:08 PM, Keith Winstein <
+keithw at mit.edu
+> wrote:
+>
+ Hi George,
+>
+>
+ Thanks for getting in touch. Definitely open to this in principle. Here's
+>
+ a few questions:
+>
+>
+ (1) Is there a way for mosh-client to tell if the host terminal supports
+>
+ these device control strings? (E.g. a capability in terminfo? An
+>
+ environment variable you set?) Alternately, have you tested / are you
+>
+ pretty sure that nothing bad will happen if we pass these along to the
+>
+ popular terminal emulators that aren't iTerm2 (e.g., iTerm1, Terminal.app,
+>
+ xterm, VTE, Konsole, urxvt, PuTTY, screen, tmux)?
+>
+>
+Hi Keith,
+No, there's nothing set to indicate support. Although iTerm2 does set
+"TERM_PROGRAM=iTerm.app", that's not a great choice because other terminal
+emulators may start supporting this protocol as well. I'm open to ideas
+along these lines.
+The worst offenders are tmux and screen, which hang until they gets an ESC
+\. Terminal and iTerm 0.x just print P100p to the screen. I'm still
+checking on vt1, konsole, urxvt, and putty.
+>
+ (2) Mosh works by representing the state of the terminal at the server and
+>
+ at the client, and synchronizing the states by sending "diffs" between the
+>
+ state the server thinks the client has and the state the server wants it to
+>
+ have. We like for the "diffs" between any pair of states (e.g. state #4 and
+>
+ state #3,927) to be bounded in size, so that we can quickly resynchronize
+>
+ the client's terminal if it comes back to the network after a long time
+>
+ away.
+>
+>
+ Right now I don't think there's anything an application can do to make the
+>
+ diff grow without bound -- we only store a certain number of combining
+>
+ characters per cell on the screen, we compress repeated "rendition" changes
+>
+ down to the minimum diff necessary, etc. (E.g. if the application turns on
+>
+ and off "bold" on a character 50,000 times, we compress that down into just
+>
+ one flip if necessary.)
+>
+>
+ So my preference would be not to pass these device control strings through
+>
+ literally, because then we'd have to queue them up and have some sort of
+>
+ flow control to make sure we don't end up with 90 megabytes of pending
+>
+ updates from a misbehaving app. (Timo Rinne has done a huge amount of work
+>
+ to support ssh-agent forwarding, which presents the same issues for us, and
+>
+ before we make a protocol change to support flow-controlled octet
+>
+ sequences, I want to make sure it's at the right layer.)
+>
+>
+ If it's possible for us to parse these updates and represent "the state"
+>
+ that the client is supposed to have as part of our Terminal::Framebuffer
+>
+ object (like everything else), that would be way better. Is the protocol
+>
+ documented somewhere? Is somebody from iTerm2 willing to do this and submit
+>
+ a pull request along these lines?
+>
+>
+By contrast, if you really do need just a reliable flow-controlled
+>
+ octet-stream, I think you'll have to wait until we decide where in the
+>
+ protocol stack we want that to go and we commit to a protocol change we're
+>
+ willing to live with going forward.
+>
+>
+The protocol is documented in tmux's man page under the "Control mode"
+section. In terms of parsing the protocol, it would be an amazing feat of
+engineering but probably not worth the effort to try to emulate the state
+on both ends of the connection (you'd have to remember window positions,
+split pane arrangements, not to mention the state of each virtual terminal
+within tmux).
+When you do get around to implementing a reliable octet stream, please keep
+this case in mind. Even though we wouldn't get all the benefits that mosh
+has to offer for a vanilla terminal session, it would still be a better
+transport than ssh for lots of users.
+Thanks,
+George
+Best regards,
+>
+ Keith
+>
+>
+ On Sat, Jul 27, 2013 at 3:26 PM, George Nachman <
+gnachman at llamas.org
+>wrote:
+>
+>>
+ Hi mosh-devel,
+>>
+>>
+ I'm the maintainer for iTerm2, a terminal emulator for Mac OS. About a
+>>
+ year ago we added a feature to support a deep integration with tmux
+>>
+ (details here: 
+https://code.google.com/p/iterm2/wiki/TmuxIntegration
+).
+>>
+>>
+ This integration works by passing messages between the terminal emulator
+>>
+ and the tmux client using a custom protocol. While it works over ssh, it
+>>
+ fails on mosh because mosh doesn't pass through the escape code that
+>>
+ signals the terminal emulator to begin speaking the tmux protocol.
+>>
+>>
+ The escape code used is DCS 1000p (ESC P1000p), which is based on the
+>>
+ ReGIS codes (
+http://www.vt100.net/docs/vt3xx-gp/chapter1.html
+). While I
+>>
+ don't expect mosh to support ReGIS any time soon, would you consider
+>>
+ passing this one escape code through?
+>>
+>>
+ Thanks for your consideration,
+>>
+ George
+>>
+>>
+ _______________________________________________
+>>
+ mosh-devel mailing list
+>>
+mosh-devel at mit.edu
+>>
+http://mailman.mit.edu/mailman/listinfo/mosh-devel
+>>
+>>
+>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: 
+http://mailman.mit.edu/pipermail/mosh-devel/attachments/20130727/d8eaf5c8/attachment.html
+Previous message: 
+[mosh-devel] Tmux integration escape code
+Next message: 
+[mosh-devel] Toyota vai pagar 2x mais que outros MMN
+Messages sorted by:
+[ date ]
+[ thread ]
+[ subject ]
+[ author ]
+More information about the mosh-devel
+mailing list

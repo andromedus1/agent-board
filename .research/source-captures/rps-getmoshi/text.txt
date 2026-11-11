@@ -1,0 +1,330 @@
+
+Moshi — SSH & MOSH Terminal for Claude Code & AI Agents
+Search
+⌘
+K
+Docs
+Learn
+Compare
+Themes
+Pricing
+Download free
+Search
+Docs
+Learn
+Compare
+Themes
+Pricing
+Download free
+Terminals weren’t made
+for phones. 
+Moshi is.
+Get it
+4.8 on the App Store
+·
+Free to start — no account, no card
+Join the newsletter
+Newsletter · ~monthly
+Get Moshi updates.
+New features, AI-coding workflows, behind-the-scenes notes. About once a month. No spam — unsubscribe anytime.
+Subscribe
+Works with the agents you already run
+Claude Code
+Codex
+OpenCode
+Pi
+Grok Build
+Cursor
+Kimi Code
++
+11
+ more
+why moshi
+Moshi 🐱 
+is the 
+baby monitor 
+for your AI agents — 
+a terminal built for phones, 
+not shrunken from desktops. 
+Check on your agent 
+from the couch 🛋️, the beach 🏖️, the coffee shop ☕, the bed 🛏️ — 
+anywhere.
+moshi core
+nothing extra to install
+A local-first terminal that already does the work.
+Moshi connects directly to your own Mac, Linux machine, WSL box, or VPS over SSH, Mosh, or ET. There’s no session relay: your shell, repositories, files, and agent processes stay on machines you control.
+You don’t need a wrapper command or host daemon. Open the same shell you use at your desk, then use the controls a terminal needs when it lives on a phone.
+Mosh & ET Connections
+Stays alive across sleep, network switches, even app kills.
+Herdr, tmux & Zellij
+Pickers, panels, gestures — deep multiplexer integration.
+Paste & Annotate Images
+Crop, scribble, drop screenshots straight into your agent prompt.
+Talk, Don't Type
+On-device voice-to-terminal. Parakeet, Whisper, Apple, or cloud.
+Shortcut Panels
+Customizable panels for tmux, zellij, and agent commands.
+Terminal Gestures
+Swipe windows, pinch zoom, double-tap Tab.
+and 
+8
+ more capabilities
+Hardware Keyboard
+Drive Moshi from an iPad keyboard. ⌘K, ⌘O, ⌘1-9.
+Recent Directories
+On connect, jump back into a project folder from your agent history.
+Themes, Fonts & Icons
+Pick one, the whole app follows — terminal, chrome, even the icon.
+Face ID for Keys
+SSH keys in Keychain, unlocked at a glance.
+Session Recovery
+App got killed? Reconnect and reattach without the ritual.
+CJK Input
+First-class CJK in shells, agents, and chat.
+Remote Clipboard
+OSC 52 copies from the remote shell land straight on your phone.
+Tappable Links
+Long-press a URL to open it, copy the link, or copy the text.
+and 
+10
+ more capabilities
+Shortcut Panels
+Customizable panels for tmux, zellij, and agent commands.
+Terminal Gestures
+Swipe windows, pinch zoom, double-tap Tab.
+Hardware Keyboard
+Drive Moshi from an iPad keyboard. ⌘K, ⌘O, ⌘1-9.
+Recent Directories
+On connect, jump back into a project folder from your agent history.
+Themes, Fonts & Icons
+Pick one, the whole app follows — terminal, chrome, even the icon.
+Face ID for Keys
+SSH keys in Keychain, unlocked at a glance.
+Session Recovery
+App got killed? Reconnect and reattach without the ritual.
+CJK Input
+First-class CJK in shells, agents, and chat.
+Remote Clipboard
+OSC 52 copies from the remote shell land straight on your phone.
+Tappable Links
+Long-press a URL to open it, copy the link, or copy the text.
+How Moshi handles keys & sync 
+moshi-hook
+go further with coding agents
+Now make the terminal agent-aware.
+Install moshi-hook on your machine to add structured agent context to the same live terminal session. It doesn’t replace Claude Code, Codex, or your shell.
+Terminal, diff, file, and preview traffic still travels directly between your phone and your machine. The hook adds the native surfaces that make it easier to step away and stay in the loop.
+$
+curl -fsSL https://getmoshi.app/install.sh | sh
+copy
+macOS · Linux · WSL on Windows —
+homebrew, systemd and manual install
+Chat View
+The agent TUI, rendered as a phone-native conversation.
+Agents & Usages
+A live kanban of every agent's tasks, asks, and context budget.
+Lock Screen & Watch
+Live Activity, Dynamic Island, Apple Watch — approve from anywhere.
+Diff Viewer
+Review the agent's working tree from the terminal header.
+File Browser
+Browse the repo tree at any commit — syntax-highlighted source.
+Browser Preview
+Open the host's local dev servers in Moshi's in-app browser.
+and 
+2
+ more capabilities
+Jump to…
+Bounce straight to any tmux window or herdr tab — no cycling.
+Webhook Alerts
+Push notifications when long jobs finish.
+and 
+4
+ more capabilities
+File Browser
+Browse the repo tree at any commit — syntax-highlighted source.
+Browser Preview
+Open the host's local dev servers in Moshi's in-app browser.
+Jump to…
+Bounce straight to any tmux window or herdr tab — no cycling.
+Webhook Alerts
+Push notifications when long jobs finish.
+See supported agents 
+Install moshi-hook 
+loved by developers
+What people are saying
+Real feedback from developers using Moshi with their AI coding agents — rated
+4.8 ★
+ across 750+ App Store ratings.
+小林 陽介
+@ll_koba_ll
+"
+Now that I can connect to Claude Code on my home PC with Moshi, I can work from my phone on the train. Using a trackball keyboard to operate iPhone is surprisingly good
+"
+Booby Dylan
+★★★★★
+ · App Store · 
+🇺🇸
+US
+"
+Great app, I can now direct Claude from the toilet!
+"
+Pejman Pour-Moezzi
+@pejmanjohn
+"
+Just pushed Resumer — a tiny CLI for resuming past Codex & Claude Code sessions… I'm pairing this with Moshi app to continue sessions on my phone.
+"
+brock8503
+★★★★★
+ · App Store · 
+🇺🇸
+US
+"
+This remote shell blows almost every other option out of the water. Great option for a dev who uses tmux, agents, and mobile devices often. The exact tool I’ve been looking for.
+"
+Onur Solmaz
+@onusoz
+"
+Its background session battery usage is already so much better than @TermiusHQ. Termius drains battery like crazy and gets my phone hot. I think you did some sensible design choices with Moshi, I hope Termius will learn from it
+"
+wizzomafizzo
+★★★★★
+ · App Store · 
+🇦🇺
+AU
+"
+Really great idea and very polished app! Just enough features to take all the rough edges off using agent CLIs remotely and doesn’t waste time trying to reimplement what they’re good at
+"
+マッド𝕏 ⌘MAD𝕏
+@madxfpv
+"
+The stress of not being able to do AI coding while on the move was too much, so I set up access to my Mac Mini at home.
+"
+nick applesman
+★★★★★
+ · App Store · 
+🇺🇸
+US
+"
+Moshi + tmux + Kilo CLI is literally everything I have wanted from coding on the go. So quick to jump into or between projects on my phone, then sit down at my desk and pick up where I left off.
+"
+Stephencummins
+★★★★★
+ · App Store · 
+🇬🇧
+GB
+"
+Yep, a Mac mini Claude guy, and this app is brilliant. No notes. 💅
+"
+supported agents
+Whatever agent you run, Moshi speaks it.
+moshi-hook plugs into the coding agents you already use, so approvals, notifications, and session status land in one inbox — no matter which CLI is doing the work.
+Claude Code
+Codex
+OpenCode
+Antigravity
+Cursor
+Kimi Code
+Qwen Code
+Grok Build
+Pi
+OMP
+Hermes
+Qoder
+Factory Droid
+GitHub Copilot
+Amp
+Devin
+OmO
+jcode
+See what each agent gets 
+guides and docs
+Build the workflow, then tune the details
+Start with the updated long-form guides, then jump into the docs for the exact feature settings.
+Moshi vs. ADEs: A Layer, Not a Lock-In
+T3 Code, Orca, Paseo, Codex and Claude own your agents' runtime. Moshi layers over tmux or Herdr in a 13 MB app, and you can switch any time.
+Sep 28, 2026
+9 min read
+Moshi Agent Hooks: Inbox, Live Activities, Usage, and Apple Watch
+How moshi-hook turns Claude Code, Codex, OpenCode, Cursor, Kimi, and Qwen into scannable phone and watch workflows
+Jul 30, 2026
+8 min read
+Herdr Cheat Sheet: Shortcuts, Config, Themes, and Commands
+Every Herdr keybinding, CLI command, and config.toml block in one place — prefix keys, themes, detach vs stop, updating — and how each maps to your phone with Moshi.
+Aug 20, 2026
+7 min read
+View all guides and articles 
+hooks
+Hooks
+Install moshi-hook so supported coding agents can talk to Moshi — and see which integrations include inbox events, approvals, and the native Chat View.
+feature
+Image and file paste
+One-tap paste from the phone to a coding agent — screenshots, photos, PDFs, logs, anything iOS can hand off.
+input
+Voice and dictation
+Choose a speech engine, download local models, set languages, use chat mode, and review transcription history.
+network
+Tailscale
+Reach Macs, Linux hosts, and WSL on Windows with no public IP through your tailnet — addresses, mosh over Tailscale, sleep behavior, and common connection failures.
+fair questions
+"Can't I already do this?"
+Why Moshi instead of Claude Code Remote Control?
+Remote Control continues a Claude conversation. Moshi gives you the whole machine: every agent — Claude Code, Codex, OpenCode, and more — with a real shell underneath. Run commands, tail logs, drive tmux or Zellij, browse the repo, review diffs, and preview dev servers, all in the same live session you sit back down to at your desk.
+See all comparisons 
+Why Moshi instead of an agent IDE like Orca?
+Agent IDEs run your agents inside their own daemon, reach your phone through their own relay, and only work with their own mobile app. Moshi keeps your agents in tmux or Herdr and connects straight to your machine over SSH, Mosh, or ET, so you can attach from any terminal and switch tools any time. Then it adds what a native app should: Live Activities, Apple Watch approvals, terminal gestures, and on-device dictation, all from a 13 MB desktop app.
+Moshi vs Orca 
+stay in the loop
+Get Moshi updates
+New features, AI-coding workflows, the occasional behind-the-scenes. ~Once a month. No spam.
+Subscribe
+the name
+Moshi Mosh
+mosh
+mobile shell
+The resilient protocol that survives network changes
+もしもし
+moshi moshi
+Hello — the start of every conversation
+もし
+moshi
+If — all the possibilities your phone unlocks
+A terminal that picks up — and never hangs up.
+4.8 on the App Store
+Every coding agent, in your pocket. Real SSH & Mosh to your own machine.
+App Store
+Google Play
+Product
+Moshi
+Moshi Desktop
+Mata
+Pricing
+Resources
+Docs
+Learn
+Themes
+GitHub
+Compare
+T3 Code
+Orca
+Paseo
+Termius
+Blink Shell
+Secure ShellFish
+Happy
+Kittylitter
+Claude Code Remote Control
+© 2026 Moshi. Made with love and cat hair.
+Support
+Report a bug
+Twitter / X
+Brand
+Privacy
+Terms
+Hey
+(
+もしもし
+)
+, I'm Joel!
+Moshi is on the App Store and Google Play. I'd love to hear what you think. Drop me a message on X!
+Say hi on X

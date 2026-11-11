@@ -1,0 +1,290 @@
+
+	Volume encryption with FileVault in macOS - Apple Support
+Apple
+Store
+Mac
+iPad
+iPhone
+Watch
+Vision
+AirPods
+Home
+Entertainment
+Accessories
+Support
+0+
+            Apple Platform Security
+          Search this guide
+              Clear Search
+    Table of Contents
+    Apple Platform Security
+            Welcome
+            Intro to Apple platform security
+            Hardware security and biometrics
+            Hardware security overview
+            Apple SoC security
+            The Secure Enclave
+            Optic ID, Face ID, and Touch ID
+            Biometric security
+            Magic Keyboard with Touch ID
+            Optic ID, Face ID, Touch ID, passcodes, and passwords
+            Optic ID matching security
+            Facial matching security
+            Uses for Optic ID, Face ID, and Touch ID
+            Secure intent and connections to the Secure Enclave
+            Hardware microphone disconnect
+            Mac on-screen camera indicator light
+            Express Cards with power reserve
+            System security
+            System security overview
+            Secure boot
+            Boot process for iPad and iPhone devices
+            Memory safe iBoot implementation
+            Mac computers with Apple silicon
+            Boot process
+            Boot modes
+            Paired recoveryOS restrictions
+            Startup Disk security policy control
+            LocalPolicy signing-key creation and management
+            Contents of a LocalPolicy file for a Mac with Apple silicon
+            Intel-based Mac computers
+            Boot process
+            Boot modes
+            Startup Security Utility
+            Firmware password protection
+            recoveryOS and diagnostics environments
+            Signed system volume security
+            Secure software updates
+            Background Security Improvements
+            Operating system integrity
+            Device pairing and connection security
+            Physical pairing model security
+            Activating data connections securely
+            Verifying accessories
+            Automatically unlock Apple devices
+            BlastDoor for Messages and IDS
+            Lockdown Mode security
+            Overview of additional macOS system security capabilities
+            Additional macOS system security capabilities
+            System Integrity Protection
+            Trust caches
+            Peripheral processor security
+            Rosetta 2 on a Mac with Apple silicon
+            Direct memory access protections
+            Securely extending the kernel
+            Option ROM security
+            UEFI firmware security in an Intel-based Mac
+            System security for watchOS
+            Random number generation
+            Communicating emergency information using satellites
+            Apple Security Research Device
+            Encryption and Data Protection
+            Encryption and Data Protection overview
+            Quantum-secure cryptography with Apple devices
+            Passcodes and passwords
+            Data Protection
+            Data Protection overview
+            Data Protection
+            Data Protection classes
+            Keybags for Data Protection
+            Protecting keys in alternate boot modes
+            Protecting user data in the face of attack
+            Sealed Key Protection (SKP)
+            Role of Apple File System
+            Keychain data protection
+            FileVault
+            Volume encryption with FileVault
+            Managing FileVault
+            How Apple protects users’ personal data
+            Protecting app access to user data
+            Protecting access to user’s health data
+            Digital signing and encryption
+            App security
+            App security overview
+            App code signing process
+            App security in iOS, iPadOS, and visionOS
+            Intro to app security for iOS, iPadOS, and visionOS
+            About App Store security
+            Security of runtime process
+            App protection and app groups
+            App security in macOS
+            Intro to app security for macOS
+            App code signing process
+            Gatekeeper and runtime protection
+            Protecting against malware
+            Terminal and script protections
+            Controlling app access to files
+            Supporting extensions
+            Secure features in the Notes app
+            Secure features in the Shortcuts app
+            Services security
+            Services security overview
+            Apple Accounts and Managed Apple Accounts
+            Apple Account security
+            Managed Apple Account security
+            iCloud
+            iCloud security overview
+            iCloud encryption
+            Advanced Data Protection for iCloud
+            iCloud Backup security
+            Search on iCloud.com security
+            iCloud Private Relay security
+            Account recovery contact security
+            Legacy Contact security
+            Passcode and password management
+            Passcode security overview
+            Sign in with Apple security
+            Automatic strong passwords
+            Password AutoFill security
+            App access to saved passwords
+            Password security recommendations
+            Password Monitoring
+            Sending passwords
+            Credential provider extensions
+            iCloud Keychain
+            iCloud Keychain security overview
+            Secure keychain syncing
+            Secure iCloud Keychain recovery
+            Escrow security for iCloud Keychain 
+            Apple Pay
+            Apple Pay security overview
+            Apple Pay component security
+            How Apple Pay keeps users’ purchases protected
+            Credit, debit, and prepaid cards
+            Card provisioning security overview
+            Adding credit or debit cards to Apple Pay
+            Payment authorization with Apple Pay
+            Paying with cards using Apple Pay
+            Contactless passes in Apple Pay
+            Rendering cards unusable with Apple Pay
+            Apple Card security
+            Apple Cash security
+            Tap to Pay on iPhone
+            Using Apple Wallet
+            Access using Apple Wallet
+            Access key types
+            Car key security
+            Car key security
+            Car key transactions
+            Adding transit and eMoney cards to Apple Wallet
+            IDs in Apple Wallet
+            IDs in Apple Wallet
+            Security of IDs in Apple Wallet
+            iMessage
+            iMessage security overview
+            How iMessage sends and receives messages
+            Check In security
+            Secure iMessage name and photo sharing
+            Secure Apple Messages for Business
+            FaceTime security
+            SharePlay security
+            Nearby sharing security
+            Find My
+            Find My security
+            Locating missing devices
+            Continuity
+            Continuity security overview
+            Handoff security
+            iPhone cellular call relay security
+            iPhone Text Message Forwarding security
+            Instant Hotspot security
+            Network security
+            Network security overview
+            TLS security
+            IPv6 security
+            VPN security
+            Wi-Fi security and privacy
+            Security features when connecting to wireless networks
+            Wi-Fi security with Apple devices
+            Privacy features when connecting to wireless networks
+            Wi-Fi privacy with Apple devices
+            Bluetooth security
+            Ultra Wideband security in iOS
+            Single Sign-on security
+            AirDrop security
+            Wi-Fi password sharing security
+            Firewall security in macOS
+            Developer kit security
+            Developer kit security overview
+            ARKit security
+            DriverKit security
+            EnergyKit data security
+            HomeKit security
+            Communication security
+            Data security
+            Securing routers with HomeKit
+            Camera security
+            Security with Apple TV
+            NFC & SE Platform security
+            ReplayKit security
+            SiriKit security
+            WidgetKit security
+            Secure device management
+            Secure device management overview
+            Device management
+            Device management security overview
+            Managed Device Attestation
+            Attestation process security
+            Configuration enforcement
+            Automated Device Enrollment
+            Activation Lock security
+            Managed Lost Mode and remote wipe
+            Shared iPad security
+            Apple Configurator security
+            Screen Time security
+            Glossary
+            Document revision history
+            Copyright and trademarks
+			Volume encryption with FileVault in macOS
+Mac computers offer FileVault, a built-in encryption capability, to secure all data at rest. FileVault uses the AES-XTS data encryption algorithm to protect full volumes on internal and removable storage devices.
+FileVault on a Mac with Apple silicon is implemented using Data Protection Class C with a volume key. On a Mac with Apple silicon and a Mac with an Apple T2 Security Chip, encrypted internal storage devices directly connected to the Secure Enclave leverage its hardware security capabilities as well as that of the AES Engine. After a user turns on FileVault on a Mac, their credentials are required during the boot process.
+For Mac computers:
+Prior to those with a T2 chip
+With internal storage that didn’t originally ship with the Mac
+With attached external storage
+After FileVault is turned on, all existing files and any further data written are encrypted. Data that was added and then deleted before turning on FileVault isn’t encrypted and may be recoverable with forensic data recovery tools.
+Internal storage with FileVault turned on
+Without valid login credentials or a cryptographic recovery key, the internal APFS volumes remain encrypted and are protected from unauthorized access even if the physical storage device is removed and connected to another computer. In macOS 10.15, this includes both the system volume and the data volume. In macOS 11 or later, the system volume is protected by the signed system volume (SSV) feature, but the data volume remains protected by encryption. Internal volume encryption on a Mac with Apple silicon as well as those with the T2 chip is implemented by constructing and managing a hierarchy of keys, and builds on the hardware encryption technologies built into the chip. This hierarchy of keys is designed to simultaneously achieve four goals:
+Require the user’s password for decryption
+Protect the system from a brute-force attack directly against storage media removed from Mac
+Provide a swift and secure method for wiping content via deletion of necessary cryptographic material
+Enable users to change their password (and in turn the cryptographic keys used to protect their files) without requiring reencryption of the entire volume
+On a Mac with Apple silicon and those with the T2 chip, all FileVault key handling occurs in the Secure Enclave; encryption keys are never directly exposed to the CPU. All APFS volumes are created with a volume encryption key by default. Volume and metadata contents are encrypted with this volume encryption key, which is wrapped with a key encryption key (KEK). The KEK is protected by a combination of the user’s password and hardware UID when FileVault is turned on.
+Internal storage with FileVault turned off
+If FileVault isn’t turned on in a Mac with Apple silicon or a Mac with the T2 chip during the initial Setup Assistant process, the volume is still encrypted but the volume encryption key is protected only by the hardware UID in the Secure Enclave.
+If FileVault is turned on later—a process that’s immediate because the data has already been encrypted—an anti-replay mechanism helps prevent the old key (based on hardware UID only) from being used to decrypt the volume. The volume is then protected by a combination of the user password with the hardware UID as previously described.
+Deleting FileVault volumes
+When deleting a volume, its volume encryption key is securely deleted by the Secure Enclave. This helps prevent future access with this key even by the Secure Enclave. In addition, all volume encryption keys are wrapped with a media key. The media key doesn’t provide additional confidentiality of data; instead, it’s designed to enable swift and secure deletion of data because without it decryption is impossible.
+On a Mac with Apple silicon and a Mac with the T2 chip, the media key is guaranteed to be erased by the Secure Enclave supported technology—for example by remote device management commands. Erasing the media key in this manner renders the volume cryptographically inaccessible.
+FileVault recovery
+macOS offers an additional password recovery option if a user has lost their account password. When FileVault is turned on, a recovery key is generated. The recovery key is a sequence of 24 random numbers and letters. It can be viewed in System Settings under Privacy & Security > FileVault, and is stored in the keychain so that it can be retrieved using the Passwords app. Additional recovery key considerations are:
+When using iCloud Keychain, the recovery key is securely synchronized along with other user passwords.
+When not using iCloud, the user is presented with the FileVault recovery key which should be stored in a safe location.
+The recovery key can be used in recoveryOS or at the Login Window when pressing Shift-Option-Return instead of the user password to unlock FileVault.
+On managed Mac computers, the organization’s device management service can optionally escrow the key. For more information, see Managing FileVault in macOS.
+Removable storage devices
+Encryption of removable storage devices doesn’t utilize the security capabilities of the Secure Enclave and instead is performed in the same manner as an Intel-based Mac without the T2 chip.
+Published Date: January 28, 2026See alsoThe Secure EnclaveApple Platform Deployment: Use Secure Token, Bootstrap Token, and volume ownership in deployments
+Download this guide as a PDF
+				Previous
+				Keychain data protection
+				Next 
+				Managing FileVault
+                Helpful?
+                    Yes
+                    No
+                            Character limit:
+                            250
+                Please don’t include any personal information in your comment.
+                    Maximum character limit is 250.
+                    Submit
+        Thanks for your feedback.
+            Apple Footer
+                    
+                    Apple
+                                Support
+                                Apple Platform Security
+                            Volume encryption with FileVault in macOS
+                United States
+                Copyright © 2026 Apple Inc. All rights reserved.
+                 Privacy Policy Terms of Use                    Sales and Refunds Site Map
