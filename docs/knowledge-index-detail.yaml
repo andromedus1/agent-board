@@ -1,6 +1,6 @@
 # Auto-generated. DO NOT EDIT BY HAND.
 # On-demand layer — load when surfacing a specific doc's full context.
-generated_at: '2026-10-26T20:33:46Z'
+generated_at: '2026-11-11T04:48:45Z'
 generated_from: frontmatter
 schema_version: 2
 documents:
@@ -255,6 +255,44 @@ documents:
     - '{inferred: implementation comparison} The existing Agent Board glyph projection and normalized
       transitions can remain common; the material new work is a Claude launcher/plugin/translator, provider
       capability diagnostics, and a cross-provider runtime matrix.'
+  .research/analysis/campaigns/herdr-mac-mini-architecture/dispatch.md:
+    summary: 'Decision-engagement registration that verifies the operator''s proposed always-on Mac mini
+      running Herdr TUI, reached over Tailscale from a MacBook Air and an Android phone (Moshi), with
+      wherdr and Herdr Projects as optional later layers, and recommends Agent Board''s disposition.
+
+      '
+  .research/analysis/campaigns/herdr-mac-mini-architecture/parent.md:
+    summary: 'Decision brief on an always-on Apple-silicon Mac mini (macOS 26) hosting Claude Code and
+      Codex sessions in Herdr, reached over Tailscale from a MacBook Air and an Android phone. Herdr TUI
+      remains the better host runtime today over the newer herdr-core line (which the Herdr desktop app
+      runs on): core has program-reported status but no reboot resume and no documented closed-app phone
+      alerts, while TUI infers Claude and Codex state from the screen. Moshi on Android documents Herdr
+      TUI awareness and push, which is enough to defer wherdr, but carries approvals as verified keystrokes.
+      FileVault can stay on because macOS 26 documents SSH unlock after restart, which the sources indicate
+      must be reached through the home LAN; of Tailscale''s macOS variants, only open-source tailscaled
+      is listed as running before login. Agent Board can be retired as a product; reuse inside Herdr is
+      constrained by Herdr''s guidance that user hooks report display metadata rather than take over lifecycle
+      state.
+
+      '
+    key_findings:
+    - Herdr now ships three products; the desktop app and the official Android app run on herdr-core,
+      not Herdr TUI, so the TUI-versus-Desktop choice is also a phone-client choice.
+    - Herdr TUI infers Claude and Codex state from the screen, has no failed state, documents no on-screen
+      marker of state source, and resumes agent conversations after an orderly restart; Herdr's state-reporting
+      API replaces screen reading only for the integrations that report state.
+    - herdr-core takes state only from program-reported OSC 7501, with documented emission gaps, restores
+      bare shells after a reboot, and documents only an in-app phone banner.
+    - Moshi has a released Android app that documents Herdr TUI sessions and host-hook push; documented
+      approvals are keys injected into the pane after a screen re-check, and Android parity is vendor-asserted
+      by omission.
+    - macOS 26 documents unlocking FileVault over SSH after a restart; the sources indicate the Mac does
+      not finish booting, and so Tailscale is not up, until that unlock, making a LAN path necessary (inferred;
+      untested).
+    - Tailscale's variants table lists only open-source tailscaled as running before login; a Tailscale
+      KB page disagrees without naming a variant, so a reboot drill must confirm it.
+    - Herdr Projects' TUI-compatible line is one its author has moved past for herdr-core, so the Model
+      B target may be the trigger to revisit the core line.
   .research/analysis/campaigns/remote-persistent-supervision/dispatch.md:
     summary: 'Breadth-survey registration mapping existing ways to supervise Codex and Claude sessions
       that live on an always-on host and are driven from a phone, to inform whether Agent Board builds,

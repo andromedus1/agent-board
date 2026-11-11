@@ -6,9 +6,9 @@
 #   2 = enforce (missing v2 fields are errors)
 # Set to 2 once the project's docs are fully backfilled to v2 frontmatter.
 schema_version: 2
-generated_at: 2026-10-26T20:33:46Z
+generated_at: 2026-11-11T04:48:45Z
 generated_from: frontmatter
-total_docs: 34
+total_docs: 42
 
 documents:
   # ── planning ──────────────────────────────────────────────────────────────
@@ -185,6 +185,66 @@ documents:
     kind: research
     updated: 2026-08-20
     consumer_hint: "Agentic Research campaign: Herdr prior art: terminal-level symmetry, inference-bound provider state"
+
+  - path: .research/analysis/campaigns/herdr-mac-mini-architecture/acquisitions.md
+    title: Acquisition candidates
+    type: campaign
+    kind: research
+    updated: 2026-11-10
+    consumer_hint: "Agentic Research campaign: Acquisition candidates"
+
+  - path: .research/analysis/campaigns/herdr-mac-mini-architecture/campaign-evaluation.md
+    title: Campaign evaluation (isolated)
+    type: campaign
+    kind: research
+    updated: 2026-11-10
+    consumer_hint: "Agentic Research campaign: Campaign evaluation (isolated)"
+
+  - path: .research/analysis/campaigns/herdr-mac-mini-architecture/dispatch.md
+    title: Herdr Mac mini architecture dispatch
+    type: campaign
+    kind: research
+    updated: 2026-11-10
+    status: locked
+    consumer_hint: Registration for the decision engagement scrutinizing a Mac mini + Herdr TUI + Tailscale + Moshi supervision stack.
+
+  - path: .research/analysis/campaigns/herdr-mac-mini-architecture/parent.md
+    title: "Herdr Mac mini architecture: decision brief"
+    type: campaign
+    kind: research
+    updated: 2026-11-10
+    status: active
+    research_method: /research
+    consumer_hint: Read this before setting up the Mac mini agent host or deciding Agent Board's future; it scrutinizes the proposed Herdr TUI + Tailscale + Moshi stack against current sources and recommends an architecture, a host-prep sequence, and Agent Board's retirement.
+
+  - path: .research/analysis/campaigns/herdr-mac-mini-architecture/specialists/android-access.md
+    title: Android access (facet `android-access`)
+    type: campaign
+    kind: research
+    updated: 2026-11-10
+    status: draft
+    consumer_hint: Android phone access to a Herdr-hosted Codex/Claude fleet on an always-on Mac mini over Tailscale; Moshi on Android, mosh and Tailscale guidance, approval semantics, Android alternatives and notification mechanics.
+
+  - path: .research/analysis/campaigns/herdr-mac-mini-architecture/specialists/herdr-core-line.md
+    title: Herdr core line (herdr-core, Herdr app, official mobile app) as host runtime for the Mac mini
+    type: campaign
+    kind: research
+    updated: 2026-11-10
+    consumer_hint: "Agentic Research campaign: Herdr core line (herdr-core, Herdr app, official mobile app) as host runtime for the Mac mini"
+
+  - path: .research/analysis/campaigns/herdr-mac-mini-architecture/specialists/herdr-ecosystem.md
+    title: Herdr ecosystem facet - Mac mini host, remote attach, status, wherdr, Herdr Projects
+    type: campaign
+    kind: research
+    updated: 2026-11-10
+    consumer_hint: "Agentic Research campaign: Herdr ecosystem facet - Mac mini host, remote attach, status, wherdr, Herdr Projects"
+
+  - path: .research/analysis/campaigns/herdr-mac-mini-architecture/specialists/mac-mini-headless-host.md
+    title: "Mac mini headless host: FileVault, sessions, Tailscale, SSH, power"
+    type: campaign
+    kind: research
+    updated: 2026-11-10
+    consumer_hint: Specialist brief on running an always-on Apple-silicon Mac mini (macOS 26) as a headless Herdr/agent host reached over Tailscale, with FileVault left on.
 
   - path: .research/analysis/campaigns/remote-persistent-supervision/acquisitions.md
     title: Acquisition candidates
