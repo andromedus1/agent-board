@@ -18,6 +18,7 @@ tag-based
 - ui — a user-facing visual or native interaction surface
 - state — normalized domain state, persistence, reconciliation, or projection
 - security — validation, secrets, permissions, process boundaries, or supply chain
+- infrastructure — host, network, power, or device setup outside the Agent Board codebase
 - perf — throughput, latency, or memory work; routes to perf-design
 - refactor — behavior-preserving structural change only; routes to refactor-design
 - prose — a no-code deliverable such as documentation or conventions; routes to prose-author

@@ -46,7 +46,7 @@ host-wide choices that other services can share}.
 
 ## Bottom line
 
-The proposed shape holds, conditional on step 7's Android approval round trip,
+The proposed shape holds, conditional on step 8's Android approval round trip,
 with three corrections and one disposition {inferred: composed across the cited
 facts}:
 
@@ -56,11 +56,12 @@ facts}:
    source marker, and an orchestration add-on whose author has moved to the
    core line. Re-check herdr-core when it resumes agents after a reboot and
    alerts a closed phone app, or when Model B begins.
-2. **Plan reboot recovery around the LAN.** Boot has two phases. Before the
+2. **Plan reboot recovery around the LAN, delivered in two phases** (§5): a UPS
+   from the start, a recovery device second. The boot itself has two stages. Before the
    FileVault unlock, the Mac has not finished booting, so the sources indicate
    no tailnet exists and the unlock must come over the LAN. After the unlock,
    with no GUI login (FileVault disables automatic login), only a system-level
-   Tailscale daemon can bring the tailnet up. The reboot drill (step 3) tests
+   Tailscale daemon can bring the tailnet up. The reboot drill (step 4) tests
    both.
 3. **Use the open-source `tailscaled` daemon, keep Tailscale SSH off, use macOS
    Remote Login.** It is the only variant Tailscale's variants table lists as
@@ -88,7 +89,7 @@ facts}:
   Its costs: an unofficial project weeks old [hma-wherdr-docs]{1}, "a remote
   shell as your user" [hma-wherdr-docs]{3}, and login-time start [hma-wherdr-docs]{2}.
   Add it when Model B needs the board, or if Moshi's Android push or approvals
-  fail the step 7 test.
+  fail the step 8 test.
 
 - **Add on to this build, or change builds, for reboot resilience?** Add on
   {inferred}: an update routine, a UPS, a LAN rescue device and a smart plug
@@ -242,7 +243,7 @@ JuiceSSH is reported delisted [hma-android-moshi-article-android]{5}.
   "unattended installs managed by experienced macOS system administrators"
   [hma-host-tailscale-macos-variants]{2}; it has no auto-update
   [hma-host-tailscale-macos-variants]{5}.
-- Phase 1, before unlock: the Mac "won't fully boot until you log in"
+- Boot stage 1, before unlock: the Mac "won't fully boot until you log in"
   [hma-host-geerling-filevault-ssh]{5}, and system daemons load as part of boot
   [hma-host-apple-launchd-archive]{1}, so `tailscaled` is likely not running at
   the pre-boot unlock {inferred: no source tests tailscaled with FileVault on}.
@@ -252,7 +253,7 @@ JuiceSSH is reported delisted [hma-android-moshi-article-android]{5}.
   no source tests it for pre-boot unlock. It would expose the advertised LAN
   range to whichever tailnet devices the policy allows, so scope it to the
   operator's own devices {inferred}.
-- Phase 2, booted without a GUI login: per-user agents load "When a user logs
+- Boot stage 2, booted without a GUI login: per-user agents load "When a user logs
   in" [hma-host-apple-launchd-archive]{2}, so login-started services (wherdr's
   installer, possibly `brew services`) may not run after a reboot {inferred}.
 - Power: "Start up when power is connected" = Always needs a Mac mini introduced
@@ -405,7 +406,13 @@ also multiply exposure to screen-inferred state and resume-identity bugs
 {inferred}. Treat the start of Model B as the decision point to re-evaluate the
 core line.
 
-## 5. Minimal implementation sequence
+## 5. Implementation sequence
+
+Two phases, at the operator's direction. Phase 1 delivers the working host with
+a UPS and laptop and phone access; Phase 2 adds the recovery device. Steps are
+composed from the cited facts.
+
+### Phase 1 — UPS, Mac mini with Herdr, laptop and phone access
 
 1. **Host baseline.** Confirm FileVault on and store the recovery key off the
    Mini [hma-host-apple-macos-fv-help]{4}. Create an admin account (unlock) and
@@ -413,29 +420,34 @@ core line.
    [hma-host-apple-macos-remote-login]{2}; set Energy "Start up when power is
    connected" = Always [hma-host-apple-poweron-mini]{2} and disable sleep
    [hma-host-man-pmset]{1}.
-2. **Tailscale.** Install `tailscaled` as a system daemon
+2. **UPS.** Put the Mini, router and modem on the UPS. Connect its USB cable to
+   the Mini and set Energy > UPS Options or `pmset -u` thresholds
+   [hma-reboot-apple-ups-help]{2}[hma-reboot-man-pmset-ups]{1}.
+3. **Tailscale.** Install `tailscaled` as a system daemon
    [hma-host-tailscale-tailscaled-wiki]{2}, tag the Mini so key expiry is off
    [hma-host-tailscale-key-expiry]{4}, leave Tailscale SSH off, and limit access
    to the Mini to the operator's devices in the tailnet policy.
-3. **Reboot drill before anything else.** Pull the power (not just `shutdown`);
+4. **Reboot drill before anything else.** Pull the power (not just `shutdown`);
    SSH-unlock from the MacBook on the LAN; confirm `tailscaled` comes up and SSH
-   works over the tailnet without any GUI login. Also test whether a key-only
-   `sshd_config` drop-in still allows the pre-boot unlock (undocumented), and
-   run `fdesetup supportsauthrestart` on the Mini.
-4. **SSH hardening** once the drill passes: key-only drop-in
+   works over the tailnet without any GUI login. Then trigger a UPS shutdown and
+   restore mains power to see whether the Mini starts again. Also test whether a
+   key-only `sshd_config` drop-in still allows the pre-boot unlock
+   (undocumented), and run `fdesetup supportsauthrestart` on the Mini.
+5. **SSH hardening** once the drill passes: key-only drop-in
    [hma-host-man-sshd-config]{5}.
-5. **Agents.** Install Claude Code and Codex for the agent user; set Codex
+6. **Agents.** Install Claude Code and Codex for the agent user; set Codex
    `cli_auth_credentials_store = "file"` [hma-host-codex-auth]{2} and confirm
    where Claude stored credentials [hma-host-claude-code-auth]{1}.
-6. **Herdr TUI.** Install; install the Claude and Codex integrations, which
+7. **Herdr TUI.** Install; install the Claude and Codex integrations, which
    native resume requires [hma-herdr-tui-session-state-docs]{5}; start
    `herdr server` from SSH and confirm it survives closing that SSH session
    (SSH starts keep Herdr's direct spawn [hma-reboot-herdr-pr-5236]{3}); check
-   `launchctl managername` inside a pane to see its launchd context. Create one workspace per project and name
-   tabs by feature. Work from the MacBook with `ssh` then `herdr`; try
-   `herdr --remote` [hma-herdr-tui-remote-docs]{10} separately. Repeat the step
-   3 power pull and confirm what resumes after attaching.
-7. **Android.** Install Tailscale and Moshi; start on the free tier over SSH,
+   `launchctl managername` inside a pane to see its launchd context. Create one
+   workspace per project and name tabs by feature. Work from the MacBook with
+   `ssh` then `herdr`; try `herdr --remote` [hma-herdr-tui-remote-docs]{10}
+   separately. Repeat the power pull, confirm what resumes after attaching, and
+   test whether a scripted client triggers resume.
+8. **Android.** Install Tailscale and Moshi; start on the free tier over SSH,
    then Pro for mosh and Herdr integration. Install moshi-hook with Homebrew,
    pairing with `--store file` for a headless host [hma-android-moshi-docs-hooks]{3},
    and turn on E2EE [hma-android-moshi-docs-e2ee]{2}; run `moshi-hook doctor`
@@ -444,17 +456,28 @@ core line.
    [hma-android-moshi-docs-herdr]{6}[hma-android-moshi-article-mosh-macos-path]{2}.
    Confirm moshi-hook is running after a reboot with no GUI login. Test push and
    an approval round trip on cellular — the adoption gate.
-8. **Update routine.** Turn off automatic macOS and Background Security
+9. **Update routine.** Turn off automatic macOS and Background Security
    Improvement installs; patch weekly in a planned window from home, letting the
    orderly macOS restart trigger Herdr's documented pre-restart save rather than
    stopping the server by hand (§7.1). Confirm agents resume after the first
    patch restart.
-9. **Reboot resilience.** Add the UPS (test power-return start with it), the
-   rescue device with watchdog, and a smart plug (§7.3); repeat the power pull
-   from away using the rescue path; test whether a scripted client triggers
-   agent resume.
-10. **Live with Model A for a while** before adding wherdr, a display-metadata
-   reporter, or Herdr Projects.
+
+Phase 1 accepted risk: a reboot while the operator is away leaves the Mini at
+the FileVault prompt until someone unlocks it from the home LAN; the UPS and the
+update routine make that rarer {inferred}.
+
+### Phase 2 — recovery device
+
+10. **Choose the device** using the Phase 1 drill results (§7.3 decision
+    criteria): a Raspberry Pi relay with watchdog, or a KVM-over-IP box.
+11. **Deploy it** on the UPS, wired, tagged in Tailscale, with access limited to
+    the operator's devices; add the watchdog and outage alerts (ntfy,
+    Healthchecks) where the device can run them.
+12. **Optional smart plug** for powering on a hung Mini (§7.3).
+13. **Drill from away:** pull the Mini's power while away from home, receive the
+    alert, unlock through the recovery device, attach, and confirm resume.
+14. **Live with Model A for a while** before adding wherdr, a display-metadata
+    reporter, or Herdr Projects.
 
 ## 6. Risks and unresolved questions
 
@@ -501,7 +524,7 @@ work returns through layout restore plus native resume
 mitigations below make reboots rarer and cleaner, keep them recoverable while
 away, and make resume as automatic as the tools allow. Agents' own durable-work
 habits (commits, progress notes) are assumed and not re-examined here. §5 steps
-3, 6, 8 and 9 carry the resulting tests and additions.
+2, 4, 7, 9 and Phase 2 carry the resulting tests and additions.
 
 ### 7.1 Verified mitigations
 
@@ -605,12 +628,25 @@ route into the LAN is added to the tailnet.
 | Smart plug | Power-on of a hung or off Mini via "Start up when power is connected" [hma-host-apple-poweron-mini]{3} | Unclean power cut; still lands at FileVault [hma-host-apple-deploy-filevault-intro]{1}; needs a controller reachable while away (a vendor cloud, or the Pi on the LAN) and sits between the UPS and the Mini {inferred} |
 | Wake-on-LAN | Nothing here | Wake from sleep [hma-rescue-apple-mac-wake-settings]{1}, which the always-on Mini does not use {inferred} |
 
-**Composed recommendation.** A wired Pi booting from USB storage, on the same UPS
-as the Mini and router, tagged in Tailscale, acting as a scoped /32 subnet router
-(so any phone SSH client works) with its own SSH reachable only for maintenance,
-running a watchdog that posts to ntfy and pings Healthchecks. Add a smart plug
-for hung-Mini recovery. Defer a KVM until someone confirms it can type at the
-FileVault screen.
+**Phase 2 decision: Pi or KVM** {inferred: composed from the rows above}.
+
+| | Raspberry Pi relay | KVM-over-IP box |
+|---|---|---|
+| Remote FileVault unlock | Through the documented SSH unlock, relayed over the tailnet | By typing at the unlock screen, which is unverified on Apple silicon; or by acting as the relay if the box permits it |
+| Hung or stuck Mini, Recovery | No; needs a smart plug | Shows the screen and gives a keyboard; still needs a smart plug to power on |
+| Watchdog and alerts | Yes, a general Linux host | Not documented for JetKVM or Comet |
+| Power-loss robustness | SD card fragile; boot from USB | PiKVM runs read-only for this reason [hma-rescue-pikvm-faq]{3} |
+
+PiKVM sits between the two: it runs on a Raspberry Pi and installs packages
+such as Tailscale [hma-rescue-pikvm-docs-home]{1}[hma-rescue-pikvm-tailscale]{1},
+so it could plausibly also act as the SSH relay and watchdog, though its
+read-only filesystem makes extra services more involved {inferred: not
+documented}. The deciding input is the Phase 1 drill. If pre-boot SSH unlock
+over the LAN works reliably, a Pi relay covers the main need and a KVM adds only
+hung-Mini recovery. If it is unreliable, a KVM becomes the main path, bought
+with a return window and tested at the FileVault screen first. Either way, use
+wired Ethernet, the shared UPS, USB or read-only storage, and a smart plug for
+power-on.
 
 ## Contradictions
 
@@ -718,3 +754,6 @@ FileVault screen.
   step with the documented orderly-restart save, added the Herdr auto-start
   disposition and the add-on-or-change direct answer, stated the patch-delay
   security cost, and marked extract-tier rescue citations per claim.
+- 2026-11-10 — operator direction: §5 restructured into Phase 1 (UPS, host,
+  Herdr, laptop and phone access) and Phase 2 (recovery device); §7.3
+  recommendation replaced by Pi-versus-KVM decision criteria.
