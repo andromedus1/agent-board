@@ -1,7 +1,7 @@
 ---
 id: epic-mac-mini-agent-host
 kind: epic
-stage: drafting
+stage: implementing
 tags: [infrastructure]
 parent: null
 depends_on: []
@@ -30,7 +30,8 @@ orchestration (Herdr Projects) waits until Model A is proven.
 
 - **Phasing**: Phase 1 core host + UPS + access; Phase 2 recovery device —
   operator direction, 2026-11-10.
-- **Tracking**: one epic with two features; Phase 2 depends on Phase 1.
+- **Tracking**: one epic; Phase 1 is the active feature and Phase 2 is deferred
+  to the backlog until Phase 1 is done.
 - **UPS**: committed for Phase 1.
 - **Recovery device**: Raspberry Pi relay or KVM-over-IP, decided at the start of
   Phase 2 from Phase 1 drill results (brief §7.3 decision table).
@@ -40,8 +41,12 @@ orchestration (Herdr Projects) waits until Model A is proven.
 
 ## Children
 
-- `epic-mac-mini-agent-host-phase-1-core-host-access`
-- `epic-mac-mini-agent-host-phase-2-recovery-device` (depends on Phase 1)
+- `epic-mac-mini-agent-host-phase-1-core-host-access` — next piece of work.
+- Phase 2 (recovery device) is deferred to the backlog as
+  `idea-mac-mini-recovery-device`; re-scope it under this epic after Phase 1.
+
+Decomposition was settled with the operator at scope time (2026-11-10), so the
+epic advances to implementing without a separate epic-design pass.
 
 ## Simplification opportunity
 

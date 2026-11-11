@@ -1,16 +1,14 @@
 ---
-id: epic-mac-mini-agent-host-phase-2-recovery-device
-kind: feature
-stage: drafting
-tags: [infrastructure, security]
-parent: epic-mac-mini-agent-host
-depends_on: [epic-mac-mini-agent-host-phase-1-core-host-access]
-release_binding: null
-gate_origin: null
-research_refs: [herdr-mac-mini-architecture]
+id: idea-mac-mini-recovery-device
 created: 2026-11-10
 updated: 2026-11-10
+tags: [infrastructure, security]
 ---
+
+Deferred Phase 2 of `epic-mac-mini-agent-host` (operator direction,
+2026-11-10). Re-scope under that epic once Phase 1
+(`epic-mac-mini-agent-host-phase-1-core-host-access`) is done and lived-in; the
+Pi-versus-KVM choice depends on the Phase 1 reboot-drill results.
 
 # Phase 2 — recovery device
 
