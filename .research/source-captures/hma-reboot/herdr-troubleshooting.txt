@@ -1,0 +1,146 @@
+Troubleshooting | herdr
+Skip to content        herdr tui   ← Herdr app Docs Plugins Blog
+Documentation versionLatest 0.9.5Preview0.9.40.9.30.9.20.9.10.9.00.8.20.8.00.7.50.7.40.7.30.7.20.7.10.7.00.6.100.6.90.6.80.6.70.6.60.6.50.6.40.6.30.6.20.6.10.6.00.5.120.5.11     Search  CtrlK       Cancel
+GitHub
+Select theme   DarkLightAuto          Select language   English日本語简体中文
+Start here         Overview
+Install
+Quick start
+Concepts
+Keyboard
+Using Herdr         How to work with Herdr
+Agents
+Agent automation
+Session state and restore
+Persistence and remote access
+Connecting machines
+Configure         Configuration
+Config reference
+Plugins
+Marketplace
+Reference         CLI reference
+Socket API
+Integrations
+Agent skill file
+Windows support
+Build for Herdr         Add Herdr support to your agent
+Help         Troubleshooting
+Preview docs
+GitHub
+Select theme   DarkLightAuto          Select language   English日本語简体中文
+On this page   Overview
+The CJK IME window is misplaced or the cursor flickers on Windows
+Enter, Tab, or Backspace fires twice
+Option+Left or Option+Right inserts ;3D or ;3C
+Herdr updated, but the running session is still old
+Keychain-backed tools fail inside Herdr on macOS
+SSH or DNS fails after macOS logout
+The herdr command is not found
+A direct keybinding does nothing
+Remote attach cannot authenticate
+Find diagnostic logs
+On this page
+Overview
+The CJK IME window is misplaced or the cursor flickers on Windows
+Enter, Tab, or Backspace fires twice
+Option+Left or Option+Right inserts ;3D or ;3C
+Herdr updated, but the running session is still old
+Keychain-backed tools fail inside Herdr on macOS
+SSH or DNS fails after macOS logout
+The herdr command is not found
+A direct keybinding does nothing
+Remote attach cannot authenticate
+Find diagnostic logs
+Troubleshooting
+Start with the versions and session status:
+Terminal windowherdr -V
+herdr status
+Also record your operating system, outer terminal name and version, whether the session is local or remote, and whether tmux is involved.
+The CJK IME window is misplaced or the cursor flickers on Windows
+Section titled “The CJK IME window is misplaced or the cursor flickers on Windows”
+Herdr defaults to a cell-drawn cursor on native Windows and WSL because native cursors can flicker, jump, or show stale positions while ConPTY-based multiplexers repaint the screen. A cell-drawn cursor cannot provide the native cursor anchor used by Korean, Japanese, and Chinese IME composition UI.
+If the IME composition or candidate window appears at the wrong location, enable the native cursor:
+[ui]
+host_cursor = "native"
+Native mode restores the IME anchor but may reintroduce occasional cursor movement artifacts during active output. Return to the visually stable cursor with host_cursor = "drawn"
+, or remove the setting to use the Windows default. See Windows support for the current limitation.
+Enter, Tab, or Backspace fires twice
+Section titled “Enter, Tab, or Backspace fires twice”
+Older versions of some terminals can emit the release of Enter, Tab, and Backspace as the same bytes as the press when an application enables Kitty keyboard event reporting. Herdr cannot distinguish those duplicate bytes after the terminal sends them.
+Update the outer terminal to a version that contains its upstream fix:
+TerminalMinimum fixed version
+kitty0.33.0
+foot1.20.0
+Alacritty0.15.0
+This is especially common with older terminal packages from long-term-support Linux distributions. See Herdr issue #1116 for the confirmed boundary captures and upstream references. If the problem remains on a current terminal version, report the exact terminal version and whether it also happens outside Herdr.
+Option+Left or Option+Right inserts ;3D
+or ;3C
+Section titled “Option+Left or Option+Right inserts ;3D or ;3C”
+Terminals commonly send Alt+Left and Alt+Right as the standard modified-arrow sequences ESC[1;3D
+and ESC[1;3C
+. On macOS, the outer terminal must first be configured to treat Option as Alt. If the shell does not bind these sequences, zsh may display their remaining characters as ;3D
+or ;3C
+. This can happen with kitty, Alacritty, and other terminals; Herdr and tmux both preserve the original modified-arrow input.
+Add explicit zsh bindings if you want modified arrows to perform word navigation in every terminal and nested shell:
+Terminal windowbindkey $'\e[1;3D' backward-word
+bindkey $'\e[1;3C' forward-word
+Kitty can appear to work differently outside Herdr because its automatic zsh integration adds these bindings only to shells started directly by kitty, not shells created by terminal multiplexers. Follow kitty’s manual shell integration instructions, or map the keys in kitty.conf
+before they reach the shell:
+map alt+left send_text all \x1bb
+map alt+right send_text all \x1bf
+Herdr deliberately does not rewrite modified arrows because terminal applications may use Alt+Left and Alt+Right directly. See Herdr issue #1370 for the investigation.
+Herdr updated, but the running session is still old
+Section titled “Herdr updated, but the running session is still old”
+Updating the binary does not replace a compatible server that is already running. Start Herdr again to use the updated client. If you also need server-side changes from the release, check herdr status
+, then stop the session and launch Herdr again:
+Terminal windowherdr server stop
+herdr
+Stopping a server exits its pane processes. Named sessions use herdr session stop <name>
+. See Install Herdr for updater, package-manager, and live-handoff behavior.
+Keychain-backed tools fail inside Herdr on macOS
+Section titled “Keychain-backed tools fail inside Herdr on macOS”
+Check the server launch context from a Herdr pane:
+Terminal windowlaunchctl managername
+Background
+is normal for automatically started macOS servers and does not by itself indicate a Keychain problem. If Keychain access fails and the server was started through SSH or a background job, stop it and start Herdr again from a normal GUI terminal:
+Terminal windowherdr server stop
+herdr
+Stopping the server exits its pane processes. Herdr panes inherit the long-lived server’s macOS launch context, so a server started through SSH or a background job may not have access to interactive Keychain services. See Herdr issue #966 for details.
+SSH or DNS fails after macOS logout
+Section titled “SSH or DNS fails after macOS logout”
+Automatically started macOS servers use a per-user service context so logging out does not leave their panes with a dead connection to macOS services. Explicit herdr server
+launches retain their caller’s context.
+An older server can survive logout while losing user lookup and DNS. Symptoms include No user exists for uid 501
+, Could not get manager name.
+, and curl: (6) Could not resolve host
+. Logging back in does not repair that server. Stop the affected session and start Herdr from a GUI terminal in the new login. This ends live pane processes but restores the saved session layout. Live handoff preserves the source server’s service context and existing pane processes. Older servers therefore need a full session restart to adopt this fix; handoff cannot repair their inherited context.
+If a newly started server still has this problem, check herdr-server.log
+for could not select persistent user service context
+. Herdr keeps the inherited context if the required macOS APIs are unavailable. See Herdr issue #4100.
+The herdr
+command is not found
+Section titled “The herdr command is not found”
+Restart the terminal so it reloads its environment, then confirm the Herdr install directory is on PATH
+. For package-manager installs, use that package manager to update Herdr and expose it on PATH
+. See Install Herdr.
+A direct keybinding does nothing
+Section titled “A direct keybinding does nothing”
+The operating system or outer terminal may consume the chord before Herdr receives it. Free the chord in that layer or choose another binding. See Keyboard for known conflicts and safe defaults.
+Remote attach cannot authenticate
+Section titled “Remote attach cannot authenticate”
+First confirm that normal OpenSSH works with ssh <host>
+. For a passphrase-protected key in a non-interactive shell, CI job, or mobile terminal, load the key into ssh-agent
+before starting remote attach. See Persistence and remote access.
+Find diagnostic logs
+Section titled “Find diagnostic logs”
+Herdr logs live in ~/.config/herdr/
+by default:
+herdr.log
+herdr-client.log
+herdr-server.log
+Set HERDR_LOG=herdr=debug
+for more detail. Include the current log and rotated siblings when reporting a problem. See Configuration.
+Edit page
+Previous
+Add Herdr support to your agent      Next
+Preview docs

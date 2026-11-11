@@ -262,3 +262,194 @@ All 20 original findings are resolved. One new medium finding (N1) is material b
 - Evaluate: round 1 NEEDS-REVISION (ten items) → corrected; round 2 APPROVED.
 - Spot-check (lead, full substrate): verified newly cited passages against attestations (product-pages {11}; wherdr {2}{6}{9}; moshi agents-inbox {1}, e2ee {2}, article-android {6}, licensing {1}; tailscale tags {1}{2}{6}; remote-docs {4}{9}{14}; releases {1}{3}{6}; troubleshooting {2}; poweron-mini {1}; geerling {5}; launchd-archive {2}; core osc7501 {2}); all seven `hma-lead-herdr-tui-state-api` passages verified by the adversarial reader against captures. Corrections at spot-check: Moshi licensing wording narrowed to "approval and completion alerts"; master-branch caveat propagated to §2 and §3 rollup claims. `agents-notify` {8} and {9} each contain both specifics they are cited for. `rps-blink-tailscale-mosh` is a source-direct attestation (fetched 2026-10-26) currency-checked by the android-access lane.
 - Result: all required gates satisfied on the current `parent.md`. No unresolved gate.
+
+---
+
+## Adversarial read of §7 (2026-11-10)
+
+**Scope:**
+- parent.md §7 (7.1–7.3), the new key_finding ("Reboot resilience rests on …"), and the new Revisit-if bullet.
+- Consistency of §7 with §4–§6.
+- Sources: specialist briefs `reboot-host-controls.md` and `rescue-access.md`, the `hma-reboot-*` / `hma-rescue-*` attestations, and the reused `hma-host-*`, `hma-herdr-*` and `hma-lead-*` handles that §7 cites.
+
+**Lint and registration:**
+- Lint (URL probes skipped): 279 citations resolved, 0 broken, 0 thin, 16 pattern flags. None of the flags falls in §7 except version numbers.
+- dispatch.md registers both new lanes (L93–95).
+- §7 cites no snippet-thin attestation. The rescue attestations it does cite are search-summary tier (model-processed extracts).
+
+Severity: H = high, M = medium, L = low. The prefix S7- distinguishes these findings from the earlier rounds.
+
+### (a) Semantic chain walk: findings
+
+**S7-H1. §7.2 misstates the security cost of the configuration it proposes.**
+- §7.2 first offers a benefit: "Automatic login of the agent user would also give Herdr a GUI launchd context after reboot … {inferred: untested}".
+- The next sentence states the cost: "The cost: a person holding the Mac faces account passwords and recoveryOS rather than a boot-time credential."
+- With automatic login on, which is the configuration just proposed, a person holding the Mac does not face an account password. Power-cycling it boots into the agent user's logged-in session. That session holds the credential files `~/.claude/.credentials.json` [hma-host-claude-code-auth]{1} and `~/.codex/auth.json` ("plaintext file" [hma-host-codex-auth]{1}{2}), plus whatever the agents can do.
+- The reboot-host-controls brief §3 states the exposure as "FileVault off converts the physical-possession threat from 'needs a password to decrypt' to 'needs an account password or a recoveryOS path'". That framing applies only without automatic login. The brief also notes that credential files are "readable by whoever can log in as that user".
+- Fix: split the two cases. Suggested wording: "FileVault off, manual login: a holder faces account passwords and recoveryOS {inferred}. FileVault off with automatic login of the agent user: a holder who restarts the Mac gets that user's logged-in session, agent credentials and agents, with no password {inferred}. That is the price of the GUI-context benefit." Keep the closing recommendation (FileVault on).
+
+**S7-M3. §7.1 never says where the manual update's restart lands, and an attestation that qualifies it goes uncited.**
+- §7.1 Update routine: "Install by hand with `softwareupdate --install --os-only --restart` [hma-reboot-man-softwareupdate]{2}".
+- {2} only says that admin authentication is needed. The command shape is {1}, and the restart behaviour is {3}: "If the user is not logged in, macOS will trigger a forced reboot if necessary". The Apple-silicon owner authorisation flags are {4} and {5}.
+- Nothing in parent says whether this restart preserves the FileVault unlock. The authrestart row is a separate mitigation, and `--restart` is not shown to be an authenticated restart. The reboot-host-controls brief §2 marks "--stdinpass plus --restart may land at the login window" as {inferred}.
+- Uncited qualifier: `hma-reboot-eclectic-authrestart`{1} reports that "Apple uses authenticated restarts because they make updates more seamless". {4} reports a case where the authenticated restart "didn't work properly" and the Mac asked for a password. Both are practitioner sources from 2023, macOS 13.
+- Fix: re-point to {1}{3}. Add to the Caveats column: "whether a CLI-initiated update restart keeps the unlock is not documented (practitioner: Apple's own updates use authenticated restart, sometimes failing [hma-reboot-eclectic-authrestart]{1}{4} {confidence: practitioner, pre-macOS 26}); plan for it to land at the FileVault prompt and run the update window from home or with the rescue device ready".
+
+**S7-M4. The UPS row reads source facts beyond what they say.**
+- "What the sources establish" includes "Herdr saves 'before the system starts closing apps' on a macOS restart [hma-herdr-releases]{3}". Placed in the UPS row, this implies a save on UPS shutdown. The source names "Restarting a Mac or shutting down Windows" and is silent on a Mac shutdown or halt. The reboot-host-controls brief §4 marks it "{inferred: … no fetched source tests Herdr under a UPS shutdown}".
+- The Caveats column says "The shutdown runs `shutdown -h now` per scripts read on the operator laptop [hma-reboot-local-ups-plumbing]{1}". The script also has a `WaitForUPS` path, `shutdown -hu now` ("take the system down abruptly"). The attestation's structural note says "nothing here shows which path ioupsd takes on a desktop".
+- Uncited: `hma-reboot-herdr-issue-4414`{4}, where v0.9.4's graceful-shutdown recovery excludes "a hard kill that cannot run the native shutdown hook".
+- Fix: move the Herdr-save clause to Caveats with "{inferred: release note covers restart only}". Change the shutdown sentence to "the shipped script has a graceful (`shutdown -h`) and an abrupt (`shutdown -hu`) path; which one Energy settings use was not observed". Add 4414{4}.
+
+**S7-L1. The Herdr start row overstates issue #4926.**
+- Parent: "a LaunchAgent has been run successfully, with a Files and Folders permission grant [4926]{1}{2}".
+- {1} reports a LaunchAgent whose server "never answers API requests". {2} is the maintainer's workaround (a Files and Folders grant), and {3} records a v0.9.4 responsiveness fix. No passage reports success.
+- Fix: "a LaunchAgent setup is reported; it hung restoring from `~/Documents` until a Files and Folders grant (workaround) and a v0.9.4 fix [hma-reboot-herdr-issue-4926]{1}{2}{3}".
+
+**S7-L2. Citations that point at the wrong passage, and absences stated as facts.**
+- Herdr start row: "#4291: a saved-machine bridge can start the server in that context first after a reboot [4291]{1}". {1} is about respawning a deliberately stopped server. The after-reboot race is {5} ("SSH comes up before GUI login, so the bridge usually wins") and {6}. Re-point to {5}{6}.
+- Wake-on-LAN, "Wake from sleep only [hma-rescue-apple-mac-wake-settings]{1}": "only" is inference. Mark it {inferred}.
+- Apple TV, "no shell, so no watchdog [appletv]{3}": {3} says the extract found no mention of a shell. Rephrase as "no shell documented".
+
+**S7-L3. A daemon start in the Background context is stated as fact.**
+- Parent: "SSH or daemon starts run in the Background launchd context, where Keychain-backed tools fail [hma-reboot-herdr-issue-966]{1}[hma-reboot-man-launchd-plist]{2}".
+- The SSH half is attested: 966{1}{3}, 4291{5}, and pr-5236{3}. The daemon half rests on launchd-plist{2}, which says only that there are "no distinct sessions in the privileged system context".
+- The reboot-host-controls brief marks the combined claim {inferred}. Fix: mark the daemon half {inferred}.
+
+### (b) Claim shapes the lint missed
+
+**S7-M6. Search-summary evidence carries no confidence marker.**
+- §7.3 cites ten attestations whose `substrate_confidence` is `search-summary`, meaning model-processed extracts whose quotes are "as returned": ssh-config-proxyjump, moshi-docs-jumphost, tailscale-acl-syntax, tailscale-subnets-detail, ntfy-docs, healthchecks-docs, pikvm-faq, rpi-getting-started, glinet-router-tailscale, tailscale-appletv, and apple-mac-wake-settings.
+- §7.3 carries no `{confidence: search-summary}` marker. Per discipline §7, an unmarked claim reads as source-direct.
+- The rescue brief discloses the tier in its own header. parent.md does not.
+- Fix: add one sentence at the head of §7.3, e.g. "Most rescue-device sources were read as processed extracts {confidence: search-summary}". Or add per-claim markers on the load-bearing ones: ProxyJump, Moshi jump host, ACL `IP:port`, /32 route.
+
+**S7-L4. A marker is misused.** The Unattended agent resume row has "{contested: not traced in source}". `contested` is for a standing dispute in the field. This is an untraced unknown. Use "{ambiguous: not traced in source}" or plain "untested".
+
+**S7-L5. The new key_finding's framing.**
+- "Reboot resilience rests on fewer reboots (manual update window, UPS shutdown) …": a UPS does not make reboots rarer. It turns a power loss into a graceful shutdown that still needs unlock and resume.
+- The finding is composed but unmarked, unlike key_finding #5's "(inferred; untested)".
+- Fix: "rests on fewer and cleaner reboots (manual update window; UPS-triggered graceful shutdown) …", and append "(composed)".
+
+### (c) Contradictions the two briefs record that §7 smooths over
+
+**S7-M2. BSI versus RSR, and the unaddressed third toggle.**
+- §7.1 tells the operator to turn off "Install macOS updates" and BSI "Automatically Install". It is silent on the third toggle, "Install Security Responses and system files", which the same attestation names, describing it as installing "system files and Rapid Security Responses automatically" [hma-reboot-apple-macos-autoupdates]{1}.
+- The reboot-host-controls brief records a `tension` between that page and the BSI pages ([hma-reboot-apple-bsi-support]{1}, [hma-reboot-apple-bsi-platform-support]{3}). It leaves {ambiguous} whether the toggle governs BSI, RSR or only XProtect-type data, citing [hma-reboot-apple-deploy-enforce-updates]{7}: "XProtect, Gatekeeper, and system data files".
+- Fix: add to the Update routine row: "A third toggle, 'Install Security Responses and system files', still names Rapid Security Responses [autoupdates]{1}; whether it governs BSI, RSR or only XProtect-type data is not stated [deploy-enforce-updates]{7} {ambiguous}. The power-pull drill period should watch for unplanned restarts." Add a Contradictions entry.
+
+**S7-M5. KVM compatibility is a contested point; parent cites only the negative side.**
+- The KVM row says: "Typing at the Apple-silicon FileVault screen is unverified; PiKVM lists macOS keyboard issues [hma-rescue-pikvm-faq]{1}".
+- The rescue brief records {contested} with three positions:
+  - JetKVM: "Anything with HDMI out and USB works, from the BIOS onwards" [hma-rescue-jetkvm-faq]{1}.
+  - PiKVM: macOS input fixes [pikvm-faq]{1}.
+  - Apple: "If your Mac is locked, you need to unlock it before you can allow an accessory to connect" [hma-rescue-apple-accessories]{3}. This is the most relevant passage and goes uncited; note the page names Mac laptops.
+- Fix: cite all three in the KVM row or in Contradictions, marked "{contested: whether USB HID emulation works at the Apple-silicon FileVault screen; no source-direct test}". The composed "Defer a KVM until confirmed" then follows directly.
+
+**S7-L6. Handoff stability is a tension; parent cites only the negative reports and strips qualifiers.**
+- The handoff row cites only the negatives. The brief records a `tension`: a Linux reporter found "the live handoff itself works well … every pane process kept its PID and state" ([hma-reboot-herdr-issues-handoff]{4}, comment), and #3864's commenter says processes and bindings survived ({3}).
+- Qualifiers dropped:
+  - #5443 occurs "When two panes have the same `agent_session` value" (from Codex's shared app-server) ({1}).
+  - #808 "also happens without handoff" ({2}).
+  - Handoff does not apply to Homebrew installs [hma-reboot-herdr-docs-named-sessions-handoff]{6}.
+- Fix: add the qualifiers and one positive clause. The "not recommended" composed conclusion can stand.
+
+**S7-L7. The Tailscale-before-login ambiguity, as it affects the rescue device.**
+- §7.3 states as fact that the Mini waits at the FileVault prompt "and its own Tailscale is not running". This is the inference marked in §1.
+- If the step 3 drill finds that `tailscaled` does not start without a GUI login (the reading of the run-unattended KB, [hma-host-tailscale-run-unattended]{3}), the Mini stays off the tailnet even after unlock. The rescue route would then become the steady-state access path, not just the unlock path.
+- Fix: add "(inferred; see §1)", plus one sentence on that contingency.
+
+### (d) Better attestations left uncited
+
+- S7-M3: eclectic-authrestart{1}{3}{4}; softwareupdate{3}.
+- S7-M4: herdr-issue-4414{4}.
+- S7-M5: apple-accessories{3}; jetkvm-faq{1}.
+- **S7-L8.** §7.3 claims Moshi jump host or /32 route "expected to work", but neither the jump-host nor the subnet-route path to the Mini's pre-boot sshd is tested anywhere. The rescue brief's Gaps: "No source-direct confirmation … that the Mini's pre-boot SSH works through a jump host or subnet route." Fix: add this to the "What it solves" paragraph and to the Revisit-if bullet as a test item.
+- **S7-L9.** Watchdog: ntfy's public service has public topic names, "choose something that cannot be guessed easily" [hma-rescue-ntfy-docs]{3}. Add it as a caveat, since the alert reveals host state.
+
+### (e) Quote-context walk
+
+- These quotes keep their qualifiers:
+  - "require the device to restart" (bsi-platform-support{1})
+  - "bypassing the initial unlock" (paired with "may not work on all systems")
+  - "After a client attaches …" (lead{7})
+  - "the volume is still encrypted …" (filevault-volume{3})
+  - "are required during the boot process" ({6})
+  - the PiKVM read-only quote ({3})
+- **S7-L10.** "Activation Lock blocks erase and reuse without the Apple Account [actlock]{1}" drops the conditions: Find My must be on, plus Full Security and two-factor authentication ([hma-reboot-apple-actlock-mac-support]{2}{3}). Add "(with Find My on)".
+- The #5443 and #808 qualifiers are covered under S7-L6.
+
+### (f) Analytical-tier inheritance
+
+Nothing found. §7 cites only attestations.
+- The `hma-reboot-local-*` handles are local captures from the operator laptop, and parent names them as such ("not the Mini").
+- The §7.3 "Composed recommendation" and the "Practical routine" are framed as composed.
+
+### (g) Line-reference walk
+
+- See S7-L2: softwareupdate{2}→{1}{3}; 4291{1}→{5}{6}.
+- The fdesetup "on supported hardware" phrase is in host-man-fdesetup{1}, not {4}. This is minor, because {4} carries "may not work on all systems".
+
+### (h) Thin-attestation check
+
+- The search-summary rescue attestations are used for single, narrow claims. Their quotes are "as returned", so the remedy is the confidence marker in S7-M6, not new acquisition.
+- `hma-reboot-local-ups-plumbing` and `hma-reboot-local-softwareupdate-state` come from a different machine. Parent uses them with that caveat. They are adequate for the narrow claims, except the overreach in S7-M4.
+
+### Consistency of §7 with the rest of parent.md
+
+**S7-M7. §5 and §6 do not carry the §7 mitigations that the new key_finding says resilience rests on.**
+- The key_finding names the manual update window, UPS shutdown, a LAN rescue device, and one client attach.
+- §5 contains none of these:
+  - the update and BSI toggles;
+  - `fdesetup supportsauthrestart` run on the Mini;
+  - a UPS power-return test;
+  - the scripted-client resume test;
+  - building the rescue device.
+- Step 8 defers "a subnet router, a UPS" as later options, while §7.3's composed recommendation makes the Pi and a shared UPS part of the resilience design.
+- §6 "Reboot while away" and "Security Improvement restarts" do not point to the §7 mitigations.
+- Fix, either option:
+  - (a) Add the items to §5: step 1 gets the update/BSI toggles and `fdesetup supportsauthrestart`; step 3 gets the scripted-client resume test and a power-return check; a new step after 7 covers the rescue device, UPS and watchdog. Point §6's two risks at §7.
+  - (b) State that §7 is a second phase after Model A, and soften the key_finding to "would rest on".
+
+**S7-L11 (outside §7, found during the consistency check).** §5 step 6 says "start `herdr server` from SSH and confirm it survives closing that SSH session (the #5236 fix is not in v0.9.5)". `hma-reboot-herdr-pr-5236`{3} says "Starts over SSH … keep the old direct spawn". #5236 therefore does not govern the SSH start that step 6 tests; it concerns servers started from a terminal app ({1}). Fix: drop the parenthetical, or reword to "#5236 covers terminal-app starts, not SSH starts [pr-5236]{1}{3}".
+
+Other cross-checks passed:
+- §1 and §6 "resume waits for a client attach" matches the §7.1 resume row.
+- The §4 diagram's "LAN path … or a LAN subnet router" matches §7.3.
+- §6's "subnet router … widens tailnet reach" matches §7.3's scoped /32 recommendation.
+- §5 step 1 "Start up when power is connected" matches the UPS and smart-plug rows.
+
+### Findings table
+
+| # | Sev | Locus | One-line action |
+|---|---|---|---|
+| S7-H1 | high | §7.2 cost sentence | Split the manual-login and automatic-login cases; with automatic login a holder gets the agent session and credential files without a password |
+| S7-M2 | medium | §7.1 Update routine; Contradictions | Address the "Security Responses and system files" (RSR) toggle and the BSI/RSR {ambiguous} |
+| S7-M3 | medium | §7.1 Update routine | Re-point to softwareupdate{1}{3}; state the restart may land at the FileVault prompt; cite eclectic{1}{4} as practitioner |
+| S7-M4 | medium | §7.1 UPS row | Mark the Herdr save under UPS {inferred}; note both shutdown script paths; cite 4414{4} |
+| S7-M5 | medium | §7.3 KVM row | Record JetKVM vs PiKVM vs Apple accessories{3} as {contested} |
+| S7-M6 | medium | §7.3 throughout | Add {confidence: search-summary} for the extract-tier rescue sources |
+| S7-M7 | medium | §5, §6 vs key_finding | Carry the §7 actions into §5 and point §6 to them, or label §7 a second phase and soften the key_finding |
+| S7-L1 | low | §7.1 Herdr start | #4926 reports a hang plus workaround, not success |
+| S7-L2 | low | §7.1, §7.3 table | 4291{5}{6}; WoL "only" {inferred}; Apple TV "no shell documented" |
+| S7-L3 | low | §7.1 Herdr start | Mark the daemon-start Background context {inferred} |
+| S7-L4 | low | §7.1 resume row | {contested} → {ambiguous} / untested |
+| S7-L5 | low | key_finding | "fewer and cleaner reboots"; add (composed) |
+| S7-L6 | low | §7.1 handoff row | Add positive reports and the #5443/#808/Homebrew qualifiers |
+| S7-L7 | low | §7.3 intro | Mark Tailscale-not-running inferred; add the steady-state contingency |
+| S7-L8 | low | §7.3; Revisit if | Pre-boot SSH through a jump host or route is untested |
+| S7-L9 | low | §7.3 watchdog | ntfy public topics caveat |
+| S7-L10 | low | §7.2 | Activation Lock requires Find My (+ Full Security, 2FA) |
+| S7-L11 | low | §5 step 6 | #5236 does not apply to SSH starts (pr-5236{3}) |
+
+### Verdict: NEEDS-REVISION
+
+S7-H1 is a composed security statement that contradicts the configuration it accompanies. Of the six medium findings, three are contradictions or qualifiers that the briefs recorded and §7 drops (M2, M4, M5), two are a missing restart outcome and missing confidence markers (M3, M6), and one is the §5/§6 inconsistency (M7). Every fix is local to §7, §5, §6, Contradictions, or the key_finding. After the fix, a spot-check of the edited lines should be enough.
+
+## §7 gate closure (2026-11-10)
+
+- Lint (no URL probe): 303 resolved, 0 broken, 0 thin.
+- Adversarial-read of §7: NEEDS-REVISION (S7-H1, S7-M2–M7, S7-L1–L11) → corrected; lead spot-checked the edited lines and every re-pointed passage (issue-4291 {5}{6}, softwareupdate {1}{3}, ntfy {3}, actlock {3}, issue-4414 {4}, ups-plumbing {1}, pr-5236 {3}, enforce-updates {7}, eclectic {4}, named-sessions-handoff {6}, jetkvm-faq {1}, apple-accessories {3}, codex-auth {1}).
+- Evaluate §7: round 1 NEEDS-REVISION (5 items) → corrected; round 2 APPROVED. The update-step correction is grounded in the session-state capture (`.research/source-captures/hma-lead/session-state.txt`: autosave and shutdown write session.json) and the v0.9.4 pre-restart save [hma-herdr-releases]{3}.
+- Carried-over items (`rps-blink-tailscale-mosh` provenance; agents-notify {8}/{9} dual use) were cleared in the earlier lead spot-check above.
+- Result: all required gates satisfied for the extended `parent.md`.

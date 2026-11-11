@@ -11,9 +11,12 @@ not trigger surprise reboots that strand sessions at the FileVault unlock.
 - Turn off automatic macOS update installs; update on a chosen schedule.
 - For planned restarts use `fdesetup authrestart` (check support with
   `fdesetup supportsauthrestart`).
-- Upgrade Herdr with `herdr update --handoff` (experimental live handoff that
-  keeps panes running).
-- Open question: whether macOS 26 Background Security Improvements can be
-  deferred or force restarts.
+- Upgrade Herdr by stopping the server deliberately and letting native resume
+  rebuild; the brief's verification found `herdr update --handoff` is
+  experimental with open macOS issues (cleared session ids, lost permission
+  attribution), so it is not recommended routinely.
+- Background Security Improvements: turn off "Automatically Install"; OS-level
+  ones require a restart, and with the switch off fixes wait for the next update.
+  Deferral timers need MDM.
 
 Grounding: `.research/analysis/campaigns/herdr-mac-mini-architecture/parent.md` (Mac mini + Herdr TUI + Tailscale + Moshi decision brief, reboot-resilience section).

@@ -1,0 +1,110 @@
+Turn on Lost Mode for a device in Find My on Mac - Apple Support
+Apple
+Store
+Mac
+iPad
+iPhone
+Watch
+Vision
+AirPods
+Home
+Entertainment
+Accessories
+Support
+0+
+Find My User Guide
+Select version:
+macOS 27 Golden Gate
+macOS Tahoe 26
+macOS Sequoia 15
+macOS Sonoma 14
+macOS Ventura 13
+macOS Monterey 12
+macOS Big Sur 11.0
+macOS Catalina 10.15
+Modifying this control will update this page automatically
+Search this guide
+Clear Search
+Table of Contents
+Find My User Guide
+Welcome
+Set up
+Find people
+Share your location
+Stop sharing your location
+Add or remove a friend
+Locate a friend
+Notify a friend when your location changes
+Get notified when friends change their location
+Label a location
+Find devices
+Locate a device
+Play a sound on a device
+Get notified if you leave a device behind
+Turn on Lost Mode
+Turn off Lost Mode for a device
+Erase a device
+Remove a device
+Find items
+Locate an item
+Play a sound on an item
+Share an item
+Share the location of a lost item
+Get notified if you leave an item behind
+Show contact info for a lost item
+Turn off Show Contact Info for an item
+View item details
+Customize Find My
+Change how the map looks
+Change or turn off Find My notifications
+Keyboard shortcuts and gestures
+Copyright and trademarks
+Turn on Lost Mode for a device in Find My on Mac
+If you can’t find your Apple device, you can protect your personal data by marking the device as lost in the Find My app on your Mac. To mark a device as lost, you must add it to Find My before it’s lost.
+Tip: You can also mark a device as lost online in Find Devices on iCloud.com.
+Open Find My for me
+How does Lost Mode protect a device?
+The device is locked with a passcode so no one else can open it.
+You can create a message that says it’s lost and how to contact you. The message appears on the screen or when someone tries to connect to your device.
+Payment cards and other services are suspended.
+Your device doesn’t display alerts or make noise. (It can still receive phone calls and FaceTime calls.)
+For additional ways to protect a lost device, see the Apple Support articles Find your lost iPhone or iPad, If your Mac is lost or stolen, and If your Apple Watch is lost or stolen.
+Turn on Lost Mode for a device on Mac
+You turn on Lost Mode for your Mac, iPhone, iPad, iPod touch, Apple Watch, iPhone Wallet with MagSafe, or supported AirPods that have the Find My network turned on.
+Go to the Find My app  on your Mac.
+Click Devices, select the lost device, then click .
+In the Lost [Device] section, click Lost Mode, then follow the onscreen instructions.
+Click Activate or Lock (for a Mac).
+Important: You can’t unlock a Mac online or on another device. You can only unlock it on the Mac you marked as lost. See Turn off Lost Mode on your Mac.
+You can also get notified when the device is located.
+Check the status of a lost device
+Go to the Find My app  on your Mac.
+Click Devices, select the device you want to check, then click .
+Below Lost Mode, view one of these status notes:
+Will be enabled when online: If the device isn’t connected to a Wi-Fi or cellular network when you mark it as lost, this message appears until the device goes online again.
+Enabled [date]: As soon as the device goes online, Lost Mode is turned on and the date is recorded.
+Change the message for the lost device
+Go to the Find My app  on your Mac.
+Click Devices, select the device you marked as lost, then click .
+In the Lost [Device] section, click Lost Mode.
+Update the message or phone number, then click .
+If you find your lost device, you can turn off Lost Mode.
+See alsoMark a device as lost in Find My on iPhoneShow contact information for a lost item in Find My on Mac
+Helpful?
+Yes
+No
+Character limit:
+250
+Please don’t include any personal information in your comment.
+Maximum character limit is 250.
+Submit
+Thanks for your feedback.
+Apple Footer
+
+Apple
+Support
+Find My User Guide
+Turn on Lost Mode for a device in Find My on Mac
+United States
+Copyright © 2026 Apple Inc. All rights reserved.
+Privacy Policy Terms of Use                    Sales and Refunds Site Map

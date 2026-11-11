@@ -1,0 +1,277 @@
+Startup Disk security policy control for a Mac with Apple silicon - Apple Support
+Apple
+Store
+Mac
+iPad
+iPhone
+Watch
+Vision
+AirPods
+Home
+Entertainment
+Accessories
+Support
+0+
+Apple Platform Security
+Search this guide
+Clear Search
+Table of Contents
+Apple Platform Security
+Welcome
+Intro to Apple platform security
+Hardware security and biometrics
+Hardware security overview
+Apple SoC security
+The Secure Enclave
+Optic ID, Face ID, and Touch ID
+Biometric security
+Magic Keyboard with Touch ID
+Optic ID, Face ID, Touch ID, passcodes, and passwords
+Optic ID matching security
+Facial matching security
+Uses for Optic ID, Face ID, and Touch ID
+Secure intent and connections to the Secure Enclave
+Hardware microphone disconnect
+Mac on-screen camera indicator light
+Express Cards with power reserve
+System security
+System security overview
+Secure boot
+Boot process for iPad and iPhone devices
+Memory safe iBoot implementation
+Mac computers with Apple silicon
+Boot process
+Boot modes
+Paired recoveryOS restrictions
+Startup Disk security policy control
+LocalPolicy signing-key creation and management
+Contents of a LocalPolicy file for a Mac with Apple silicon
+Intel-based Mac computers
+Boot process
+Boot modes
+Startup Security Utility
+Firmware password protection
+recoveryOS and diagnostics environments
+Signed system volume security
+Secure software updates
+Background Security Improvements
+Operating system integrity
+Device pairing and connection security
+Physical pairing model security
+Activating data connections securely
+Verifying accessories
+Automatically unlock Apple devices
+BlastDoor for Messages and IDS
+Lockdown Mode security
+Overview of additional macOS system security capabilities
+Additional macOS system security capabilities
+System Integrity Protection
+Trust caches
+Peripheral processor security
+Rosetta 2 on a Mac with Apple silicon
+Direct memory access protections
+Securely extending the kernel
+Option ROM security
+UEFI firmware security in an Intel-based Mac
+System security for watchOS
+Random number generation
+Communicating emergency information using satellites
+Apple Security Research Device
+Encryption and Data Protection
+Encryption and Data Protection overview
+Quantum-secure cryptography with Apple devices
+Passcodes and passwords
+Data Protection
+Data Protection overview
+Data Protection
+Data Protection classes
+Keybags for Data Protection
+Protecting keys in alternate boot modes
+Protecting user data in the face of attack
+Sealed Key Protection (SKP)
+Role of Apple File System
+Keychain data protection
+FileVault
+Volume encryption with FileVault
+Managing FileVault
+How Apple protects users’ personal data
+Protecting app access to user data
+Protecting access to user’s health data
+Digital signing and encryption
+App security
+App security overview
+App code signing process
+App security in iOS, iPadOS, and visionOS
+Intro to app security for iOS, iPadOS, and visionOS
+About App Store security
+Security of runtime process
+App protection and app groups
+App security in macOS
+Intro to app security for macOS
+App code signing process
+Gatekeeper and runtime protection
+Protecting against malware
+Terminal and script protections
+Controlling app access to files
+Supporting extensions
+Secure features in the Notes app
+Secure features in the Shortcuts app
+Services security
+Services security overview
+Apple Accounts and Managed Apple Accounts
+Apple Account security
+Managed Apple Account security
+iCloud
+iCloud security overview
+iCloud encryption
+Advanced Data Protection for iCloud
+iCloud Backup security
+Search on iCloud.com security
+iCloud Private Relay security
+Account recovery contact security
+Legacy Contact security
+Passcode and password management
+Passcode security overview
+Sign in with Apple security
+Automatic strong passwords
+Password AutoFill security
+App access to saved passwords
+Password security recommendations
+Password Monitoring
+Sending passwords
+Credential provider extensions
+iCloud Keychain
+iCloud Keychain security overview
+Secure keychain syncing
+Secure iCloud Keychain recovery
+Escrow security for iCloud Keychain
+Apple Pay
+Apple Pay security overview
+Apple Pay component security
+How Apple Pay keeps users’ purchases protected
+Credit, debit, and prepaid cards
+Card provisioning security overview
+Adding credit or debit cards to Apple Pay
+Payment authorization with Apple Pay
+Paying with cards using Apple Pay
+Contactless passes in Apple Pay
+Rendering cards unusable with Apple Pay
+Apple Card security
+Apple Cash security
+Tap to Pay on iPhone
+Using Apple Wallet
+Access using Apple Wallet
+Access key types
+Car key security
+Car key security
+Car key transactions
+Adding transit and eMoney cards to Apple Wallet
+IDs in Apple Wallet
+IDs in Apple Wallet
+Security of IDs in Apple Wallet
+iMessage
+iMessage security overview
+How iMessage sends and receives messages
+Check In security
+Secure iMessage name and photo sharing
+Secure Apple Messages for Business
+FaceTime security
+SharePlay security
+Nearby sharing security
+Find My
+Find My security
+Locating missing devices
+Continuity
+Continuity security overview
+Handoff security
+iPhone cellular call relay security
+iPhone Text Message Forwarding security
+Instant Hotspot security
+Network security
+Network security overview
+TLS security
+IPv6 security
+VPN security
+Wi-Fi security and privacy
+Security features when connecting to wireless networks
+Wi-Fi security with Apple devices
+Privacy features when connecting to wireless networks
+Wi-Fi privacy with Apple devices
+Bluetooth security
+Ultra Wideband security in iOS
+Single Sign-on security
+AirDrop security
+Wi-Fi password sharing security
+Firewall security in macOS
+Developer kit security
+Developer kit security overview
+ARKit security
+DriverKit security
+EnergyKit data security
+HomeKit security
+Communication security
+Data security
+Securing routers with HomeKit
+Camera security
+Security with Apple TV
+NFC & SE Platform security
+ReplayKit security
+SiriKit security
+WidgetKit security
+Secure device management
+Secure device management overview
+Device management
+Device management security overview
+Managed Device Attestation
+Attestation process security
+Configuration enforcement
+Automated Device Enrollment
+Activation Lock security
+Managed Lost Mode and remote wipe
+Shared iPad security
+Apple Configurator security
+Screen Time security
+Glossary
+Document revision history
+Copyright and trademarks
+Startup Disk security policy control for a Mac with Apple silicon
+Unlike security policies on an Intel-based Mac, security policies on a Mac with Apple silicon are for each installed operating system. This means that multiple installed macOS instances with different versions and security policies are supported on the same Mac. For this reason, an operating system picker has been added to Startup Security Utility.
+On a Mac with Apple silicon, System Security Utility indicates the overall user-configured security state of macOS, such as the booting of a kext or the configuration of System Integrity Protection (SIP). If changing a security setting would significantly degrade security or make the system easier to compromise, users need to enter into recoveryOS by holding the power button (so that malware can’t initiate the signal, only a human with physical access can) to make the change. Because of this, an Apple-silicon based Mac also won’t require (or support) a firmware password—all critical changes are already gated by user authorization. For more information on SIP, see System Integrity Protection.
+Full Security and Reduced Security can be set using Startup Security Utility from recoveryOS. But Permissive Security can be accessed only from command-line tools for users who accept the risk of making their Mac less secure.
+Full Security policy
+Full Security is the default, and it behaves like iOS and iPadOS. At the time software is downloaded and prepared to install, rather than using the global signature that comes with the software, macOS contacts the same Apple signing server used for iOS and iPadOS and requests a fresh, “personalized” signature. A signature is personalized when it includes the Exclusive Chip Identification (ECID)—a unique ID specific to the Apple CPU in this case—as part of the signing request. The signature given back by the signing server is then unique and usable only by that particular Apple CPU. When the Full Security policy is in effect, the Boot ROM and LLB helps ensure that a given signature isn’t just signed by Apple but is signed for this specific Mac, essentially tying that version of macOS to that Mac.
+Using an online signing server also provides better protection against rollback attacks than typical global signature approaches. In a global signing system, the security epoch could have rolled many times, but a system that has never seen the latest firmware won’t know this. For example, a computer that currently believes it’s in security epoch 1 accepts software from security epoch 2, even if the current actual security epoch is 5. With an Apple silicon online signing system, the signing server can reject creating signatures for software that’s in anything except the latest security epoch.
+Additionally, if an attacker discovers a vulnerability after a security epoch change, they can’t simply pick up the vulnerable software from a previous epoch off system A and apply it to system B to attack it. The fact that the vulnerable software from an older epoch was personalized to system A helps prevent it from being transferable and thus being used to attack a system B. All these mechanisms work together to provide much stronger guarantees that attackers can’t purposely place vulnerable software on a Mac to circumvent the protections provided by the latest software. But a user that’s in possession of an administrator user name and password for the Mac can always choose the security policy that works best for their use cases.
+Reduced Security policy
+Reduced Security is similar to Medium Security behavior on an Intel-based Mac with a T2 chip, in which a vendor (in this case, Apple) generates a digital signature for the code to assert it came from the vendor. This design helps prevent attackers from inserting unsigned code. Apple refers to this signature as a global signature because it can be used on any Mac, for any amount of time, for a Mac that currently has a Reduced Security policy set. Reduced security doesn’t itself provide protection against rollback attacks (although unauthorized operating system changes can result in user data being rendered inaccessible. For more information, see In a Mac with Apple silicon.
+In addition to enabling users to run older versions of macOS, Reduced Security is required for other actions that can put a user’s system security at risk, such as introducing third-party kernel extensions (kexts). Kexts have the same privileges as the kernel, and vulnerabilities in third-party kexts can compromise the entire operating system. This is why developers are being strongly encouraged to adopt system extensions before kext support is removed from macOS for future Mac computers with Apple silicon. Even when third-party kexts are enabled, they can’t be loaded into the kernel on demand. Instead, the kexts are merged into an Auxiliary Kernel Collection (AuxKC)—whose hash is stored in the LocalPolicy—and thus they require a restart. For more information about AuxKC generation, see Securely extending the kernel in macOS.
+Permissive Security policy
+Permissive Security is for users who accept the risk of putting their Mac into a much more insecure state. This mode differs from No Security mode on an Intel-based Mac with a T2 chip. With Permissive Security, signature verification is still performed along the entire secure boot chain, but setting the policy to Permissive signals to iBoot that it should accept locally Secure Enclave–signed boot objects, such as a user-generated Boot Kernel Collection built from a custom XNU kernel. In this way, Permissive Security also provides an architectural capability for running an arbitrary fully untrusted operating system kernel. When a custom Boot Kernel Collection or fully untrusted operating system is loaded on the system, some decryption keys become unavailable. This is designed to prevent a fully untrusted operating systems from accessing data from trusted operating systems.
+Important: Apple doesn’t provide or support custom XNU kernels.
+There’s another way that Permissive Security differs from No Security on an Intel-based Mac with a T2 chip: It’s a prerequisite for some security downgrades that in the past have been independently controllable. Most notably, to turn off SIP on a Mac with Apple silicon, a user needs to acknowledge that they’re putting the system into Permissive Security. This is required because turning off SIP has always put the system into a state that makes the kernel much easier to compromise. In particular, turning off SIP on a Mac with Apple silicon inactivates kext signature enforcement during AuxKC generation time, allowing any arbitrary kext to be loaded into kernel memory. Another improvement to SIP on a Mac with Apple silicon is that the policy store has moved out of NVRAM and into the LocalPolicy. So now, turning off SIP requires authentication by a user with access to the LocalPolicy signing key from recoveryOS (reached by pressing and holding the power button). This makes it significantly more difficult for a software-only attacker, or even a physically present attacker, to turn off SIP.
+It isn’t possible to downgrade to Permissive Security from the Startup Security Utility app. Users can downgrade only by running command-line tools in recoveryOS, such as csrutil (to turn off SIP). After the user downgrade—Startup Security Utility reflects this fact, and so the user can then set the security to a more secure mode.
+Note: A Mac with Apple silicon doesn’t require or support a specific media boot policy, because technically all boots are performed locally. If a user chooses to boot from external media, that operating system version first needs to be personalized using an authenticated restart from recoveryOS. This restart creates a LocalPolicy file on the internal drive that’s used to perform a trusted boot from the operating system stored on the external media. This means the configuration of starting from external media is always explicitly enabled on a per operating system basis, and already requires user authorization, so no additional secure configuration is necessary.
+Published Date: February 18, 2021See alsoContents of a LocalPolicy file for a Mac with Apple siliconStartup Security Utility on a Mac with an Apple T2 Security ChipProtecting keys in alternate boot modes
+Download this guide as a PDF
+Previous
+Paired recoveryOS restrictions
+Next
+LocalPolicy signing-key creation and management
+Helpful?
+Yes
+No
+Character limit:
+250
+Please don’t include any personal information in your comment.
+Maximum character limit is 250.
+Submit
+Thanks for your feedback.
+Apple Footer
+
+Apple
+Support
+Apple Platform Security
+Startup Disk security policy control for a Mac with Apple silicon
+United States
+Copyright © 2026 Apple Inc. All rights reserved.
+Privacy Policy Terms of Use                    Sales and Refunds Site Map

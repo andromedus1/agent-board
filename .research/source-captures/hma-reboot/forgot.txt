@@ -1,0 +1,103 @@
+﻿
+If you forgot your Mac login password - Apple Support
+Apple
+Store
+Mac
+iPad
+iPhone
+Watch
+Vision
+AirPods
+Home
+Entertainment
+Accessories
+Support
+0+
+If you forgot your Mac login password
+If you can’t remember the password to log in to your Mac, or the password doesn’t work, you might be able to reset the password.
+Restart your Mac
+Restart your Mac. If you see no option to restart, press and hold the power (or Touch ID) button on your Mac for up to 10 seconds, until your Mac turns off. Then turn it on again.
+Your Mac should now start up to the login window. If instead it stays on some other screen, such as a blank screen, Activation Lock screen, or lock symbol, learn what to do if your Mac doesn’t start up all the way.
+Enter the password of your Mac user account
+When your Mac starts up and shows the login window, enter the password that you use to log in to your Mac user account.
+Enter your Mac login password, not the password, email address, or phone number of your Apple Account.
+Use the correct uppercase or lowercase characters in your password. If your keyboard has Caps Lock turned on, the password field shows a Caps Lock symbol.
+Check the Input menu in the corner of the login window to be sure that your keyboard is set for the correct language.
+If your login password still doesn’t work, use the reset options in the login window.
+If you’re already logged in to your own user account, or you can log in to another administrator account, you can instead change your login password in Users & Groups settings.
+Use the reset options in the login window
+If you see a question mark next to the password field, click the question mark. You might then see:
+A password hint—if you added a hint when setting up your account.
+A reset message, such as "Reset Password" or "Restart and show password reset options."
+If you don’t see a reset message or question mark:
+Check again after entering a password up to three times.
+Then proceed based on what you see: a reset message, a message that your account is locked, or no message.
+If you see a reset message
+If the login window shows a reset message, such as "Reset Password" or "Restart and show password reset options," click the message to begin the reset process.
+Follow the onscreen instructions, which vary depending on your Mac setup.
+If asked to enter your recovery key, enter the letters and numbers of the recovery key. A recovery key does not include the letters I (i) or S, or the numbers 1 or 0. Don’t have your recovery key?
+If asked to sign in to your Apple Account, enter your Apple Account email or phone number, then enter its password. You may be asked to enter a verification code sent to your other devices. You can then select the user to reset the password for.
+If asked to select a volume to recover, select your startup disk, such as Macintosh HD.
+If asked to select a user you know the password for, click "Forgot all passwords?".
+If asked to deactivate this Mac, allow your Mac to deactivate. This is temporary.
+If asked to create a new keychain to store the user's passwords, allow your Mac to create a new keychain.
+After you provide the information requested, you're asked to create a new password for your account. You can then restart your Mac and log in with the new password.
+If you couldn’t use these steps to reset your password, use the reset options in Recovery.
+If you see a message that your account is locked
+If your account becomes locked after repeated login attempts, wait until the stated time has elapsed, then restart your Mac and try again. If that doesn't help, use the reset options in Recovery.
+If you see no message
+If a reset message doesn’t appear in the login window after entering a password up to three times, restart your Mac and try again. If that doesn't help, use the reset options in Recovery.
+Use the reset options in Recovery
+If you couldn’t reset your password using reset options in the login window, you might be able to reset your password from macOS Recovery.
+Follow the steps to start up from macOS Recovery.
+When asked to select a user you know the password for, click "Forgot all passwords?".
+Follow the onscreen instructions, which vary depending on your Mac setup.
+If asked to sign in to the Apple Account previously used with this Mac, enter the email or phone number of that Apple Account, then enter its password.
+If asked to enter your recovery key, enter the letters and numbers of the recovery key. A recovery key does not include the letters I (i) or S, or the numbers 1 or 0. Don’t have your recovery key?
+If asked to select a volume to recover, select your startup disk, such as Macintosh HD.
+If asked to deactivate this Mac, allow your Mac to deactivate. This is temporary.
+Click Exit to Recovery when you see that option. You're in Recovery when you see options to restore from Time Machine, reinstall macOS, and more.
+While starting up from Recovery:
+If you were asked and able to create a new login password, choose Restart from the Apple menu , then log in with your new password.
+If you were not asked or able to create a new login password, continue to the next step while still in Recovery.
+From the Utilities menu in the menu bar, choose Terminal.
+In the window that opens, type resetpassword, then press Return.
+In the window that opens, select "I forgot my password" or "My password doesn't work when logging in." Click Next.
+After you provide the information requested, you're asked to create a new password for your account and any other user accounts. You can then restart your Mac and log in with the new password.
+If you couldn’t use these steps to reset your password, learn what to do if you can’t reset your login password.
+If you don’t have your recovery key
+A FileVault recovery key is a 24-character alphanumeric code created when FileVault is turned on. It's not the same as an Apple Account recovery key. If you don’t have your FileVault recovery key, but the Mac requesting it is using macOS Tahoe 26 or later, the key might be available in the Passwords app on one of your other devices, such as an iPhone, iPad, or other Mac.
+Make sure that your other device is signed in to the same Apple Account as the Mac requesting your recovery key. It must also have iCloud Passwords & Keychain turned on in iCloud settings.
+Open the Passwords app.
+Type "recovery key" in the Search field.
+If the search results include the name of the Mac requesting your recovery key, open that item. Then tap or click the dots in the Recovery Key field to show the key for that Mac.
+If you still can’t find your recovery key, use the reset options in Recovery.
+If you can’t reset your login password
+If no other solution works, you can regain access to your Mac by erasing it. This permanently removes each user account, its password, and its data from your Mac.
+Shut down or turn off your Mac.
+Start up from macOS Recovery. When asked to select a user you know the password for, choose Erase Mac from the Recovery Assistant menu in the menu bar.
+In the window that opens, click Erase Mac, then click Erase Mac to confirm. After your Mac is erased, it automatically restarts.
+If your Mac starts up to a question mark, turn off your Mac, then reinstall macOS from Recovery.
+If your Mac starts up to an Activate Mac window:
+If asked, choose a Wi-Fi network from the Wi-Fi menu , or attach a network cable.
+Enter your Apple Account information (not your login name or password) when asked.
+After your Mac activates, click Exit to Recovery, then reinstall macOS from Recovery.
+Published Date: September 22, 2026
+Helpful?
+Yes
+No
+Character limit:
+250
+Maximum character limit is 250.
+Please don’t include any personal information in your comment.
+Submit
+Thanks for your feedback.
+Related topics
+Apple Footer
+
+Apple
+Support
+If you forgot your Mac login password
+United States
+Copyright © 2026 Apple Inc. All rights reserved.
+Privacy Policy Terms of Use                    Sales and Refunds Site Map

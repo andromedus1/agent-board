@@ -1,0 +1,316 @@
+Activation Lock security - Apple Support
+Apple
+Store
+Mac
+iPad
+iPhone
+Watch
+Vision
+AirPods
+Home
+Entertainment
+Accessories
+Support
+0+
+Apple Platform Security
+Search this guide
+Clear Search
+Table of Contents
+Apple Platform Security
+Welcome
+Intro to Apple platform security
+Hardware security and biometrics
+Hardware security overview
+Apple SoC security
+The Secure Enclave
+Optic ID, Face ID, and Touch ID
+Biometric security
+Magic Keyboard with Touch ID
+Optic ID, Face ID, Touch ID, passcodes, and passwords
+Optic ID matching security
+Facial matching security
+Uses for Optic ID, Face ID, and Touch ID
+Secure intent and connections to the Secure Enclave
+Hardware microphone disconnect
+Mac on-screen camera indicator light
+Express Cards with power reserve
+System security
+System security overview
+Secure boot
+Boot process for iPad and iPhone devices
+Memory safe iBoot implementation
+Mac computers with Apple silicon
+Boot process
+Boot modes
+Paired recoveryOS restrictions
+Startup Disk security policy control
+LocalPolicy signing-key creation and management
+Contents of a LocalPolicy file for a Mac with Apple silicon
+Intel-based Mac computers
+Boot process
+Boot modes
+Startup Security Utility
+Firmware password protection
+recoveryOS and diagnostics environments
+Signed system volume security
+Secure software updates
+Background Security Improvements
+Operating system integrity
+Device pairing and connection security
+Physical pairing model security
+Activating data connections securely
+Verifying accessories
+Automatically unlock Apple devices
+BlastDoor for Messages and IDS
+Lockdown Mode security
+Overview of additional macOS system security capabilities
+Additional macOS system security capabilities
+System Integrity Protection
+Trust caches
+Peripheral processor security
+Rosetta 2 on a Mac with Apple silicon
+Direct memory access protections
+Securely extending the kernel
+Option ROM security
+UEFI firmware security in an Intel-based Mac
+System security for watchOS
+Random number generation
+Communicating emergency information using satellites
+Apple Security Research Device
+Encryption and Data Protection
+Encryption and Data Protection overview
+Quantum-secure cryptography with Apple devices
+Passcodes and passwords
+Data Protection
+Data Protection overview
+Data Protection
+Data Protection classes
+Keybags for Data Protection
+Protecting keys in alternate boot modes
+Protecting user data in the face of attack
+Sealed Key Protection (SKP)
+Role of Apple File System
+Keychain data protection
+FileVault
+Volume encryption with FileVault
+Managing FileVault
+How Apple protects users’ personal data
+Protecting app access to user data
+Protecting access to user’s health data
+Digital signing and encryption
+App security
+App security overview
+App code signing process
+App security in iOS, iPadOS, and visionOS
+Intro to app security for iOS, iPadOS, and visionOS
+About App Store security
+Security of runtime process
+App protection and app groups
+App security in macOS
+Intro to app security for macOS
+App code signing process
+Gatekeeper and runtime protection
+Protecting against malware
+Terminal and script protections
+Controlling app access to files
+Supporting extensions
+Secure features in the Notes app
+Secure features in the Shortcuts app
+Services security
+Services security overview
+Apple Accounts and Managed Apple Accounts
+Apple Account security
+Managed Apple Account security
+iCloud
+iCloud security overview
+iCloud encryption
+Advanced Data Protection for iCloud
+iCloud Backup security
+Search on iCloud.com security
+iCloud Private Relay security
+Account recovery contact security
+Legacy Contact security
+Passcode and password management
+Passcode security overview
+Sign in with Apple security
+Automatic strong passwords
+Password AutoFill security
+App access to saved passwords
+Password security recommendations
+Password Monitoring
+Sending passwords
+Credential provider extensions
+iCloud Keychain
+iCloud Keychain security overview
+Secure keychain syncing
+Secure iCloud Keychain recovery
+Escrow security for iCloud Keychain
+Apple Pay
+Apple Pay security overview
+Apple Pay component security
+How Apple Pay keeps users’ purchases protected
+Credit, debit, and prepaid cards
+Card provisioning security overview
+Adding credit or debit cards to Apple Pay
+Payment authorization with Apple Pay
+Paying with cards using Apple Pay
+Contactless passes in Apple Pay
+Rendering cards unusable with Apple Pay
+Apple Card security
+Apple Cash security
+Tap to Pay on iPhone
+Using Apple Wallet
+Access using Apple Wallet
+Access key types
+Car key security
+Car key security
+Car key transactions
+Adding transit and eMoney cards to Apple Wallet
+IDs in Apple Wallet
+IDs in Apple Wallet
+Security of IDs in Apple Wallet
+iMessage
+iMessage security overview
+How iMessage sends and receives messages
+Check In security
+Secure iMessage name and photo sharing
+Secure Apple Messages for Business
+FaceTime security
+SharePlay security
+Nearby sharing security
+Find My
+Find My security
+Locating missing devices
+Continuity
+Continuity security overview
+Handoff security
+iPhone cellular call relay security
+iPhone Text Message Forwarding security
+Instant Hotspot security
+Network security
+Network security overview
+TLS security
+IPv6 security
+VPN security
+Wi-Fi security and privacy
+Security features when connecting to wireless networks
+Wi-Fi security with Apple devices
+Privacy features when connecting to wireless networks
+Wi-Fi privacy with Apple devices
+Bluetooth security
+Ultra Wideband security in iOS
+Single Sign-on security
+AirDrop security
+Wi-Fi password sharing security
+Firewall security in macOS
+Developer kit security
+Developer kit security overview
+ARKit security
+DriverKit security
+EnergyKit data security
+HomeKit security
+Communication security
+Data security
+Securing routers with HomeKit
+Camera security
+Security with Apple TV
+NFC & SE Platform security
+ReplayKit security
+SiriKit security
+WidgetKit security
+Secure device management
+Secure device management overview
+Device management
+Device management security overview
+Managed Device Attestation
+Attestation process security
+Configuration enforcement
+Automated Device Enrollment
+Activation Lock security
+Managed Lost Mode and remote wipe
+Shared iPad security
+Apple Configurator security
+Screen Time security
+Glossary
+Document revision history
+Copyright and trademarks
+Activation Lock security
+Activation Lock helps to prevent unauthorized users from reactivating an iPad, iPhone, Mac, Apple Vision Pro, and Apple Watch if it’s lost or stolen. It remains enabled even if the device is erased. This makes it more difficult for someone to use or sell a missing device. How Apple enforces Activation Lock varies depending on the device.
+Activation Lock on iPhone parts
+Apple is extending Activation Lock for iPhone to cover individual parts to help deter stolen parts from entering the market. During a repair, if an iPhone detects that a supported part came from another iPhone with Activation Lock or Lost Mode turned on, calibration is restricted for that part. This enhancement to the Activation Lock feature further extends Apple’s commitment to protecting users while increasing consumer choice when it comes to repairs.
+Behavior on iPad, iPhone, and Apple Vision Pro
+On an unsupervised iPad, iPhone, and Apple Vision Pro, Activation Lock is enabled automatically when the user signs in to their Apple Account and turns on Find My.
+On a supervised device, Activation Lock is disallowed by default, but a device management service can allow the user to enable it. This allows the service to escrow a bypass code from the device. That bypass code can then be used to turn off Activation Lock at a later time. A device generates a new bypass code when:
+Setting up the device the first time
+Setting up the device after an erase and not restoring the device from a backup of that same device
+Setting up the device after an erase and restoring the device from a backup of a different device
+Alternatively, for managed and supervised devices, a device management service can contact Apple servers directly to enable Activation Lock. This is done entirely server-side and has no dependencies on user actions or the state of the device. The device management service needs to create a 31-byte bypass code, then send it to Apple servers when it wants to enable Activation Lock for the device. The service’s bypass code should be randomly created and unique for each device.
+Activation Lock is enforced through the activation process after the Wi-Fi selection screen in Setup Assistant. When a device indicates that it’s activating, it sends a request to the activation server to get an activation certificate.
+Unsupervised iPad, iPhone, and Apple Vision Pro devices that are locked with Activation Lock can be unlocked by:
+The credentials of the personal Apple Account used to enable Activation Lock
+The previously used device passcode
+Supervised iPad, iPhone, and Apple Vision Pro devices that are locked with Activation Lock can be unlocked by:
+The credentials of the personal Apple Account used to enable Activation Lock
+The credentials of the Managed Apple Account used to link the device management service with Apple School Manager or Apple Business
+The bypass code escrowed by the device management service
+The device management service making a server-side call to Apple servers with the same bypass code it used to enable Activation Lock
+Note: The Setup Assistant in iOS, iPadOS, and visionOS won’t progress unless a valid certificate can be obtained.
+Behavior on Apple Watch
+Activation Lock on an unsupervised Apple Watch is related to the Activation Lock status of the paired iPhone. If the iPhone has Activation Lock enabled, the Apple Watch is instructed to contact Apple servers at the end of the pairing process to turn on Activation Lock. If Activation Lock isn’t enabled on the iPhone at the time of pairing, but enabled at a later time, the iPhone:
+Prompts all paired Apple Watch devices to contact Apple servers
+Can enable Activation Lock on the Apple Watch
+As part of the initial pairing process, the iPhone sends a request to the activation server to get an activation certificate for the Apple Watch
+If the Apple Watch is locked with Activation Lock, the user is prompted for the credentials of the Apple Account which was used to enable Activation Lock at that time to unpair, erase, or reactivate an Apple Watch.
+Note: Pairing can’t be completed unless a valid certificate can be obtained.
+Behavior on Mac
+On an unsupervised Mac, Activation Lock is enabled automatically when the user signs in with their Apple Account and turns on Find My. For a Mac that’s supervised, Activation Lock is disallowed by default, but a device management service can allow the user to enable it. This allows the service to escrow a bypass code from the device. That bypass code can then be used to turn off Activation Lock at a later time. A device generates a new bypass code when:
+Setting up the device the first time
+Setting up the device after an erase
+Additional behavior on a Mac with Apple silicon
+On a Mac with Apple silicon, the Low-Level Bootloader (LLB) verifies that a valid LocalPolicy for the device exists and that the LocalPolicy policy anti-replay values match the values stored in the Secure Storage Component. The LLB boots to recoveryOS if:
+There is no LocalPolicy for the current macOS
+The LocalPolicy is invalid for that version of macOS
+The LocalPolicy anti-replay value hash values don’t match the hashes of values stored in the Secure Storage Component
+recoveryOS detects that the Mac isn’t activated and contacts the activation server to get an activation certificate.
+If the device is locked using Activation Lock while in recoveryOS, Activation Lock can be unlocked by:
+The credentials of the personal Apple Account used to enable Activation Lock
+The previously used device password of the local user who enabled Activation Lock
+The bypass code escrowed by the device management service
+After a valid activation certificate is obtained, that activation certificate key is used to obtain a RemotePolicy certificate. The Mac uses the LocalPolicy key and RemotePolicy certificate to produce a valid LocalPolicy.
+Note: The LLB won’t allow booting of macOS unless a valid LocalPolicy is present.
+Additional behavior on a Mac with the T2 chip
+On a Mac with the T2 chip, the T2 chip firmware verifies that a valid activation certificate is present before allowing the computer to boot to macOS. UEFI firmware loaded by the T2 chip is responsible for querying the activation status of the device from the T2 chip. The Mac boots to recoveryOS if:
+A valid activation certificate isn’t present.
+recoveryOS detects that the Mac isn’t activated and contacts the activation server to get an activation certificate.
+If the Mac is locked using Activation Lock while in recoveryOS, Activation Lock can be unlocked by:
+The credentials of the personal Apple Account used to enable Activation Lock
+The previously used device password of the local user who enabled Activation Lock
+The bypass code escrowed by the device management service
+Note: UEFI firmware won’t allow macOS to boot unless a valid activation certificate is present.
+Managing Activation Lock in Apple School Manager or Apple Business
+If an Apple device is registered with an Apple School Manager or Apple Business organization, users with a role that has Manage Device privileges can turn off Activation Lock for organization-owned devices. This option is available only for devices registered with the organization before Activation Lock was enabled and that haven’t been released. Because Activation Lock is turned off using server-side calls, a device doesn’t need to be managed by a device management service.
+Note: Devices that are currently locked with Activation Lock can’t be added to an Apple School Manager or Apple Business organization.
+Published Date: December 19, 2024See alsoAutomated Device EnrollmentDevice management security overviewApple Platform Deployment: Lock, locate, or erase Apple devices
+Download this guide as a PDF
+Previous
+Automated Device Enrollment
+Next
+Managed Lost Mode and remote wipe
+Helpful?
+Yes
+No
+Character limit:
+250
+Please don’t include any personal information in your comment.
+Maximum character limit is 250.
+Submit
+Thanks for your feedback.
+Apple Footer
+
+Apple
+Support
+Apple Platform Security
+Activation Lock security
+United States
+Copyright © 2026 Apple Inc. All rights reserved.
+Privacy Policy Terms of Use                    Sales and Refunds Site Map

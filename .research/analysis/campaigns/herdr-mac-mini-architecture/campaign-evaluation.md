@@ -38,3 +38,11 @@ recommendations resolved or explicitly scoped out; non-blocking items handed to
 the lead spot-check: propagate the master-branch caveat on the rollup ordering,
 confirm the Moshi licensing anchor's wording, and confirm the dual-use anchors
 `hma-herdr-tui-agents-notify-docs` {8} and {9}.
+
+## §7 extension — round 1 NEEDS-REVISION (light), round 2 APPROVED
+
+Round 1 issues: ungrounded "stop the server first" update step; no Herdr
+auto-start disposition; no direct add-on-or-change answer; patch-delay security
+cost unstated; blanket extract-tier marker. All five resolved in round 2; no new
+material problem. Non-blocking: forced-reboot save behaviour covered by step 8's
+resume check; no Herdr-only upgrade routine stated.

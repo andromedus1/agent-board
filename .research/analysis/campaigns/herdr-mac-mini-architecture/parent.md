@@ -15,6 +15,7 @@ key_findings:
   - macOS 26 documents unlocking FileVault over SSH after a restart; the sources indicate the Mac does not finish booting, and so Tailscale is not up, until that unlock, making a LAN path necessary (inferred; untested).
   - Tailscale's variants table lists only open-source tailscaled as running before login; a Tailscale KB page disagrees without naming a variant, so a reboot drill must confirm it.
   - Herdr Projects' TUI-compatible line is one its author has moved past for herdr-core, so the Model B target may be the trigger to revisit the core line.
+  - Reboot resilience (composed) rests on fewer and cleaner reboots (manual update window, UPS shutdown), a LAN rescue device for remote FileVault unlock, and one client attach to trigger Herdr agent resume; Herdr has no documented unattended resume, and SSH-started servers are reported to run in a Background launchd context.
 research_method: /research
 provenance: agent-synthesis
 ---
@@ -88,6 +89,12 @@ facts}:
   shell as your user" [hma-wherdr-docs]{3}, and login-time start [hma-wherdr-docs]{2}.
   Add it when Model B needs the board, or if Moshi's Android push or approvals
   fail the step 7 test.
+
+- **Add on to this build, or change builds, for reboot resilience?** Add on
+  {inferred}: an update routine, a UPS, a LAN rescue device and a smart plug
+  (§7). The build changes considered do not improve reboot persistence:
+  herdr-core restores bare shells after a reboot, and FileVault off only removes
+  the unlock step, at the exposure set out in §7.2.
 
 ## 1. Architecture assessment
 
@@ -413,7 +420,8 @@ core line.
 3. **Reboot drill before anything else.** Pull the power (not just `shutdown`);
    SSH-unlock from the MacBook on the LAN; confirm `tailscaled` comes up and SSH
    works over the tailnet without any GUI login. Also test whether a key-only
-   `sshd_config` drop-in still allows the pre-boot unlock (undocumented).
+   `sshd_config` drop-in still allows the pre-boot unlock (undocumented), and
+   run `fdesetup supportsauthrestart` on the Mini.
 4. **SSH hardening** once the drill passes: key-only drop-in
    [hma-host-man-sshd-config]{5}.
 5. **Agents.** Install Claude Code and Codex for the agent user; set Codex
@@ -422,7 +430,8 @@ core line.
 6. **Herdr TUI.** Install; install the Claude and Codex integrations, which
    native resume requires [hma-herdr-tui-session-state-docs]{5}; start
    `herdr server` from SSH and confirm it survives closing that SSH session
-   (the #5236 fix is not in v0.9.5). Create one workspace per project and name
+   (SSH starts keep Herdr's direct spawn [hma-reboot-herdr-pr-5236]{3}); check
+   `launchctl managername` inside a pane to see its launchd context. Create one workspace per project and name
    tabs by feature. Work from the MacBook with `ssh` then `herdr`; try
    `herdr --remote` [hma-herdr-tui-remote-docs]{10} separately. Repeat the step
    3 power pull and confirm what resumes after attaching.
@@ -435,13 +444,22 @@ core line.
    [hma-android-moshi-docs-herdr]{6}[hma-android-moshi-article-mosh-macos-path]{2}.
    Confirm moshi-hook is running after a reboot with no GUI login. Test push and
    an approval round trip on cellular — the adoption gate.
-8. **Live with Model A for a while** before adding wherdr, a subnet router, a
-   UPS, a display-metadata reporter, or Herdr Projects.
+8. **Update routine.** Turn off automatic macOS and Background Security
+   Improvement installs; patch weekly in a planned window from home, letting the
+   orderly macOS restart trigger Herdr's documented pre-restart save rather than
+   stopping the server by hand (§7.1). Confirm agents resume after the first
+   patch restart.
+9. **Reboot resilience.** Add the UPS (test power-return start with it), the
+   rescue device with watchdog, and a smart plug (§7.3); repeat the power pull
+   from away using the rescue path; test whether a scripted client triggers
+   agent resume.
+10. **Live with Model A for a while** before adding wherdr, a display-metadata
+   reporter, or Herdr Projects.
 
 ## 6. Risks and unresolved questions
 
 - **Reboot while away**: likely unreachable until someone unlocks FileVault from
-  the LAN; a subnet-router path is untested and widens tailnet reach into the LAN.
+  the LAN; mitigations and their limits are in §7.
 - **Security Improvement restarts** may land at the unlock screen
   [hma-host-apple-platform-support-updates]{2}; whether `fdesetup authrestart`
   works on this model is unknown [hma-host-man-fdesetup]{4}.
@@ -475,6 +493,125 @@ core line.
   remotely [hma-herdr-tui-agents-notify-docs]{9}; moshi-hook auto-updates every
   6 hours [hma-android-moshi-docs-hook-settings]{4}.
 
+## 7. Reboot resilience
+
+No component keeps a live agent process through a reboot: processes end, and
+work returns through layout restore plus native resume
+[hma-herdr-tui-session-state-docs]{1}[hma-herdr-tui-session-state-docs]{5}. The
+mitigations below make reboots rarer and cleaner, keep them recoverable while
+away, and make resume as automatic as the tools allow. Agents' own durable-work
+habits (commits, progress notes) are assumed and not re-examined here. §5 steps
+3, 6, 8 and 9 carry the resulting tests and additions.
+
+### 7.1 Verified mitigations
+
+| Mitigation | What the sources establish | Caveats |
+|---|---|---|
+| Update routine | Turn off "Install macOS updates" [hma-reboot-apple-macos-autoupdates]{1} and Background Security Improvements "Automatically Install" [hma-reboot-apple-bsi-support]{3}; with BSI off, fixes wait for the next software update [hma-reboot-apple-bsi-support]{4}. Install by hand with `softwareupdate --install --os-only --restart` [hma-reboot-man-softwareupdate]{1}. | With no user logged in, `--restart` means macOS "will trigger a forced reboot if necessary" [hma-reboot-man-softwareupdate]{3}; plan for it to land at the FileVault prompt and run the window from home or with the rescue device ready {inferred}. A practitioner reports Apple's updates use authenticated restarts that can fail to a password prompt [hma-reboot-eclectic-authrestart]{4} {confidence: practitioner, pre-macOS 26}. OS-level BSIs "require the device to restart" [hma-reboot-apple-bsi-platform-support]{1}, which reconciles with §1's "may require": only OS-level ones do. Deferring is a security cost: each fix stays unapplied until the next window, so keep the window short (weekly is a composed suggestion). The third toggle, "Install Security Responses and system files", is named alongside Rapid Security Responses [hma-reboot-apple-macos-autoupdates]{1}; which updates it governs is unclear (see Contradictions). Deferral timers and enforcement are described for supervised, device-managed Macs [hma-reboot-apple-deploy-enforce-updates]{1}[hma-reboot-apple-deploy-enforce-updates]{4} {inferred: an unmanaged Mac has only the toggles and the CLI}. |
+| Authenticated restart for planned reboots | `fdesetup authrestart` restarts "bypassing the initial unlock" on supported hardware and "may not work on all systems" [hma-host-man-fdesetup]{4}; `supportsauthrestart` reports support [hma-reboot-man-fdesetup-authrestart]{3}. It returned `true` on the operator's Apple-silicon laptop, not the Mini [hma-reboot-local-softwareupdate-state]{3}. | Holds an extra copy of the unlock key in memory and the SMC until unlock [hma-host-man-fdesetup]{2}. Cannot cover power loss, a UPS shutdown or a panic {inferred}. After it, no GUI user is logged in {inferred}. |
+| UPS with automatic shutdown | Energy > UPS Options for a USB UPS; the Mac shuts down when the first condition is met [hma-reboot-apple-ups-help]{2}[hma-reboot-apple-ups-help]{4}; CLI `pmset -u haltlevel/haltafter/haltremain` on desktops [hma-reboot-man-pmset-ups]{1}[hma-reboot-man-pmset-ups]{4}. | macOS's UPS script has a gentle `shutdown -h now` path and an abrupt `shutdown -hu` path; which one the Energy settings use was not observed [hma-reboot-local-ups-plumbing]{1}. Herdr saves "before the system starts closing apps" for a macOS restart [hma-herdr-releases]{3}; that a UPS shutdown behaves the same is {inferred}, and a hard kill stays outside Herdr's graceful recovery [hma-reboot-herdr-issue-4414]{4}. The Mini restarts on power return only if the UPS output is actually cut and restored {inferred}; test with the chosen UPS. It still lands at the FileVault prompt. A UPS makes outages cleaner, not rarer. |
+| Herdr start after reboot | `herdr server` is meant "for supervised or service-style setups" [hma-herdr-tui-remote-docs]{14}. A LaunchAgent setup was reported to hang restoring a session until a Files and Folders grant, with responsiveness fixed in v0.9.4 [hma-reboot-herdr-issue-4926]{1}[hma-reboot-herdr-issue-4926]{2}[hma-reboot-herdr-issue-4926]{3}. | A LaunchAgent needs a GUI login [hma-host-apple-launchd-archive]{2}, which FileVault-on never produces unattended. SSH-started servers run in a Background launchd context where Keychain-backed tools fail [hma-reboot-herdr-issue-966]{1}; a daemon start is in the system domain, which has no distinct sessions [hma-reboot-man-launchd-plist]{2}, so it is likely the same {inferred}. Claude Code and Codex can use credential files [hma-host-claude-code-auth]{1}[hma-host-codex-auth]{2}. Open #4291: a peer's saved-machine bridge starts the server inside sshd right after a reboot [hma-reboot-herdr-issue-4291]{5}[hma-reboot-herdr-issue-4291]{6}. Herdr's newer launchd start path keeps "the old direct spawn" for SSH starts [hma-reboot-herdr-pr-5236]{3}. Disposition {inferred}: a boot-time daemon start is not worth adding now, since it would not change the launchd context and does not remove the attach; revisit if a scripted attach proves to trigger resume, when the rescue device's watchdog could start the server and attach after unlock. |
+| Unattended agent resume | Resume runs "After a client attaches and provides terminal size and theme context" [hma-lead-herdr-tui-state-api]{7}; master source gates it on a client resize path [hma-reboot-herdr-source-resume-gating]{3}. | No flag or config resumes without a client. Whether a scripted `herdr terminal session control --takeover` client counts is untested {ambiguous: not traced in source}. Practical routine: after unlock, attach once from Moshi or the MacBook, then check that each pane resumed the right conversation, given open resume-identity bugs [hma-herdr-open-issues]{9}. |
+| Herdr live upgrade (`--handoff`) | Keeps pane processes across a server replacement; experimental [hma-reboot-herdr-docs-named-sessions-handoff]{4}; only for installs managed by Herdr's own updater, not Homebrew [hma-reboot-herdr-docs-named-sessions-handoff]{6}. | Reports conflict: one reporter finds the handoff step works [hma-reboot-herdr-issues-handoff]{4}; open macOS issues report a cleared session id when two panes share one, and lost permission attribution (which also occurs without handoff) [hma-reboot-herdr-issues-handoff]{1}[hma-reboot-herdr-issues-handoff]{2}. It does not help across a reboot. Not recommended for routine updates; prefer the orderly-restart path, whose pre-restart save is documented [hma-herdr-releases]{3} {inferred}. |
+
+### 7.2 FileVault-off fallback, stated precisely
+
+With FileVault off on Apple silicon, "the volume is still encrypted but the
+volume encryption key is protected only by the hardware UID in the Secure
+Enclave" [hma-reboot-apple-security-filevault-volume]{3}; FileVault's addition is
+that credentials "are required during the boot process"
+[hma-reboot-apple-security-filevault-volume]{6}. Without it, boot completes
+unattended and daemons start {inferred}, and automatic login becomes possible
+[hma-host-apple-autologin]{1}. Two variants differ sharply {inferred}:
+
+- **FileVault off, manual login.** Tailscale and SSH return unattended; Herdr
+  still starts in a Background context. A person holding the Mac faces account
+  passwords and recoveryOS rather than a boot-time credential. Changing startup
+  security needs administrator credentials
+  [hma-reboot-apple-security-startup-policy]{3}, and with Find My on, Full
+  Security and two-factor authentication, Activation Lock blocks erase and reuse
+  [hma-reboot-apple-actlock-mac-support]{1}[hma-reboot-apple-actlock-mac-support]{3}.
+  Apple does not state what recoveryOS allows against a FileVault-off data volume
+  {ambiguous: no fetched Apple text}.
+- **FileVault off, automatic login of the agent user.** Herdr would also get a
+  GUI launchd context after reboot (untested). But anyone who restarts the Mac
+  lands in the agent user's session with no password, holding its credential
+  files — `~/.claude/.credentials.json` and the plaintext `~/.codex/auth.json`
+  [hma-host-claude-code-auth]{1}[hma-host-codex-auth]{1} — and its running agents.
+
+Keep FileVault on unless the power-pull drill shows remote unlock is unworkable;
+if it does, prefer the manual-login variant.
+
+### 7.3 The rescue device
+
+Most rescue-device sources were read as tool-processed extracts
+{confidence: search-summary}, so treat these specifics as leads to confirm on
+setup.
+
+**What it is.** A small always-on computer on the home LAN (a Raspberry Pi is
+the default) that runs Tailscale and gives the phone a foothold inside the house
+when the Mini is waiting at the FileVault prompt, where its own Tailscale is
+likely not running yet {inferred}. If the drill shows `tailscaled` does not come
+up after unlock without a GUI login, the rescue route becomes the everyday
+access path too {inferred}.
+
+**Two ways to use it.**
+
+- *SSH jump host:* the phone connects to the Pi over the tailnet and jumps to
+  the Mini's LAN address. OpenSSH `ProxyJump` forwards TCP to the target
+  [hma-rescue-ssh-config-proxyjump]{2} {confidence: search-summary}, so the unlock password goes end-to-end to
+  the Mini and the Pi never holds it {inferred}. Moshi supports jump hosts only in
+  SSH mode, not mosh, and its docs do not confirm the Android build has the
+  setting [hma-rescue-moshi-docs-jumphost]{1}[hma-rescue-moshi-docs-jumphost]{4} {confidence: search-summary}.
+- *Scoped subnet router:* the Pi advertises only the Mini's address and the
+  tailnet policy allows only the operator's devices to its port 22; any phone
+  SSH client then reaches the Mini directly. Policy destinations take a single
+  `IP:port` [hma-rescue-tailscale-acl-syntax]{1}, and routes and access rules are
+  separate controls [hma-rescue-tailscale-subnets-detail]{6}. A single-host /32
+  route is expected to work but is not shown in the docs
+  [hma-rescue-tailscale-subnets-detail]{1}. {confidence: search-summary for all three}
+
+Whether the Mini's pre-boot SSH accepts a connection arriving through either
+path is untested; the drill should include it.
+
+**Watchdog.** The Pi can probe the Mini and push an alert through ntfy, which
+accepts plain HTTP posts from scripts [hma-rescue-ntfy-docs]{1}; on the public
+server "topic names are public", so use an unguessable topic or self-host
+[hma-rescue-ntfy-docs]{3}. An external dead-man's switch such as Healthchecks.io
+alerts when pings stop [hma-rescue-healthchecks-docs]{1}, which also covers the
+whole house losing power or internet {inferred}. If the Mini answers SSH on the
+LAN but not on the tailnet, it is probably waiting for unlock, though that cannot
+be told apart from "booted but Tailscale failed" {inferred}.
+
+**What it solves:** remote FileVault unlock while away; outage alerts; a place to
+run small home scripts. **What it does not solve:** a hung or powered-off Mini
+(needs a smart plug or KVM), agent processes ending at reboot, the need to attach
+once for resume, or an outage that also takes down the Pi, router or internet
+(a UPS covering all of them reduces this). **Pros:** keeps FileVault on; the
+unlock stays manual and end-to-end; inexpensive general-purpose hardware.
+**Cons:** another device to patch and power; SD-card storage is fragile under
+power loss, while PiKVM, for comparison, runs read-only "to prevent it from being
+damaged by a sudden power outage" [hma-rescue-pikvm-faq]{3}; USB or NVMe boot is
+available on newer Pis [hma-rescue-rpi-getting-started]{3}; an SSH daemon or a
+route into the LAN is added to the tailnet.
+
+**Other approaches.**
+
+| Option | Adds | Limits |
+|---|---|---|
+| Router with built-in Tailscale (e.g. GL.iNet) | No extra box; the router must be up anyway | "Allow Remote Access LAN" advertises the LAN, so policy must narrow it; some models lack memory [hma-rescue-glinet-router-tailscale]{1}[hma-rescue-glinet-router-tailscale]{3}; no watchdog host |
+| Apple TV as subnet router | Uses an existing device | Needs tvOS 17+ and home-hub role [hma-rescue-tailscale-appletv]{1}[hma-rescue-tailscale-appletv]{2}; no shell documented, so no watchdog [hma-rescue-tailscale-appletv]{3} |
+| KVM-over-IP (PiKVM, JetKVM, GL.iNet Comet) | Screen and keyboard for a hung Mini or Recovery | Typing at the Apple-silicon FileVault screen is {contested}: JetKVM says "Anything with HDMI out and USB works, from the BIOS onwards" [hma-rescue-jetkvm-faq]{1}; PiKVM lists macOS keyboard issues [hma-rescue-pikvm-faq]{1}; Apple says a locked Mac must be unlocked before allowing an accessory (page names laptops) [hma-rescue-apple-accessories]{3}. No power control for a Mac mini (no ATX header) {inferred} |
+| Smart plug | Power-on of a hung or off Mini via "Start up when power is connected" [hma-host-apple-poweron-mini]{3} | Unclean power cut; still lands at FileVault [hma-host-apple-deploy-filevault-intro]{1}; needs a controller reachable while away (a vendor cloud, or the Pi on the LAN) and sits between the UPS and the Mini {inferred} |
+| Wake-on-LAN | Nothing here | Wake from sleep [hma-rescue-apple-mac-wake-settings]{1}, which the always-on Mini does not use {inferred} |
+
+**Composed recommendation.** A wired Pi booting from USB storage, on the same UPS
+as the Mini and router, tagged in Tailscale, acting as a scoped /32 subnet router
+(so any phone SSH client works) with its own SSH reachable only for maintenance,
+running a watchdog that posts to ntfy and pings Healthchecks. Add a smart plug
+for hung-Mini recovery. Defer a KVM until someone confirms it can type at the
+FileVault screen.
+
 ## Contradictions
 
 - **Mosh through Tailscale SSH.** Moshi docs: mosh "cannot bootstrap through
@@ -502,6 +639,17 @@ core line.
 - **Herdr on narrow screens.** Docs: the TUI adapts to narrow screens
   [hma-android-herdr-docs-how-to-work]{2}. User report: long labels and footers
   do not fit [hma-android-herdr-issue-3840]{3}. Tension.
+- **Security-response toggle scope.** Mac User Guide: "Install Security
+  Responses and system files" covers Rapid Security Responses
+  [hma-reboot-apple-macos-autoupdates]{1}. BSI pages: Background Security
+  Improvements are the mechanism from macOS 26.1 [hma-reboot-apple-bsi-support]{1}.
+  Deployment guide: the Mac security-updates setting covers "XProtect,
+  Gatekeeper, and system data files" [hma-reboot-apple-deploy-enforce-updates]{7}.
+  {ambiguous: which updates the toggle governs}
+- **KVM input at the FileVault screen.** JetKVM: works "from the BIOS onwards"
+  [hma-rescue-jetkvm-faq]{1}. PiKVM: macOS keyboard may need fixes
+  [hma-rescue-pikvm-faq]{1}. Apple: a locked Mac must be unlocked before allowing
+  an accessory [hma-rescue-apple-accessories]{3}. {contested: untested on an Apple-silicon Mac mini}
 - **ConnectBot and mosh.** Moshi's comparison table lists no mosh
   [hma-android-moshi-article-android]{6}; the Play listing says "SSH & Mosh
   client" [hma-android-connectbot-play]{1}. Contradicts; not load-bearing.
@@ -540,6 +688,10 @@ core line.
 - Moshi documents structured PermissionRequest handling or an Android page.
 - In use, Herdr's screen inference misses blocked states often enough to justify
   the display-metadata reporter.
+- `fdesetup supportsauthrestart` returns false on the Mini, a UPS test shows no
+  power-return start, a scripted client triggers (or fails to trigger) Herdr
+  resume, pre-boot SSH fails through the rescue path, or a KVM is shown to type
+  at the Apple-silicon FileVault screen.
 
 ## Revisions
 
@@ -556,3 +708,13 @@ core line.
   inferred-state guardrail check, MacBook and phone-UX notes, Model B and
   out-of-scope statements, tailnet and subnet-router security notes, and Moshi
   E2EE in step 7; moved authoring history out of the body.
+- 2026-11-10 — extension: added §7 Reboot resilience from two further lanes
+  (`reboot-host-controls`, `rescue-access`), registered in `dispatch.md`.
+- 2026-11-10 — §7 correction pass after its adversarial read (S7-H1, S7-M2–M7,
+  S7-L1–L11): split the FileVault-off variants by login mode, added the
+  security-response toggle and KVM contradictions, tightened UPS and handoff
+  claims, marked extract-tier rescue sources, and carried §7 into §4–§6.
+- 2026-11-10 — §7 evaluation pass: replaced the "stop the server first" update
+  step with the documented orderly-restart save, added the Herdr auto-start
+  disposition and the add-on-or-change direct answer, stated the patch-delay
+  security cost, and marked extract-tier rescue citations per claim.

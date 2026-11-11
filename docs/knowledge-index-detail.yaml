@@ -1,6 +1,6 @@
 # Auto-generated. DO NOT EDIT BY HAND.
 # On-demand layer — load when surfacing a specific doc's full context.
-generated_at: '2026-11-11T04:48:45Z'
+generated_at: '2026-11-11T05:39:24Z'
 generated_from: frontmatter
 schema_version: 2
 documents:
@@ -293,6 +293,18 @@ documents:
       KB page disagrees without naming a variant, so a reboot drill must confirm it.
     - Herdr Projects' TUI-compatible line is one its author has moved past for herdr-core, so the Model
       B target may be the trigger to revisit the core line.
+    - Reboot resilience (composed) rests on fewer and cleaner reboots (manual update window, UPS shutdown),
+      a LAN rescue device for remote FileVault unlock, and one client attach to trigger Herdr agent resume;
+      Herdr has no documented unattended resume, and SSH-started servers are reported to run in a Background
+      launchd context.
+  .research/analysis/campaigns/herdr-mac-mini-architecture/specialists/reboot-host-controls.md:
+    summary: 'Facet reboot-host-controls of the herdr-mac-mini-architecture campaign. Update deferral
+      beyond a manual routine needs MDM; authrestart is available but reduces FileVault protection and
+      does not cover power loss; FileVault off leaves the volume key bound only to the hardware UID; UPS
+      shutdown is built in via Energy settings and pmset; Herdr has no documented boot-start unit and
+      resumes agents only after a client attaches.
+
+      '
   .research/analysis/campaigns/remote-persistent-supervision/dispatch.md:
     summary: 'Breadth-survey registration mapping existing ways to supervise Codex and Claude sessions
       that live on an always-on host and are driven from a phone, to inform whether Agent Board builds,

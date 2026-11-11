@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<!--[if IE 9]>
+<html class="ie9 lt-ie10" lang="en"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<link rel="pingback" href="https://eclecticlight.co/xmlrpc.php">
+
+	<title>macOS 13.2.1, authenticated restart and fdesetup &#8211; The Eclectic Light Company</title>
+<meta name='robots' content='max-image-preview:large' />
+
+<!-- Async WordPress.com Remote Login -->
+<script id="wpcom_remote_login_js">
+var wpcom_remote_login_extra_auth = '';
+function wpcom_remote_login_remove_dom_node_id( element_id ) {
+	var dom_node = document.getElementById( element_id );
+	if ( dom_node ) { dom_node.parentNode.removeChild( dom_node ); }
+}
+function wpcom_remote_login_remove_dom_node_classes( class_name ) {
+	var dom_nodes = document.querySelectorAll( '.' + class_name );
+	for ( var i = 0; i < dom_nodes.length; i++ ) {
+		dom_nodes[ i ].parentNode.removeChild( dom_nodes[ i ] );
+	}
+}
+function wpcom_remote_login_final_cleanup() {
+	wpcom_remote_login_remove_dom_node_classes( "wpcom_remote_login_msg" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_key" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_validate" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_js" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_request_access_iframe" );
+	wpcom_remote_login_remove_dom_node_id( "wpcom_request_access_styles" );
+}
+
+// Watch for messages back from the remote login
+window.addEventListener( "message", function( e ) {
+	if ( e.origin === "https://r-login.wordpress.com" ) {
+		var data = {};
+		try {
+			data = JSON.parse( e.data );
+		} catch( e ) {
+			wpcom_remote_login_final_cleanup();
+			return;
+		}
+
+		if ( data.msg === 'LOGIN' ) {
+			// Clean up the login check iframe
+			wpcom_remote_login_remove_dom_node_id( "wpcom_remote_login_key" );
+
+			var id_regex = new RegExp( /^[0-9]+$/ );
+			var token_regex = new RegExp( /^.*|.*|.*$/ );
+			if (
+				token_regex.test( data.token )
+				&& id_regex.test( data.wpcomid )
+			) {
+				// We have everything we need to ask for a login
+				var script = document.createElement( "script" );
+				script.setAttribute( "id", "wpcom_remote_login_validate" );
+				script.src = '/remote-login.php?wpcom_remote_login=validate'
+					+ '&wpcomid=' + data.wpcomid
+					+ '&token=' + encodeURIComponent( data.token )
+					+ '&host=' + window.location.protocol
+					+ '//' + window.location.hostname
+					+ '&postid=70447'
+					+ '&is_singular=1';
+				document.body.appendChild( script );
+			}
+
+			return;
+		}
+
+		// Safari ITP, not logged in, so redirect
+		if ( data.msg === 'LOGIN-REDIRECT' ) {
+			window.location = 'https://wordpress.com/log-in?redirect_to=' + window.location.href;
+			return;
+		}
+
+		// Safari ITP, storage access failed, remove the request
+		if ( data.msg === 'LOGIN-REMOVE' ) {
+			var css_zap = 'html { -webkit-transition: margin-top 1s; transition: margin-top 1s; } /* 9001 */ html { margin-top: 0 !important; } * html body { margin-top: 0 !important; } @media screen and ( max-width: 782px ) { html { margin-top: 0 !important; } * html body { margin-top: 0 !important; } }';
+			var style_zap = document.createElement( 'style' );
+			style_zap.type = 'text/css';
+			style_zap.appendChild( document.createTextNode( css_zap ) );
+			document.body.appendChild( style_zap );
+
+			var e = document.getElementById( 'wpcom_request_access_iframe' );
+			e.parentNode.removeChild( e );
+
+			document.cookie = 'wordpress_com_login_access=denied; path=/; max-age=31536000';
+
+			return;
+		}
+
+		// Safari ITP
+		if ( data.msg === 'REQUEST_ACCESS' ) {
+			console.log( 'request access: safari' );
+
+			// Check ITP iframe enable/disable knob
+			if ( wpcom_remote_login_extra_auth !== 'safari_itp_iframe' ) {
+				return;
+			}
+
+			// If we are in a "private window" there is no ITP.
+			var private_window = false;
+			try {
+				var opendb = window.openDatabase( null, null, null, null );
+			} catch( e ) {
+				private_window = true;
+			}
+
+			if ( private_window ) {
+				console.log( 'private window' );
+				return;
+			}
+
+			var iframe = document.createElement( 'iframe' );
+			iframe.id = 'wpcom_request_access_iframe';
+			iframe.setAttribute( 'scrolling', 'no' );
+			iframe.setAttribute( 'sandbox', 'allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-top-navigation-by-user-activation' );
+			iframe.src = 'https://r-login.wordpress.com/remote-login.php?wpcom_remote_login=request_access&origin=' + encodeURIComponent( data.origin ) + '&wpcomid=' + encodeURIComponent( data.wpcomid );
+
+			var css = 'html { -webkit-transition: margin-top 1s; transition: margin-top 1s; } /* 9001 */ html { margin-top: 46px !important; } * html body { margin-top: 46px !important; } @media screen and ( max-width: 660px ) { html { margin-top: 71px !important; } * html body { margin-top: 71px !important; } #wpcom_request_access_iframe { display: block; height: 71px !important; } } #wpcom_request_access_iframe { border: 0px; height: 46px; position: fixed; top: 0; left: 0; width: 100%; min-width: 100%; z-index: 99999; background: #23282d; } ';
+
+			var style = document.createElement( 'style' );
+			style.type = 'text/css';
+			style.id = 'wpcom_request_access_styles';
+			style.appendChild( document.createTextNode( css ) );
+			document.body.appendChild( style );
+
+			document.body.appendChild( iframe );
+		}
+
+		if ( data.msg === 'DONE' ) {
+			wpcom_remote_login_final_cleanup();
+		}
+	}
+}, false );
+
+// Inject the remote login iframe after the page has had a chance to load
+// more critical resources
+window.addEventListener( "DOMContentLoaded", function( e ) {
+	var iframe = document.createElement( "iframe" );
+	iframe.style.display = "none";
+	iframe.setAttribute( "scrolling", "no" );
+	iframe.setAttribute( "id", "wpcom_remote_login_key" );
+	iframe.src = "https://r-login.wordpress.com/remote-login.php"
+		+ "?wpcom_remote_login=key"
+		+ "&origin=aHR0cHM6Ly9lY2xlY3RpY2xpZ2h0LmNv"
+		+ "&wpcomid=83108039"
+		+ "&time=" + Math.floor( Date.now() / 1000 );
+	document.body.appendChild( iframe );
+}, false );
+</script>
+<link rel='dns-prefetch' href='//s0.wp.com' />
+<link rel='dns-prefetch' href='//wordpress.com' />
+<link rel='dns-prefetch' href='//fonts-api.wp.com' />
+<link rel="alternate" type="application/rss+xml" title="The Eclectic Light Company &raquo; Feed" href="https://eclecticlight.co/feed/" />
+<link rel="alternate" type="application/rss+xml" title="The Eclectic Light Company &raquo; Comments Feed" href="https://eclecticlight.co/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="The Eclectic Light Company &raquo; macOS 13.2.1, authenticated restart and&nbsp;fdesetup Comments Feed" href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/feed/" />
+	<script type="text/javascript">
+		/* <![CDATA[ */
+		function addLoadEvent(func) {
+			var oldonload = window.onload;
+			if (typeof window.onload != 'function') {
+				window.onload = func;
+			} else {
+				window.onload = function () {
+					oldonload();
+					func();
+				}
+			}
+		}
+		/* ]]> */
+	</script>
+	<script type="application/ld+json">{"@context":"https:\/\/schema.org","@graph":[{"@type":"Person","@id":"https:\/\/eclecticlight.co\/author\/hoakley\/#person","name":"hoakley","image":"https:\/\/secure.gravatar.com\/avatar\/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=512&d=identicon&r=g","description":"A lot of history - doctor in the Royal Navy, medical researcher, Antarctic expeditioneer, software developer, long-standing contributor to MacUser magazine (UK) - and plenty of current activities, such as painting, writing, walking, and art history research. Erdös number 5, apparently. Eclectic to say the least, and on a good day aspires to be renaissance.","url":"http:\/\/eclecticlightdotcom.wordpress.com","givenName":"Howard","familyName":"Oakley","worksFor":{"@id":"https:\/\/eclecticlight.co\/#organization"}},{"@type":"Article","headline":"macOS 13.2.1, authenticated restart and fdesetup","datePublished":"2023-02-20T07:30:00+00:00","dateModified":"2023-02-19T20:03:05+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/eclecticlight.co\/2023\/02\/20\/macos-13-2-1-authenticated-restart-and-fdesetup\/"},"description":"Did your Mac take a brief trip into Recovery after the 13.2.1 update? What is authenticated restart, and how could you use it? What does fdesetup do?","publisher":{"@id":"https:\/\/eclecticlight.co\/#organization"},"author":{"@id":"https:\/\/eclecticlight.co\/author\/hoakley\/#person"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/eclecticlight.co\/"},{"@type":"ListItem","position":2,"name":"macOS 13.2.1, authenticated restart and fdesetup"}]}]}</script><style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<link crossorigin='anonymous' rel='stylesheet' id='all-css-2-1' href='/_static/??-eJxtzEsKgDAMANELWaMiVBfiWUobpP9iUry+KIIgLh8MA0cROifGxBCrKKFuNhE45KK0fwxUE8RsakCCHYNiNKJk4o9aTdTA/zFYj+/31pWvcenlPMhRdpN0JymjNIE=&cssminify=yes' type='text/css' media='all' />
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#3858e9;--wp-admin-theme-color--rgb:56,88,233;--wp-admin-theme-color-darker-10:#2145e6;--wp-admin-theme-color-darker-10--rgb:33.0384615385,68.7307692308,230.4615384615;--wp-admin-theme-color-darker-20:#183ad6;--wp-admin-theme-color-darker-20--rgb:23.6923076923,58.1538461538,214.3076923077;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}body.admin-color-fresh{--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){body.admin-color-fresh{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}:root .has-inline-color,:root .has-link-color a,:root .has-text-color{-webkit-text-fill-color:currentColor}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;overflow-wrap:normal!important;padding:0;position:absolute;width:1px;word-break:normal!important}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style^=border-color],[style*=";border-color"],[style*="; border-color"]){border-style:solid}html :where([style^=border-top-color],[style*=";border-top-color"],[style*="; border-top-color"]){border-top-style:solid}html :where([style^=border-right-color],[style*=";border-right-color"],[style*="; border-right-color"]){border-right-style:solid}html :where([style^=border-bottom-color],[style*=";border-bottom-color"],[style*="; border-bottom-color"]){border-bottom-style:solid}html :where([style^=border-left-color],[style*=";border-left-color"],[style*="; border-left-color"]){border-left-style:solid}html :where([style^=border-width],[style*=";border-width"],[style*="; border-width"]){border-style:solid}html :where([style^=border-top-width],[style*=";border-top-width"],[style*="; border-top-width"]){border-top-style:solid}html :where([style^=border-right-width],[style*=";border-right-width"],[style*="; border-right-width"]){border-right-style:solid}html :where([style^=border-bottom-width],[style*=";border-bottom-width"],[style*="; border-bottom-width"]){border-bottom-style:solid}html :where([style^=border-left-width],[style*=";border-left-width"],[style*="; border-left-width"]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}@supports (not (-webkit-backdrop-filter:blur(1px))) and (not (-moz-appearance:none)){mtd[columnalign=right]{text-align:-webkit-right}mtd[columnalign=left]{text-align:-webkit-left}menclose[notation~=top]{border-top:.065em solid;padding-top:.1em}menclose[notation~=bottom]{border-bottom:.065em solid;padding-bottom:.1em}}
+
+/*# sourceURL=/wp-content/plugins/gutenberg-core/v24.3.1/build/styles/block-library/common.min.css */
+</style>
+<style id="wp-block-library-inline-css-extra">
+.has-text-align-justify {
+	text-align:justify;
+}
+.has-text-align-justify{text-align:justify;}
+/*# sourceURL=wp-block-library-inline-css */
+</style>
+
+<style id="classic-theme-styles-inline-css">
+.wp-block-button__link{background-color:#32373c;border-radius:9999px;box-shadow:none;color:#fff;font-size:1.125em;padding:calc(.667em + 2px) calc(1.333em + 2px);text-decoration:none}.wp-block-file__button{background:#32373c;color:#fff}.wp-block-accordion-heading{margin:0}.wp-block-accordion-heading__toggle{background-color:inherit!important;color:inherit!important}.wp-block-accordion-heading__toggle:not(:focus-visible){outline:none}.wp-block-accordion-heading__toggle:focus,.wp-block-accordion-heading__toggle:hover{background-color:inherit!important;border:none;box-shadow:none;color:inherit;padding:var(--wp--preset--spacing--20,1em) 0;text-decoration:none}.wp-block-accordion-heading__toggle:focus-visible{outline:auto;outline-offset:0}.wp-block-tab:not(.has-text-color){color:inherit!important}.wp-block-tab:not(.has-background){background-color:inherit!important}.wp-block-tab:focus,.wp-block-tab:hover{text-decoration:none}.wp-block-tab:focus-visible{outline:auto;outline-offset:0}
+/*# sourceURL=/wp-content/plugins/gutenberg-core/v24.3.1/build/styles/block-library/classic.min.css */
+</style>
+
+<style id="coblocks-inline-format-inline-css">
+.uppercase{text-transform:uppercase}
+/*# sourceURL=coblocks-inline-format-inline-css */
+</style>
+<link crossorigin='anonymous' rel='stylesheet' id='all-css-12-1' href='/_static/??/wp-content/mu-plugins/core-compat/wp-mediaelement.css,/wp-content/mu-plugins/wpcom-bbpress-premium-themes.css?m=1432920480j&cssminify=yes' type='text/css' media='all' />
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--font-family--albert-sans: 'Albert Sans', sans-serif;--wp--preset--font-family--alegreya: Alegreya, serif;--wp--preset--font-family--arvo: Arvo, serif;--wp--preset--font-family--bodoni-moda: 'Bodoni Moda', serif;--wp--preset--font-family--bricolage-grotesque: 'Bricolage Grotesque', sans-serif;--wp--preset--font-family--cabin: Cabin, sans-serif;--wp--preset--font-family--chivo: Chivo, sans-serif;--wp--preset--font-family--commissioner: Commissioner, sans-serif;--wp--preset--font-family--cormorant: Cormorant, serif;--wp--preset--font-family--courier-prime: 'Courier Prime', monospace;--wp--preset--font-family--crimson-pro: 'Crimson Pro', serif;--wp--preset--font-family--dm-mono: 'DM Mono', monospace;--wp--preset--font-family--dm-sans: 'DM Sans', sans-serif;--wp--preset--font-family--dm-serif-display: 'DM Serif Display', serif;--wp--preset--font-family--domine: Domine, serif;--wp--preset--font-family--eb-garamond: 'EB Garamond', serif;--wp--preset--font-family--epilogue: Epilogue, sans-serif;--wp--preset--font-family--fahkwang: Fahkwang, sans-serif;--wp--preset--font-family--figtree: Figtree, sans-serif;--wp--preset--font-family--fira-sans: 'Fira Sans', sans-serif;--wp--preset--font-family--fjalla-one: 'Fjalla One', sans-serif;--wp--preset--font-family--fraunces: Fraunces, serif;--wp--preset--font-family--gabarito: Gabarito, system-ui;--wp--preset--font-family--ibm-plex-mono: 'IBM Plex Mono', monospace;--wp--preset--font-family--ibm-plex-sans: 'IBM Plex Sans', sans-serif;--wp--preset--font-family--ibarra-real-nova: 'Ibarra Real Nova', serif;--wp--preset--font-family--instrument-serif: 'Instrument Serif', serif;--wp--preset--font-family--inter: Inter, sans-serif;--wp--preset--font-family--josefin-sans: 'Josefin Sans', sans-serif;--wp--preset--font-family--jost: Jost, sans-serif;--wp--preset--font-family--libre-baskerville: 'Libre Baskerville', serif;--wp--preset--font-family--libre-franklin: 'Libre Franklin', sans-serif;--wp--preset--font-family--literata: Literata, serif;--wp--preset--font-family--lora: Lora, serif;--wp--preset--font-family--merriweather: Merriweather, serif;--wp--preset--font-family--montserrat: Montserrat, sans-serif;--wp--preset--font-family--newsreader: Newsreader, serif;--wp--preset--font-family--noto-sans-mono: 'Noto Sans Mono', sans-serif;--wp--preset--font-family--nunito: Nunito, sans-serif;--wp--preset--font-family--open-sans: 'Open Sans', sans-serif;--wp--preset--font-family--overpass: Overpass, sans-serif;--wp--preset--font-family--pt-serif: 'PT Serif', serif;--wp--preset--font-family--petrona: Petrona, serif;--wp--preset--font-family--piazzolla: Piazzolla, serif;--wp--preset--font-family--playfair-display: 'Playfair Display', serif;--wp--preset--font-family--plus-jakarta-sans: 'Plus Jakarta Sans', sans-serif;--wp--preset--font-family--poppins: Poppins, sans-serif;--wp--preset--font-family--raleway: Raleway, sans-serif;--wp--preset--font-family--roboto: Roboto, sans-serif;--wp--preset--font-family--roboto-slab: 'Roboto Slab', serif;--wp--preset--font-family--rubik: Rubik, sans-serif;--wp--preset--font-family--rufina: Rufina, serif;--wp--preset--font-family--sora: Sora, sans-serif;--wp--preset--font-family--source-sans-3: 'Source Sans 3', sans-serif;--wp--preset--font-family--source-serif-4: 'Source Serif 4', serif;--wp--preset--font-family--space-mono: 'Space Mono', monospace;--wp--preset--font-family--syne: Syne, sans-serif;--wp--preset--font-family--texturina: Texturina, serif;--wp--preset--font-family--urbanist: Urbanist, sans-serif;--wp--preset--font-family--work-sans: 'Work Sans', sans-serif;--wp--preset--text-shadow--light: 0.05em 0.05em 0.1em rgba(0, 0, 0, 0.3);--wp--preset--text-shadow--strong: 0.1em 0.1em 0.25em rgba(0, 0, 0, 0.5);--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}.wp-block-button{--wp--preset--dimension--25: 25%;--wp--preset--dimension--50: 50%;--wp--preset--dimension--75: 75%;--wp--preset--dimension--100: 100%;}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}.has-albert-sans-font-family{font-family: var(--wp--preset--font-family--albert-sans) !important;}.has-alegreya-font-family{font-family: var(--wp--preset--font-family--alegreya) !important;}.has-arvo-font-family{font-family: var(--wp--preset--font-family--arvo) !important;}.has-bodoni-moda-font-family{font-family: var(--wp--preset--font-family--bodoni-moda) !important;}.has-bricolage-grotesque-font-family{font-family: var(--wp--preset--font-family--bricolage-grotesque) !important;}.has-cabin-font-family{font-family: var(--wp--preset--font-family--cabin) !important;}.has-chivo-font-family{font-family: var(--wp--preset--font-family--chivo) !important;}.has-commissioner-font-family{font-family: var(--wp--preset--font-family--commissioner) !important;}.has-cormorant-font-family{font-family: var(--wp--preset--font-family--cormorant) !important;}.has-courier-prime-font-family{font-family: var(--wp--preset--font-family--courier-prime) !important;}.has-crimson-pro-font-family{font-family: var(--wp--preset--font-family--crimson-pro) !important;}.has-dm-mono-font-family{font-family: var(--wp--preset--font-family--dm-mono) !important;}.has-dm-sans-font-family{font-family: var(--wp--preset--font-family--dm-sans) !important;}.has-dm-serif-display-font-family{font-family: var(--wp--preset--font-family--dm-serif-display) !important;}.has-domine-font-family{font-family: var(--wp--preset--font-family--domine) !important;}.has-eb-garamond-font-family{font-family: var(--wp--preset--font-family--eb-garamond) !important;}.has-epilogue-font-family{font-family: var(--wp--preset--font-family--epilogue) !important;}.has-fahkwang-font-family{font-family: var(--wp--preset--font-family--fahkwang) !important;}.has-figtree-font-family{font-family: var(--wp--preset--font-family--figtree) !important;}.has-fira-sans-font-family{font-family: var(--wp--preset--font-family--fira-sans) !important;}.has-fjalla-one-font-family{font-family: var(--wp--preset--font-family--fjalla-one) !important;}.has-fraunces-font-family{font-family: var(--wp--preset--font-family--fraunces) !important;}.has-gabarito-font-family{font-family: var(--wp--preset--font-family--gabarito) !important;}.has-ibm-plex-mono-font-family{font-family: var(--wp--preset--font-family--ibm-plex-mono) !important;}.has-ibm-plex-sans-font-family{font-family: var(--wp--preset--font-family--ibm-plex-sans) !important;}.has-ibarra-real-nova-font-family{font-family: var(--wp--preset--font-family--ibarra-real-nova) !important;}.has-instrument-serif-font-family{font-family: var(--wp--preset--font-family--instrument-serif) !important;}.has-inter-font-family{font-family: var(--wp--preset--font-family--inter) !important;}.has-josefin-sans-font-family{font-family: var(--wp--preset--font-family--josefin-sans) !important;}.has-jost-font-family{font-family: var(--wp--preset--font-family--jost) !important;}.has-libre-baskerville-font-family{font-family: var(--wp--preset--font-family--libre-baskerville) !important;}.has-libre-franklin-font-family{font-family: var(--wp--preset--font-family--libre-franklin) !important;}.has-literata-font-family{font-family: var(--wp--preset--font-family--literata) !important;}.has-lora-font-family{font-family: var(--wp--preset--font-family--lora) !important;}.has-merriweather-font-family{font-family: var(--wp--preset--font-family--merriweather) !important;}.has-montserrat-font-family{font-family: var(--wp--preset--font-family--montserrat) !important;}.has-newsreader-font-family{font-family: var(--wp--preset--font-family--newsreader) !important;}.has-noto-sans-mono-font-family{font-family: var(--wp--preset--font-family--noto-sans-mono) !important;}.has-nunito-font-family{font-family: var(--wp--preset--font-family--nunito) !important;}.has-open-sans-font-family{font-family: var(--wp--preset--font-family--open-sans) !important;}.has-overpass-font-family{font-family: var(--wp--preset--font-family--overpass) !important;}.has-pt-serif-font-family{font-family: var(--wp--preset--font-family--pt-serif) !important;}.has-petrona-font-family{font-family: var(--wp--preset--font-family--petrona) !important;}.has-piazzolla-font-family{font-family: var(--wp--preset--font-family--piazzolla) !important;}.has-playfair-display-font-family{font-family: var(--wp--preset--font-family--playfair-display) !important;}.has-plus-jakarta-sans-font-family{font-family: var(--wp--preset--font-family--plus-jakarta-sans) !important;}.has-poppins-font-family{font-family: var(--wp--preset--font-family--poppins) !important;}.has-raleway-font-family{font-family: var(--wp--preset--font-family--raleway) !important;}.has-roboto-font-family{font-family: var(--wp--preset--font-family--roboto) !important;}.has-roboto-slab-font-family{font-family: var(--wp--preset--font-family--roboto-slab) !important;}.has-rubik-font-family{font-family: var(--wp--preset--font-family--rubik) !important;}.has-rufina-font-family{font-family: var(--wp--preset--font-family--rufina) !important;}.has-sora-font-family{font-family: var(--wp--preset--font-family--sora) !important;}.has-source-sans-3-font-family{font-family: var(--wp--preset--font-family--source-sans-3) !important;}.has-source-serif-4-font-family{font-family: var(--wp--preset--font-family--source-serif-4) !important;}.has-space-mono-font-family{font-family: var(--wp--preset--font-family--space-mono) !important;}.has-syne-font-family{font-family: var(--wp--preset--font-family--syne) !important;}.has-texturina-font-family{font-family: var(--wp--preset--font-family--texturina) !important;}.has-urbanist-font-family{font-family: var(--wp--preset--font-family--urbanist) !important;}.has-work-sans-font-family{font-family: var(--wp--preset--font-family--work-sans) !important;}.has-light-text-shadow{text-shadow: var(--wp--preset--text-shadow--light) !important;}.has-strong-text-shadow{text-shadow: var(--wp--preset--text-shadow--strong) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link crossorigin='anonymous' rel='stylesheet' id='all-css-14-1' href='/_static/??-eJyNjNEKgzAMRX9oNRZRn2TfIhJntqYtS6r49wsThvi0t+Tcew9s2U0pKkYFLi6H8qAoMCVmQy7QC+2TC6mM3IAgJiVby+84gpNTF2Qz5DcyFYaFVoRRBPWwzlZz44aSGP/aiu7h27zz4Lumbuve+/b5AYJhSds=&cssminify=yes' type='text/css' media='all' />
+<link rel='stylesheet' id='hive-fonts-css' href='https://fonts-api.wp.com/css?family=Droid+Serif%3A400%2C700%2C400italic%7CPlayfair+Display%3A400%2C700%2C900%2C400italic%2C700italic%2C900italic&#038;subset=latin%2Clatin-ext' media='all' />
+<link crossorigin='anonymous' rel='stylesheet' id='all-css-16-1' href='/_static/??-eJzTLy/QTc7PK0nNK9HPLdUtyClNz8wr1i9KTcrJTwcy0/WTi5G5ekCujj52Temp+bo5+cmJJZn5eSgc3bScxMwikFb7XFtDE1NLExMLc0OTLACohS2q&cssminify=yes' type='text/css' media='all' />
+<style id="jetpack-global-styles-frontend-style-inline-css">
+:root { --font-headings: unset; --font-base: unset; --font-headings-default: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif; --font-base-default: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;}
+/*# sourceURL=jetpack-global-styles-frontend-style-inline-css */
+</style>
+<link crossorigin='anonymous' rel='stylesheet' id='all-css-18-1' href='/_static/??-eJyNjcsKAjEMRX/ImhmUURfip0inLW3GNCmmQfx7H7gRN+7ugcs5cGsuCPfEHaq5RpaRFZbUmw+XD4MaQ5VolBS0+GuKPsb7eyLndVBdwd+iM3KA2ZAiqAT05Eiy6Bf8KHtJ9RkvW8gks6fX4VSP426/mQ7TMA7LA38FSqA=&cssminify=yes' type='text/css' media='all' />
+<script id="jetpack_related-posts-js-extra">
+var related_posts_js_options = {"post_heading":"h4"};
+//# sourceURL=jetpack_related-posts-js-extra
+</script>
+<script id="wpcom-actionbar-placeholder-js-extra">
+var actionbardata = {"siteID":"83108039","postID":"70447","siteURL":"https://eclecticlight.co","xhrURL":"https://eclecticlight.co/wp-admin/admin-ajax.php","nonce":"b3b9b78539","isLoggedIn":"","statusMessage":"","statusSubscribed":"","subsEmailDefault":"instantly","proxyScriptUrl":"https://s0.wp.com/wp-content/js/wpcom-proxy-request.js?m=1513050504i&amp;ver=20211021","shortlink":"https://wp.me/p5CIcf-ikf","i18n":{"followedText":"New posts from this site will now appear in your \u003Ca href=\"https://wordpress.com/reader\"\u003EReader\u003C/a\u003E","foldBar":"Collapse this bar","unfoldBar":"Expand this bar","shortLinkCopied":"Copied to clipboard."}};
+//# sourceURL=wpcom-actionbar-placeholder-js-extra
+</script>
+<script id="jetpack-mu-wpcom-settings-js-before">
+var JETPACK_MU_WPCOM_SETTINGS = {"assetsUrl":"https://s0.wp.com/wp-content/mu-plugins/jetpack-mu-wpcom-plugin/sun/jetpack_vendor/automattic/jetpack-mu-wpcom/src/build/"};
+//# sourceURL=jetpack-mu-wpcom-settings-js-before
+</script>
+<script crossorigin='anonymous' type='text/javascript'  src='/_static/??-eJx1jdsKwjAQRH/IdBEKTR/ET5GaLCUxN7O71P69ESLUB5+GYQ5nYCvK5MSYGKKoEmR1icAjl8U8egeSBDeXDNzFBQsVw8JoVcnE9NuG6NLg6QQHr29MYFVqfu3frcmCWKTP6J+Cde9xFPyFVHRrbacdvsbLedJ6msdZj/4NDIdOFg=='></script>
+<script id="rlt-proxy-js-after">
+	rltInitialize( {"token":null,"iframeOrigins":["https:\/\/widgets.wp.com"]} );
+//# sourceURL=rlt-proxy-js-after
+</script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://eclecticlightdotcom.wordpress.com/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress.com" />
+<link rel="canonical" href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/" />
+<link rel='shortlink' href='https://wp.me/p5CIcf-ikf' />
+<link rel="alternate" type="application/json+oembed" href="https://public-api.wordpress.com/oembed/?format=json&amp;url=https%3A%2F%2Feclecticlight.co%2F2023%2F02%2F20%2Fmacos-13-2-1-authenticated-restart-and-fdesetup%2F&amp;for=wpcom-auto-discovery" /><link rel="alternate" type="application/xml+oembed" href="https://public-api.wordpress.com/oembed/?format=xml&amp;url=https%3A%2F%2Feclecticlight.co%2F2023%2F02%2F20%2Fmacos-13-2-1-authenticated-restart-and-fdesetup%2F&amp;for=wpcom-auto-discovery" />
+<!-- Jetpack Open Graph Tags -->
+<meta property="og:type" content="article" />
+<meta property="og:title" content="macOS 13.2.1, authenticated restart and fdesetup" />
+<meta property="og:url" content="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/" />
+<meta property="og:description" content="Did your Mac take a brief trip into Recovery after the 13.2.1 update? What is authenticated restart, and how could you use it? What does fdesetup do?" />
+<meta property="article:published_time" content="2023-02-20T07:30:00+00:00" />
+<meta property="article:modified_time" content="2023-02-19T20:03:05+00:00" />
+<meta property="og:site_name" content="The Eclectic Light Company" />
+<meta property="og:image" content="https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=200" />
+<meta property="og:image:width" content="200" />
+<meta property="og:image:height" content="200" />
+<meta property="og:image:alt" content="" />
+<meta property="og:locale" content="en_US" />
+<meta property="article:publisher" content="https://www.facebook.com/WordPresscom" />
+<meta name="twitter:creator" content="@howardnoakley" />
+<meta name="twitter:site" content="@howardnoakley" />
+<meta name="twitter:text:title" content="macOS 13.2.1, authenticated restart and&nbsp;fdesetup" />
+<meta name="twitter:image" content="https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=240" />
+<meta name="twitter:card" content="summary" />
+
+<!-- End Jetpack Open Graph Tags -->
+<link rel='openid.server' href='https://eclecticlight.co/?openidserver=1' />
+<link rel='openid.delegate' href='https://eclecticlight.co/' />
+<link rel="search" type="application/opensearchdescription+xml" href="https://eclecticlight.co/osd.xml" title="The Eclectic Light Company" />
+<link rel="search" type="application/opensearchdescription+xml" href="https://s1.wp.com/opensearch.xml" title="WordPress.com" />
+		<style type="text/css">
+			.recentcomments a {
+				display: inline !important;
+				padding: 0 !important;
+				margin: 0 !important;
+			}
+
+			table.recentcommentsavatartop img.avatar, table.recentcommentsavatarend img.avatar {
+				border: 0px;
+				margin: 0;
+			}
+
+			table.recentcommentsavatartop a, table.recentcommentsavatarend a {
+				border: 0px !important;
+				background-color: transparent !important;
+			}
+
+			td.recentcommentsavatarend, td.recentcommentsavatartop {
+				padding: 0px 0px 1px 0px;
+				margin: 0px;
+			}
+
+			td.recentcommentstextend {
+				border: none !important;
+				padding: 0px 0px 2px 10px;
+			}
+
+			.rtl td.recentcommentstextend {
+				padding: 0px 10px 2px 0px;
+			}
+
+			td.recentcommentstexttop {
+				border: none;
+				padding: 0px 0px 0px 10px;
+			}
+
+			.rtl td.recentcommentstexttop {
+				padding: 0px 10px 0px 0px;
+			}
+		</style>
+		<meta name="description" content="Did your Mac take a brief trip into Recovery after the 13.2.1 update? What is authenticated restart, and how could you use it? What does fdesetup do?" />
+<style type="text/css" id="custom-colors-css">	.content-quote blockquote:after {
+		-webkit-border-image: none;
+		-webkit-border-image: none;
+				border-image: none;
+				border-image: none;
+	}
+.sticky:not(.format-quote) { color: #020202;}
+.sticky:not(.format-quote) a { color: #020202;}
+.widget_blog_subscription input[type="submit"] { color: #020202;}
+.sticky:not(.format-quote) h1, .sticky:not(.format-quote) h2, .sticky:not(.format-quote) h3, .sticky:not(.format-quote) blockquote, .sticky:not(.format-quote) .dropcap { color: #020202;}
+a, .comment-reply-link { color: #D42A0C;}
+.sticky a { color: #0A0000;}
+.highlight:before, .archive__grid .accent-box, .sticky:not(.format-quote):after, .widget_blog_subscription input[type="submit"] { background-color: #ED303C;}
+.widget_blog_subscription input[type="submit"] { border-color: #ED303C;}
+.content-quote blockquote:before, .content-quote blockquote:before, .widget a:hover, .content-quote blockquote:after { color: #DC1320;}
+</style>
+<link rel="icon" href="https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=32" sizes="32x32" />
+<link rel="icon" href="https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=192" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=180" />
+<meta name="msapplication-TileImage" content="https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=270" />
+			<link rel="stylesheet" id="custom-css-css" type="text/css" href="https://s0.wp.com/?custom-css=1&#038;csblog=5CIcf&#038;cscache=6&#038;csrev=8" />
+			
+	<!--[if !IE]><!-->
+	<script>
+		if (/*@cc_on!@*/false) {
+			document.documentElement.className += ' ie10';
+		}
+	</script>
+	<!--<![endif]-->
+</head>
+
+<body class="wp-singular post-template-default single single-post postid-70447 single-format-standard wp-custom-logo wp-embed-responsive wp-theme-premiumhive customizer-styles-applied has_sidebar jetpack-reblog-enabled has-site-logo custom-colors">
+
+
+<div id="page" class="hfeed site">
+
+	<a class="skip-link screen-reader-text" href="#content">Skip to content</a>
+
+	<header id="masthead" class="site-header" role="banner">
+
+		<div class="container">
+			<div class="site-branding">
+				<a href="https://eclecticlight.co/" class="site-logo-link" rel="home" itemprop="url"><img width="103" height="93" src="https://eclecticlight.co/wp-content/uploads/2015/01/eclecticlightlogo-e1421784280911.png?w=103" class="site-logo attachment-hive-site-logo" alt="" data-size="hive-site-logo" itemprop="logo" decoding="async" data-attachment-id="79" data-permalink="https://eclecticlight.co/eclecticlightlogo/" data-orig-file="https://eclecticlight.co/wp-content/uploads/2015/01/eclecticlightlogo-e1421784280911.png" data-orig-size="103,93" data-comments-opened="1" data-image-title="EclecticLightLogo" data-image-description="" data-image-caption="" data-large-file="https://eclecticlight.co/wp-content/uploads/2015/01/eclecticlightlogo-e1421784280911.png?w=103" /></a>
+				<h1 class="site-title site-title--small">
+					<a href="https://eclecticlight.co/" rel="home">
+						The Eclectic Light Company					</a>
+				</h1>
+
+				<div class="site-description">
+					<span class="site-description-text">Macs &amp; painting – 🦉 No AI content</span>
+				</div>
+			</div>
+
+			<nav id="site-navigation" class="main-navigation" role="navigation">
+				<h5 class="screen-reader-text">Main navigation</h5>
+									<button class="navigation__trigger">
+						<i class="fa fa-bars"></i><span class="screen-reader-text">Menu</span>
+					</button>
+				<ul id="menu-short" class="nav  nav--main"><li id="menu-item-26484" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-26484"><a href="https://eclecticlight.co/downloads/">Downloads</a></li>
+<li id="menu-item-77749" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-77749"><a href="https://eclecticlight.co/free-software-menu/">Freeware</a></li>
+<li id="menu-item-91184" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-91184"><a href="https://eclecticlight.co/mac-problem-solving-2-2/">All Macs</a></li>
+<li id="menu-item-91183" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-91183"><a href="https://eclecticlight.co/m1-macs-2/">M1-M5 Macs</a></li>
+<li id="menu-item-56590" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-56590"><a href="https://eclecticlight.co/mac-troubleshooting-summary/">Troubleshooting</a></li>
+<li id="menu-item-91185" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-91185"><a href="https://eclecticlight.co/painting-topics-2-2/">Painting</a></li>
+<li id="menu-item-91198" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-91198"><a href="https://eclecticlight.co/category/macs/">Mac Front Page</a></li>
+</ul>			</nav><!-- #site-navigation -->
+		</div>
+
+	</header><!-- #masthead -->
+
+	<div id="content" class="site-content">
+
+		<div class="container">
+
+	<div id="primary" class="content-area">
+		<main id="main" class="site-main" role="main">
+
+			
+<article id="post-70447" class="post-70447 post type-post status-publish format-standard hentry category-macs category-technology tag-apple tag-fdesetup tag-macos-13 tag-recovery tag-restart tag-update tag-ventura ">
+	
+	<header class="entry-header">
+
+		<div class="entry-meta">
+			<span class="posted-by"> <span class="author vcard">
+					<a class="url fn n" href="https://eclecticlight.co/author/hoakley/">hoakley
+					</a>
+				</span></span>
+<span class="posted-on"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/" rel="bookmark"><time class="entry-date published" datetime="2023-02-20T07:30:00+00:00">February 20, 2023</time></a></span>				<span class="cat-links">
+					<a href="https://eclecticlight.co/category/macs/" rel="category tag">Macs</a>, <a href="https://eclecticlight.co/category/technology/" rel="category tag">Technology</a>				</span>
+					</div>
+		<h1 class="entry-title">macOS 13.2.1, authenticated restart and&nbsp;fdesetup
+</h1>
+	</header><!-- .entry-header -->
+
+	
+		<div class="entry-content" data-first_letter="A">
+		<p>A small minority of users experienced something strange when they updated to macOS 13.2.1, or even 13.2. Instead of the updated macOS automatically returning them to the Finder and Desktop once the update was complete, it bounced the Mac into Recovery (or similar, if your Mac is managed) and asked for the password. This article explains what happened, and other accidents that can happen when updates don&#8217;t work right.</p>
+<p>Like so much else, macOS updates aren&#8217;t what they used to be. There was a time when I used to count the number of startup chimes sounded during each update. Now everything is orderly, quiet, and on Apple silicon Macs in particular very quick. This relies partly on what&#8217;s known as an <em>authenticated restart,</em> sparing you from having to enter your password to unlock FileVault.</p>
+<h4>macOS 13.2.1 update</h4>
+<p>As <a href="https://hammen.medium.com/macos-13-2-and-recovery-a-sad-tale-ed9178fdf976" target="_blank">Robert Hammen has proposed</a>, what most probably happened at the end of the 13.2.1 (or 13.2 for some) update was that authenticated restart didn&#8217;t work properly. Instead of the updated macOS booting silently straight into the Finder, the Mac ended up in Recovery where the user had to authenticate to unlock FileVault. Once they had done that, the restart should have completed correctly, and that Mac resumed working normally.</p>
+<p>Robert advises restarting that Mac, and if necessary installing the update again, within 30 minutes, if that&#8217;s offered. In most cases, though, the update should have succeeded and no further update will be available.</p>
+<h4>Failed macOS updates</h4>
+<p>This is different from what should happen when an update fails to install correctly. If the SSV can&#8217;t be built, mounted and booted successfully, that Mac should be returned to Recovery mode for a full reinstall of macOS. In the worst case, with a failed firmware update, Apple silicon Macs could be put into DFU mode awaiting connection from another Mac and emergency surgery using Apple Configurator 2 to refresh the firmware or perform a full restore.</p>
+<p>The other serious consequence is that an Intel or Apple silicon Mac could get trapped in a boot loop, in which it suffers a panic whenever it tries to boot, and that results in a series of reboot-panic cycles. While that may appear alarming at the time, as it did to me the first time it happened here, the solution of choice is to press and hold the Power button to force the Mac to shut down. Wait at least 20 seconds, then try starting it up straight into Recovery.</p>
+<p>These should all be very rare events, though. It remains to be seen whether the new update system is prone to failure of authenticated restart, or whether this proves to be a one-off glitch.</p>
+<p>Apple uses authenticated restarts because they make updates more seamless. Now that an Apple silicon Mac can install a macOS update in just a few minutes, this final touch minimises their downtime and user interaction. They&#8217;re also highly secure: on Apple silicon and T2 Intel Macs, they&#8217;re handled by the Secure Enclave. The only significant difference there is that the token used to authorise them on Apple silicon models can only be used once.</p>
+<h4><code>fdesetup</code></h4>
+<p>Authenticated restarts are also available to the user, through the <code>fdesetup</code> command tool (the <code>fde</code> in its name referring to Full Disk Encryption). That tool is the utility provided for working with FileVault, and has many important and potentially dangerous verbs. Provided that FileVault is enabled on the current boot volume group, the command<br />
+<code>sudo fdesetup authrestart -delayminutes 0</code><br />
+restarts the system immediately, bypassing the normal initial unlock. Before the restart can occur, you also have to provide the short username and password for a user entitled to unlock FileVault.</p>
+<p>You can also use the tool to list users able to unlock FileVault:<br />
+<code>sudo fdesetup list</code><br />
+or for more detail, including any iCloud Recovery Record:<br />
+<code>sudo fdesetup list -extended</code></p>
+<h4>Two more things</h4>
+<p>Of course, macOS updates don&#8217;t just use an authenticated restart to appear so seamless. They also log the current user back in automatically, and temporarily mute the startup chime. As far as I&#8217;m aware, unlike authenticated restarts, those tricks aren&#8217;t made available to mere users.</p>
+<p>Hopefully, when we update to macOS 13.3 there&#8217;ll be none of these shenanigans.</p>
+<div id="jp-post-flair" class="sharedaddy sd-like-enabled sd-sharing-enabled"><div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon-text sd-sharing"><h3 class="sd-title">Share this:</h3><div class="sd-content"><ul><li class="share-twitter"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-twitter-70447"
+				class="share-twitter sd-button share-icon"
+				href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?share=twitter"
+				target="_blank"
+				aria-labelledby="sharing-twitter-70447"
+				>
+				<span id="sharing-twitter-70447" hidden>Share on X (Opens in new window)</span>
+				<span>X</span>
+			</a></li><li class="share-facebook"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-facebook-70447"
+				class="share-facebook sd-button share-icon"
+				href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?share=facebook"
+				target="_blank"
+				aria-labelledby="sharing-facebook-70447"
+				>
+				<span id="sharing-facebook-70447" hidden>Share on Facebook (Opens in new window)</span>
+				<span>Facebook</span>
+			</a></li><li class="share-reddit"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-reddit-70447"
+				class="share-reddit sd-button share-icon"
+				href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?share=reddit"
+				target="_blank"
+				aria-labelledby="sharing-reddit-70447"
+				>
+				<span id="sharing-reddit-70447" hidden>Share on Reddit (Opens in new window)</span>
+				<span>Reddit</span>
+			</a></li><li class="share-pinterest"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-pinterest-70447"
+				class="share-pinterest sd-button share-icon"
+				href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?share=pinterest"
+				target="_blank"
+				aria-labelledby="sharing-pinterest-70447"
+				>
+				<span id="sharing-pinterest-70447" hidden>Share on Pinterest (Opens in new window)</span>
+				<span>Pinterest</span>
+			</a></li><li class="share-threads"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-threads-70447"
+				class="share-threads sd-button share-icon"
+				href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?share=threads"
+				target="_blank"
+				aria-labelledby="sharing-threads-70447"
+				>
+				<span id="sharing-threads-70447" hidden>Share on Threads (Opens in new window)</span>
+				<span>Threads</span>
+			</a></li><li class="share-mastodon"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-mastodon-70447"
+				class="share-mastodon sd-button share-icon"
+				href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?share=mastodon"
+				target="_blank"
+				aria-labelledby="sharing-mastodon-70447"
+				>
+				<span id="sharing-mastodon-70447" hidden>Share on Mastodon (Opens in new window)</span>
+				<span>Mastodon</span>
+			</a></li><li class="share-bluesky"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-bluesky-70447"
+				class="share-bluesky sd-button share-icon"
+				href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?share=bluesky"
+				target="_blank"
+				aria-labelledby="sharing-bluesky-70447"
+				>
+				<span id="sharing-bluesky-70447" hidden>Share on Bluesky (Opens in new window)</span>
+				<span>Bluesky</span>
+			</a></li><li class="share-email"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-email-70447"
+				class="share-email sd-button share-icon"
+				href="mailto:?subject=%5BShared%20Post%5D%20macOS%2013.2.1%2C%20authenticated%20restart%20and%20fdesetup&#038;body=https%3A%2F%2Feclecticlight.co%2F2023%2F02%2F20%2Fmacos-13-2-1-authenticated-restart-and-fdesetup%2F&#038;share=email"
+				target="_blank"
+				aria-labelledby="sharing-email-70447"
+				data-email-share-error-title="Do you have email set up?" data-email-share-error-text="If you&#039;re having problems sharing via email, you might not have email set up for your browser. You may need to create a new email yourself." data-email-share-nonce="7db273fb66" data-email-share-track-url="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?share=email">
+				<span id="sharing-email-70447" hidden>Email a link to a friend (Opens in new window)</span>
+				<span>Email</span>
+			</a></li><li class="share-print"><a rel="nofollow noopener noreferrer"
+				data-shared="sharing-print-70447"
+				class="share-print sd-button share-icon"
+				href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#print?share=print"
+				target="_blank"
+				aria-labelledby="sharing-print-70447"
+				>
+				<span id="sharing-print-70447" hidden>Print (Opens in new window)</span>
+				<span>Print</span>
+			</a></li><li class="share-end"></li></ul></div></div></div><div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='like-post-wrapper-83108039-70447-6af3fb2931b41' data-src='//widgets.wp.com/likes/index.html?ver=20261111#blog_id=83108039&amp;post_id=70447&amp;origin=eclecticlightdotcom.wordpress.com&amp;obj_id=83108039-70447-6af3fb2931b41&amp;domain=eclecticlight.co' data-name='like-post-frame-83108039-70447-6af3fb2931b41' data-title='Like or Reblog'><div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>Like</span></span> <span class='loading'>Loading...</span></div><span class='sd-text-color'></span><a class='sd-link-color'></a></div>
+<div id='jp-relatedposts' class='jp-relatedposts' >
+	<h3 class="jp-relatedposts-headline"><em>Related</em></h3>
+</div></div>	</div><!-- .entry-content -->
+
+	
+	<footer class="entry-footer">
+		Posted in <a href="https://eclecticlight.co/category/macs/" rel="category tag">Macs</a>, <a href="https://eclecticlight.co/category/technology/" rel="category tag">Technology</a> and tagged <a href="https://eclecticlight.co/tag/apple/" rel="tag">Apple</a>, <a href="https://eclecticlight.co/tag/fdesetup/" rel="tag">fdesetup</a>, <a href="https://eclecticlight.co/tag/macos-13/" rel="tag">macOS 13</a>, <a href="https://eclecticlight.co/tag/recovery/" rel="tag">recovery</a>, <a href="https://eclecticlight.co/tag/restart/" rel="tag">restart</a>, <a href="https://eclecticlight.co/tag/update/" rel="tag">update</a>, <a href="https://eclecticlight.co/tag/ventura/" rel="tag">Ventura</a>. Bookmark the <a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/" rel="bookmark">permalink</a>.	</footer><!-- .entry-footer -->
+
+</article><!-- #post-## --><aside>
+	<div id="comments" class="comments-area  ">
+		<div class="comments-area-title">
+			<h2 class="comments-title"><span class="comment-number  comment-number--dark  total">20</span>Comments</h2>
+			<a class="comments_add-comment" href="#reply-title">Add yours</a>		</div>
+		
+			<ol class="commentlist">
+				<li class="comment even thread-even depth-1">
+	<article id="comment-83510" class="comment-article  media">
+		<span class="comment-number">1</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='James&#039;s avatar' src='https://2.gravatar.com/avatar/50ac4c227a876dfc0d9dce2014c784809f69c2409ca3432330f7449246b43043?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/50ac4c227a876dfc0d9dce2014c784809f69c2409ca3432330f7449246b43043?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/50ac4c227a876dfc0d9dce2014c784809f69c2409ca3432330f7449246b43043?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/50ac4c227a876dfc0d9dce2014c784809f69c2409ca3432330f7449246b43043?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/50ac4c227a876dfc0d9dce2014c784809f69c2409ca3432330f7449246b43043?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/50ac4c227a876dfc0d9dce2014c784809f69c2409ca3432330f7449246b43043?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">James</span>				<time class="comment__time" datetime="2023-02-20T10:46:58+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83510" class="comment__timestamp">on February 20, 2023 at 10:46 am </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>“Apple silicon Macs could be put into DFU mode awaiting connection from another Mac and emergency surgery using Apple Configurator 2 to refresh the firmware or perform a full restore.”</p>
+<p>I still find the need for another Mac an irritating requirement. I don’t travel with two Macs and in some cases even finding another Mac to use could be difficult. They should also enable the ability to do this from a iPhone and iPad.</p>
+<p id="comment-like-83510" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83510&#038;_wpnonce=dcaa296ecb" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83510" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="2">2 people</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment byuser comment-author-hoakley bypostauthor odd alt depth-2">
+	<article id="comment-83518" class="comment-article  media">
+		<span class="comment-number">2</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='hoakley&#039;s avatar' src='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name"><a href="https://eclecticlightdotcom.wordpress.com" class="url" rel="ugc external nofollow">hoakley</a></span>				<time class="comment__time" datetime="2023-02-20T16:40:17+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83518" class="comment__timestamp">on February 20, 2023 at 4:40 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Well, it&#8217;s a world better than Intel Macs. If they get screwed up badly, the only place that can sort them out is an Apple store or authorised provider. What DFU mode brings is more, not less. It&#8217;s a bonus, not a penalty.<br />
+Howard.</p>
+<p id="comment-like-83518" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83518&#038;_wpnonce=818a4835a2" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83518" class="comment-like-feedback">Like</span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment even depth-3">
+	<article id="comment-83541" class="comment-article  media">
+		<span class="comment-number">3</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='Sebby&#039;s avatar' src='https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=96&#038;d=identicon&#038;r=G' srcset='https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=96&#038;d=identicon&#038;r=G 1x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=144&#038;d=identicon&#038;r=G 1.5x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=192&#038;d=identicon&#038;r=G 2x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=288&#038;d=identicon&#038;r=G 3x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">Sebby</span>				<time class="comment__time" datetime="2023-02-21T05:58:05+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83541" class="comment__timestamp">on February 21, 2023 at 5:58 am </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>I dunno. It&#8217;s great to have the option, sure, and it makes them practically unbrickable, which is terrific. But on the other hand, it&#8217;s still quite easy to mess up the internal SSD and 1TR with not too much effort, and Intel Macs could get you out of that, with Internet Recovery from firmware, when it actually works (which increasingly it doesn&#8217;t). Even then, often the problem turns out to be over-restrictive boot policy after a failed erase that would stop you external-booting by default to fix it, and putting it into Target Disk Mode would let you squirt a fresh and Apple-signed image onto it from any other Mac with asr to work around that. So, I think, six of one, half a dozen of the other.</p>
+<p id="comment-like-83541" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83541&#038;_wpnonce=01b4c165c1" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83541" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="1">1 person</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment byuser comment-author-hoakley bypostauthor odd alt depth-4">
+	<article id="comment-83547" class="comment-article  media">
+		<span class="comment-number">4</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='hoakley&#039;s avatar' src='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name"><a href="https://eclecticlightdotcom.wordpress.com" class="url" rel="ugc external nofollow">hoakley</a></span>				<time class="comment__time" datetime="2023-02-21T11:13:21+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83547" class="comment__timestamp">on February 21, 2023 at 11:13 am </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Thank you. I&#8217;ll be writing more about this shortly.<br />
+Howard.</p>
+<p id="comment-like-83547" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83547&#038;_wpnonce=e43dacdf7d" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83547" class="comment-like-feedback">Like</span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+<li class="comment even thread-odd thread-alt depth-1">
+	<article id="comment-83513" class="comment-article  media">
+		<span class="comment-number">5</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='Simon&#039;s avatar' src='https://2.gravatar.com/avatar/2c27638b7fbb4daa8b3dc28d9641afc02397fbb5f6b28822de07a513a9191a0b?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/2c27638b7fbb4daa8b3dc28d9641afc02397fbb5f6b28822de07a513a9191a0b?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/2c27638b7fbb4daa8b3dc28d9641afc02397fbb5f6b28822de07a513a9191a0b?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/2c27638b7fbb4daa8b3dc28d9641afc02397fbb5f6b28822de07a513a9191a0b?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/2c27638b7fbb4daa8b3dc28d9641afc02397fbb5f6b28822de07a513a9191a0b?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/2c27638b7fbb4daa8b3dc28d9641afc02397fbb5f6b28822de07a513a9191a0b?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">Simon</span>				<time class="comment__time" datetime="2023-02-20T16:06:21+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83513" class="comment__timestamp">on February 20, 2023 at 4:06 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>&gt; Now everything is orderly, quiet, and on Apple silicon Macs in particular very quick.</p>
+<p>I cannot confirm that. This last little dot update took ~20 min to return my M1 Pro MBP to working order, despite 32 GB RAM. And that was *without* any of the above mentioned shenanigans. The update worked flawlessly, it just takes forever. It&#8217;s surprising to me how long updates take on iOS and now AS Macs. We have so much CPU power these days and the MBP&#8217;s flash easily pushes 6GB/s. IMHO these updates should take under a minute, not prompt us to go eat lunch.</p>
+<p id="comment-like-83513" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83513&#038;_wpnonce=8607bfab2f" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83513" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="1">1 person</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment byuser comment-author-hoakley bypostauthor odd alt depth-2">
+	<article id="comment-83521" class="comment-article  media">
+		<span class="comment-number">6</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='hoakley&#039;s avatar' src='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name"><a href="https://eclecticlightdotcom.wordpress.com" class="url" rel="ugc external nofollow">hoakley</a></span>				<time class="comment__time" datetime="2023-02-20T16:46:39+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83521" class="comment__timestamp">on February 20, 2023 at 4:46 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Are you including preparation time, during which you can work perfectly normally?<br />
+If not, and your Apple silicon Mac really did take that long to install the update, something clearly went wrong.<br />
+I&#8217;d be interested to know how the installer can install what it needs, create the snapshot for the SSV, and compute and save its entire hash tree in less than a minute.<br />
+You should find RSRs a lot quicker, though &#8211; and without any restart. It&#8217;s just that you can&#8217;t replace the kernel etc. with an RSR.<br />
+Howard.</p>
+<p id="comment-like-83521" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83521&#038;_wpnonce=2d18ef0ed8" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83521" class="comment-like-feedback">Like</span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+<li class="comment byuser comment-author-alricbark even thread-even depth-1">
+	<article id="comment-83514" class="comment-article  media">
+		<span class="comment-number">7</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='alricbark&#039;s avatar' src='https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">Alan B</span>				<time class="comment__time" datetime="2023-02-20T16:11:59+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83514" class="comment__timestamp">on February 20, 2023 at 4:11 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Is it not possible to initialise the internal drive and install macOS on a ‘Silicon’ Mac via a bootable macOS installer on a  USB drive?</p>
+<p id="comment-like-83514" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83514&#038;_wpnonce=fdee31b838" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83514" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="1">1 person</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment byuser comment-author-hoakley bypostauthor odd alt depth-2">
+	<article id="comment-83522" class="comment-article  media">
+		<span class="comment-number">8</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='hoakley&#039;s avatar' src='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name"><a href="https://eclecticlightdotcom.wordpress.com" class="url" rel="ugc external nofollow">hoakley</a></span>				<time class="comment__time" datetime="2023-02-20T16:48:28+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83522" class="comment__timestamp">on February 20, 2023 at 4:48 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Although it depends on what you mean by &#8220;initialise the internal drive&#8221;, essentially the answer is no. Apple silicon Macs don&#8217;t and can&#8217;t actually boot from a &#8216;bootable installer&#8217;. They always boot first from their internal SSD &#8211; that&#8217;s how they have Secure Boot.<br />
+Howard.</p>
+<p id="comment-like-83522" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83522&#038;_wpnonce=faf259d0ef" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83522" class="comment-like-feedback">Like</span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment byuser comment-author-alricbark even depth-3">
+	<article id="comment-83526" class="comment-article  media">
+		<span class="comment-number">9</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='alricbark&#039;s avatar' src='https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/e45ead6b84e9d178664a93fb76b121d5789844e3ea0e9134a468fa0d3b006b23?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">Alan B</span>				<time class="comment__time" datetime="2023-02-20T16:56:04+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83526" class="comment__timestamp">on February 20, 2023 at 4:56 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>As I suspected. Incidentally out of habit I do keep a bootable installer on a USB stick as I did when I only had Intel Macs.</p>
+<p id="comment-like-83526" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83526&#038;_wpnonce=991f92dd00" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83526" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="1">1 person</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+<li class="comment odd alt thread-odd thread-alt depth-1">
+	<article id="comment-83536" class="comment-article  media">
+		<span class="comment-number">10</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='Simon Simpson&#039;s avatar' src='https://0.gravatar.com/avatar/33893fe6b5adbeaf251bbe868f0e4168c8261e1b3e26ca6bafbf6bb03dff921c?s=96&#038;d=identicon&#038;r=G' srcset='https://0.gravatar.com/avatar/33893fe6b5adbeaf251bbe868f0e4168c8261e1b3e26ca6bafbf6bb03dff921c?s=96&#038;d=identicon&#038;r=G 1x, https://0.gravatar.com/avatar/33893fe6b5adbeaf251bbe868f0e4168c8261e1b3e26ca6bafbf6bb03dff921c?s=144&#038;d=identicon&#038;r=G 1.5x, https://0.gravatar.com/avatar/33893fe6b5adbeaf251bbe868f0e4168c8261e1b3e26ca6bafbf6bb03dff921c?s=192&#038;d=identicon&#038;r=G 2x, https://0.gravatar.com/avatar/33893fe6b5adbeaf251bbe868f0e4168c8261e1b3e26ca6bafbf6bb03dff921c?s=288&#038;d=identicon&#038;r=G 3x, https://0.gravatar.com/avatar/33893fe6b5adbeaf251bbe868f0e4168c8261e1b3e26ca6bafbf6bb03dff921c?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">Simon Simpson</span>				<time class="comment__time" datetime="2023-02-20T21:24:42+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83536" class="comment__timestamp">on February 20, 2023 at 9:24 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>I enjoyed this &#8216;little&#8217; diversion when updating my iMac to Monterey 12.6, allegedly just a security update, but I found myself having to re-authenticate my password which raised my anxiety level (and blood pressure) somewhat.  Hoping it won&#8217;t happen again…(?)</p>
+<p id="comment-like-83536" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83536&#038;_wpnonce=588b96c6ba" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83536" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="1">1 person</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+</li><!-- #comment-## -->
+<li class="comment even thread-even depth-1">
+	<article id="comment-83542" class="comment-article  media">
+		<span class="comment-number">11</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='Sebby&#039;s avatar' src='https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=96&#038;d=identicon&#038;r=G' srcset='https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=96&#038;d=identicon&#038;r=G 1x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=144&#038;d=identicon&#038;r=G 1.5x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=192&#038;d=identicon&#038;r=G 2x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=288&#038;d=identicon&#038;r=G 3x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">Sebby</span>				<time class="comment__time" datetime="2023-02-21T06:12:03+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83542" class="comment__timestamp">on February 21, 2023 at 6:12 am </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Sorry, forgot to say what I actually came here to say! Concerning the meat of the article, and in particular Two More Things. Yes, we really need fdesetup to log us back in after restart in the fashion of updates. That&#8217;s the main reason running an encrypted server isn&#8217;t possible—sooner or later you&#8217;ll want to run some app that can only plausibly work in a logged-in session, and/or has no means of non-agent operation using proper system-wide launchd daemons. This would be an &#8220;easy win&#8221; if implemented, and would give Macs a clear head-and-shoulders advantage over most SFF server hardware. Encrypt your internal disk, encrypt your external SSDs for storage and backup—you could have an encrypted NAS. Put your email, calendars, contacts, etc in a VM running on top, and &#8220;the fuzz&#8221; can&#8217;t take it without a fight. Just imagine the possibilities &#8230;</p>
+<p id="comment-like-83542" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83542&#038;_wpnonce=f4133870f2" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83542" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="1">1 person</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment byuser comment-author-hoakley bypostauthor odd alt depth-2">
+	<article id="comment-83548" class="comment-article  media">
+		<span class="comment-number">12</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='hoakley&#039;s avatar' src='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name"><a href="https://eclecticlightdotcom.wordpress.com" class="url" rel="ugc external nofollow">hoakley</a></span>				<time class="comment__time" datetime="2023-02-21T11:14:13+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83548" class="comment__timestamp">on February 21, 2023 at 11:14 am </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Thank you.<br />
+A dedicated NAS is much cheaper and simpler, surely?<br />
+Howard.</p>
+<p id="comment-like-83548" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83548&#038;_wpnonce=a853a8650c" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83548" class="comment-like-feedback">Like</span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment even depth-3">
+	<article id="comment-83550" class="comment-article  media">
+		<span class="comment-number">13</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='Sebby&#039;s avatar' src='https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=96&#038;d=identicon&#038;r=G' srcset='https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=96&#038;d=identicon&#038;r=G 1x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=144&#038;d=identicon&#038;r=G 1.5x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=192&#038;d=identicon&#038;r=G 2x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=288&#038;d=identicon&#038;r=G 3x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">Sebby</span>				<time class="comment__time" datetime="2023-02-21T11:34:00+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83550" class="comment__timestamp">on February 21, 2023 at 11:34 am </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Depends on what you want to do. For just a NAS, sure, many boxes out there (but, really, Synology, because reasons). If you wanted more powerful hardware for transcoding, more RAM for VMs, or what have you, a Mac does fill a need and it&#8217;s how I&#8217;m doing it myself, albeit, if I had a need for a great deal more storage than could fit into a dual-NVME enclosure, probably I would go the NAS route as well. I do wish that there were more hardware out there that would allow you to run your own OS on it, though. Mac comes close to that for many use cases, but something Linux-powered would be terrific. I just got myself a Linkstar H68K for use as a router, but there&#8217;s also MikroTik RouterOS-powered devices which are so close as to (almost) make no difference in flexibility. The chief obstacle to using macOS is that you need to run VMs to do things many NAS boxes can do natively, but on the other hand the chief advantage to running Macs is massive power efficiency for such small, low-profile machines, as long as you are happy with external storage and the benefits (really, conveniences) and limitations of the host OS. It&#8217;s an interesting dynamic.</p>
+<p id="comment-like-83550" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83550&#038;_wpnonce=c10e62daa0" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83550" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="1">1 person</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment byuser comment-author-hoakley bypostauthor odd alt depth-4">
+	<article id="comment-83557" class="comment-article  media">
+		<span class="comment-number">14</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='hoakley&#039;s avatar' src='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name"><a href="https://eclecticlightdotcom.wordpress.com" class="url" rel="ugc external nofollow">hoakley</a></span>				<time class="comment__time" datetime="2023-02-21T15:25:06+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83557" class="comment__timestamp">on February 21, 2023 at 3:25 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>I&#8217;m interested that you didn&#8217;t mention Asustor, who are now rivalling Synology.<br />
+Howard.</p>
+<p id="comment-like-83557" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83557&#038;_wpnonce=1ac4692870" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83557" class="comment-like-feedback">Like</span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+</li><!-- #comment-## -->
+<li class="comment even depth-4">
+	<article id="comment-83563" class="comment-article  media">
+		<span class="comment-number">15</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='Sebby&#039;s avatar' src='https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=96&#038;d=identicon&#038;r=G' srcset='https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=96&#038;d=identicon&#038;r=G 1x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=144&#038;d=identicon&#038;r=G 1.5x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=192&#038;d=identicon&#038;r=G 2x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=288&#038;d=identicon&#038;r=G 3x, https://1.gravatar.com/avatar/76458b813df067235acce6c7eaf11cf655d69e6e5f85e752590f25d281b4e0ae?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">Sebby</span>				<time class="comment__time" datetime="2023-02-21T18:20:52+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83563" class="comment__timestamp">on February 21, 2023 at 6:20 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Interesting &#8230; that&#8217;s a rather sudden ascendance; I think I&#8217;d heard of Asustor but they didn&#8217;t appear all that different to others, except for their hardware designs. No, to be honest I have no idea about the standing of various NAS brands, it just seemed that Synology had taken the crown, at least on the software side of it. But, good to see it has some worthy competition now!</p>
+<p id="comment-like-83563" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83563&#038;_wpnonce=06f62dd787" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83563" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="1">1 person</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+</li><!-- #comment-## -->
+<li class="comment byuser comment-author-hoakley bypostauthor odd alt depth-4">
+	<article id="comment-83567" class="comment-article  media">
+		<span class="comment-number">16</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='hoakley&#039;s avatar' src='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name"><a href="https://eclecticlightdotcom.wordpress.com" class="url" rel="ugc external nofollow">hoakley</a></span>				<time class="comment__time" datetime="2023-02-21T20:19:59+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83567" class="comment__timestamp">on February 21, 2023 at 8:19 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Asustor was originally set up by Asus, and seems to have looked mainly to the PC market. More recently it has shown more interest in the Mac market. I have reviewed two of their 2-bay NAS over the last year or so, and they&#8217;re both excellent value for money and fine products. Synology remains excellent as ever, but it&#8217;s a shame about Qnap&#8217;s current problems.<br />
+Howard.</p>
+<p id="comment-like-83567" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83567&#038;_wpnonce=6484ac3ab4" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83567" class="comment-like-feedback">Like</span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+<li class="comment byuser comment-author-markbot2zero even thread-odd thread-alt depth-1">
+	<article id="comment-83605" class="comment-article  media">
+		<span class="comment-number">17</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='markbot2zero&#039;s avatar' src='https://1.gravatar.com/avatar/4603bf5d7e69a6780206360899ef6f92f3ed903574c2b8936fe83d6f614b009b?s=96&#038;d=identicon&#038;r=G' srcset='https://1.gravatar.com/avatar/4603bf5d7e69a6780206360899ef6f92f3ed903574c2b8936fe83d6f614b009b?s=96&#038;d=identicon&#038;r=G 1x, https://1.gravatar.com/avatar/4603bf5d7e69a6780206360899ef6f92f3ed903574c2b8936fe83d6f614b009b?s=144&#038;d=identicon&#038;r=G 1.5x, https://1.gravatar.com/avatar/4603bf5d7e69a6780206360899ef6f92f3ed903574c2b8936fe83d6f614b009b?s=192&#038;d=identicon&#038;r=G 2x, https://1.gravatar.com/avatar/4603bf5d7e69a6780206360899ef6f92f3ed903574c2b8936fe83d6f614b009b?s=288&#038;d=identicon&#038;r=G 3x, https://1.gravatar.com/avatar/4603bf5d7e69a6780206360899ef6f92f3ed903574c2b8936fe83d6f614b009b?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">markbot2zero</span>				<time class="comment__time" datetime="2023-02-23T00:21:05+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83605" class="comment__timestamp">on February 23, 2023 at 12:21 am </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Thank you, Howard.</p>
+<p>If you ever get a moment, I&#8217;m curious how:</p>
+<p>sudo fdesetup authrestart -delayminutes 0</p>
+<p>compares to</p>
+<p>sudo shutdown -r now</p>
+<p>and </p>
+<p>reboot</p>
+<p>You wrote a nifty comparison of shutdown and reboot in 2018:</p>
+<blockquote class="wp-embedded-content" data-secret="GHFHxoCk8O"><p><a href="https://eclecticlight.co/2018/05/14/should-you-use-shutdown-or-reboot-in-the-command-line/">Should you use shutdown or reboot in the command&nbsp;line?</a></p></blockquote>
+<p><iframe class="wp-embedded-content" sandbox="allow-scripts" security="restricted" style="position: absolute; visibility: hidden;" title="&#8220;Should you use shutdown or reboot in the command&nbsp;line?&#8221; &#8212; The Eclectic Light Company" src="https://eclecticlight.co/2018/05/14/should-you-use-shutdown-or-reboot-in-the-command-line/embed/#?secret=FNzXplmReQ#?secret=GHFHxoCk8O" data-secret="GHFHxoCk8O" width="600" height="338" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe></p>
+<p>(I can tell you one thing: fdesetup&#8217;s man page is about ten times longer than the other two combined. It&#8217;s the longest I&#8217;ve ever seen. It should have its own man page, or maybe a &#8220;Reader&#8217;s Digest&#8221; version.)</p>
+<p>I once read that when using the reboot command, one should do:</p>
+<p>sync; sync; sync; reboot</p>
+<p>But there is a discussion of that here:</p>
+<p><a href="https://unix.stackexchange.com/questions/5260/is-there-truth-to-the-philosophy-that-you-should-sync-sync-sync-sync" rel="nofollow ugc">https://unix.stackexchange.com/questions/5260/is-there-truth-to-the-philosophy-that-you-should-sync-sync-sync-sync</a></p>
+<p>Apparently it&#8217;s a vestige of the days of tape drives:</p>
+<p>&#8220;Old-timer here. Back in the glory days of TAPE, 3 rapid sync&#8217;s in a row was a way to tell the TAPE controllers to not just un-link/unspool the tape-stream, but to rewind it as well&#8230;&#8221;</p>
+<p>Reminds me of a story of a husband who wondered why his wife always cut the meat in half before roasting it. She explained that she learned to do so from her mother and simply followed suit. So he asked his mother-in-law, the next time the family had dinner together, why she always halved the meat before roasting. And she told him that&#8217;s what *her* mother did.</p>
+<p>Fortunately his wife&#8217;s grandmother was still alive and he was able, at the next holiday, to inquire of her why *she* always cut the roast in half. </p>
+<p>&#8220;Because back then it was too big to fit in the oven,&#8221; she answered.</p>
+<p>-Mark</p>
+<p id="comment-like-83605" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83605&#038;_wpnonce=c09ca057a9" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83605" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="1">1 person</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment byuser comment-author-hoakley bypostauthor odd alt depth-2">
+	<article id="comment-83622" class="comment-article  media">
+		<span class="comment-number">18</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='hoakley&#039;s avatar' src='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name"><a href="https://eclecticlightdotcom.wordpress.com" class="url" rel="ugc external nofollow">hoakley</a></span>				<time class="comment__time" datetime="2023-02-23T18:14:16+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-83622" class="comment__timestamp">on February 23, 2023 at 6:14 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Thank you.<br />
+In terms of the restart, the result with fdesetup is similar to shutdown or reboot, as far as I can see. However, you&#8217;d only want to use it if you need an authenticated restart to save unlocking the FileVault volume. Otherwise it&#8217;s a long-winded and clumsy alternative.<br />
+The extensive man page is because of all its FileVault features &#8211; it&#8217;s the master command tool for those.<br />
+Howard.</p>
+<p id="comment-like-83622" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=83622&#038;_wpnonce=112f9e4ec2" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-83622" class="comment-like-feedback">Like</span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+<li class="comment byuser comment-author-dieskim952be86eb6 even thread-even depth-1">
+	<article id="comment-87809" class="comment-article  media">
+		<span class="comment-number">19</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='David Van De Meer&#039;s avatar' src='https://2.gravatar.com/avatar/e22b2257c74fe3bf1a7b2bd3bd374ac51d3935667e4777ed53cd90fdab2eded5?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/e22b2257c74fe3bf1a7b2bd3bd374ac51d3935667e4777ed53cd90fdab2eded5?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/e22b2257c74fe3bf1a7b2bd3bd374ac51d3935667e4777ed53cd90fdab2eded5?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/e22b2257c74fe3bf1a7b2bd3bd374ac51d3935667e4777ed53cd90fdab2eded5?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/e22b2257c74fe3bf1a7b2bd3bd374ac51d3935667e4777ed53cd90fdab2eded5?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/e22b2257c74fe3bf1a7b2bd3bd374ac51d3935667e4777ed53cd90fdab2eded5?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name">David Van De Meer</span>				<time class="comment__time" datetime="2023-07-23T08:56:50+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-87809" class="comment__timestamp">on July 23, 2023 at 8:56 am </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Hi, I wanted a simple way to initial a Filevault Restart on Macs so I created FilevaultReboot &#8211; <a href="https://github.com/dieskim/FilevaultReboot" rel="nofollow ugc">https://github.com/dieskim/FilevaultReboot</a></p>
+<p id="comment-like-87809" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=87809&#038;_wpnonce=918f195938" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-87809" class="comment-like-feedback">Liked by <a href="#" class="view-likers" data-like-count="1">1 person</a></span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+<ul class="children">
+<li class="comment byuser comment-author-hoakley bypostauthor odd alt depth-2">
+	<article id="comment-87821" class="comment-article  media">
+		<span class="comment-number">20</span>
+		
+		<aside class="comment__avatar  media__img"><img referrerpolicy="no-referrer" alt='hoakley&#039;s avatar' src='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G' srcset='https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=96&#038;d=identicon&#038;r=G 1x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=144&#038;d=identicon&#038;r=G 1.5x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=192&#038;d=identicon&#038;r=G 2x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=288&#038;d=identicon&#038;r=G 3x, https://2.gravatar.com/avatar/87cc8acbb0b96b7d3b699e69cb1b0ce2bfa22c19f3737ddc73a81783fc2af50c?s=384&#038;d=identicon&#038;r=G 4x' class='avatar avatar-96' height='96' width='96' loading='lazy' decoding='async' /></aside>
+
+		<div class="media__body">
+			<header class="comment__meta comment-author">
+				<span class="comment__author-name"><a href="https://eclecticlightdotcom.wordpress.com" class="url" rel="ugc external nofollow">hoakley</a></span>				<time class="comment__time" datetime="2023-07-23T16:09:48+00:00">
+					<a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/#comment-87821" class="comment__timestamp">on July 23, 2023 at 4:09 pm </a>
+				</time>
+				<div class="comment__links">
+									</div>
+			</header>
+			<!-- .comment-meta -->
+						<section class="comment__content comment">
+				<p>Thank you.<br />
+Howard.</p>
+<p id="comment-like-87821" data-liked=comment-not-liked class="comment-likes comment-not-liked"><a href="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/?like_comment=87821&#038;_wpnonce=d7a042f757" class="comment-like-link needs-login" rel="nofollow" data-blog="83108039"><span>Like</span></a><span id="comment-like-count-87821" class="comment-like-feedback">Like</span></p>
+			</section>
+		</div>
+	</article>
+	<!-- </li> is added by WordPress automatically -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+			</ol><!-- .commentlist -->
+
+			
+	</div>
+	<!-- #comments .comments-area -->
+			<p class="nocomments">
+			<span class="comment-number comment-number--dark  no-comments-box">&middot;</span><span>Comments are closed.</span>
+		</p>
+	
+	
+</aside>
+		</main><!-- #main -->
+	</div><!-- #primary -->
+
+
+<div id="secondary" class="sidebar  sidebar--main" role="complementary">
+	<aside id="nav_menu-3" class="widget widget_nav_menu"><h1 class="widget-title">Quick Links</h1><div class="menu-widget-container"><ul id="menu-widget" class="menu"><li id="menu-item-77750" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-77750"><a href="https://eclecticlight.co/free-software-menu/">Free Software Menu</a></li>
+<li id="menu-item-77751" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-77751"><a href="https://eclecticlight.co/system-updates/">System Updates</a></li>
+<li id="menu-item-51902" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51902"><a href="https://eclecticlight.co/mac-troubleshooting-summary/">Mac Troubleshooting Summary</a></li>
+<li id="menu-item-91200" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-91200"><a href="https://eclecticlight.co/m1-macs-2/">M-series Macs</a></li>
+<li id="menu-item-30239" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-30239"><a href="https://eclecticlight.co/category/painting/">Painting</a></li>
+</ul></div></aside><aside id="search-4" class="widget widget_search"><h1 class="widget-title">Search</h1><form role="search" method="get" class="search-form" action="https://eclecticlight.co/">
+				<label>
+					<span class="screen-reader-text">Search for:</span>
+					<input type="search" class="search-field" placeholder="Search &hellip;" value="" name="s" />
+				</label>
+				<input type="submit" class="search-submit" value="Search" />
+			</form></aside><aside id="archives-4" class="widget widget_archive"><h1 class="widget-title">Monthly archives</h1>
+			<ul>
+					<li><a href='https://eclecticlight.co/2026/11/'>November 2026</a>&nbsp;(27)</li>
+	<li><a href='https://eclecticlight.co/2026/10/'>October 2026</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2026/09/'>September 2026</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2026/08/'>August 2026</a>&nbsp;(80)</li>
+	<li><a href='https://eclecticlight.co/2026/07/'>July 2026</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2026/06/'>June 2026</a>&nbsp;(73)</li>
+	<li><a href='https://eclecticlight.co/2026/05/'>May 2026</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2026/04/'>April 2026</a>&nbsp;(73)</li>
+	<li><a href='https://eclecticlight.co/2026/03/'>March 2026</a>&nbsp;(82)</li>
+	<li><a href='https://eclecticlight.co/2026/02/'>February 2026</a>&nbsp;(71)</li>
+	<li><a href='https://eclecticlight.co/2026/01/'>January 2026</a>&nbsp;(72)</li>
+	<li><a href='https://eclecticlight.co/2025/12/'>December 2025</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2025/11/'>November 2025</a>&nbsp;(74)</li>
+	<li><a href='https://eclecticlight.co/2025/10/'>October 2025</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2025/09/'>September 2025</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2025/08/'>August 2025</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2025/07/'>July 2025</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2025/06/'>June 2025</a>&nbsp;(74)</li>
+	<li><a href='https://eclecticlight.co/2025/05/'>May 2025</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2025/04/'>April 2025</a>&nbsp;(73)</li>
+	<li><a href='https://eclecticlight.co/2025/03/'>March 2025</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2025/02/'>February 2025</a>&nbsp;(67)</li>
+	<li><a href='https://eclecticlight.co/2025/01/'>January 2025</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2024/12/'>December 2024</a>&nbsp;(74)</li>
+	<li><a href='https://eclecticlight.co/2024/11/'>November 2024</a>&nbsp;(73)</li>
+	<li><a href='https://eclecticlight.co/2024/10/'>October 2024</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2024/09/'>September 2024</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2024/08/'>August 2024</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2024/07/'>July 2024</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2024/06/'>June 2024</a>&nbsp;(71)</li>
+	<li><a href='https://eclecticlight.co/2024/05/'>May 2024</a>&nbsp;(79)</li>
+	<li><a href='https://eclecticlight.co/2024/04/'>April 2024</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2024/03/'>March 2024</a>&nbsp;(81)</li>
+	<li><a href='https://eclecticlight.co/2024/02/'>February 2024</a>&nbsp;(72)</li>
+	<li><a href='https://eclecticlight.co/2024/01/'>January 2024</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2023/12/'>December 2023</a>&nbsp;(79)</li>
+	<li><a href='https://eclecticlight.co/2023/11/'>November 2023</a>&nbsp;(74)</li>
+	<li><a href='https://eclecticlight.co/2023/10/'>October 2023</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2023/09/'>September 2023</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2023/08/'>August 2023</a>&nbsp;(72)</li>
+	<li><a href='https://eclecticlight.co/2023/07/'>July 2023</a>&nbsp;(79)</li>
+	<li><a href='https://eclecticlight.co/2023/06/'>June 2023</a>&nbsp;(73)</li>
+	<li><a href='https://eclecticlight.co/2023/05/'>May 2023</a>&nbsp;(79)</li>
+	<li><a href='https://eclecticlight.co/2023/04/'>April 2023</a>&nbsp;(73)</li>
+	<li><a href='https://eclecticlight.co/2023/03/'>March 2023</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2023/02/'>February 2023</a>&nbsp;(68)</li>
+	<li><a href='https://eclecticlight.co/2023/01/'>January 2023</a>&nbsp;(74)</li>
+	<li><a href='https://eclecticlight.co/2022/12/'>December 2022</a>&nbsp;(74)</li>
+	<li><a href='https://eclecticlight.co/2022/11/'>November 2022</a>&nbsp;(72)</li>
+	<li><a href='https://eclecticlight.co/2022/10/'>October 2022</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2022/09/'>September 2022</a>&nbsp;(72)</li>
+	<li><a href='https://eclecticlight.co/2022/08/'>August 2022</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2022/07/'>July 2022</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2022/06/'>June 2022</a>&nbsp;(73)</li>
+	<li><a href='https://eclecticlight.co/2022/05/'>May 2022</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2022/04/'>April 2022</a>&nbsp;(71)</li>
+	<li><a href='https://eclecticlight.co/2022/03/'>March 2022</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2022/02/'>February 2022</a>&nbsp;(68)</li>
+	<li><a href='https://eclecticlight.co/2022/01/'>January 2022</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2021/12/'>December 2021</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2021/11/'>November 2021</a>&nbsp;(72)</li>
+	<li><a href='https://eclecticlight.co/2021/10/'>October 2021</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2021/09/'>September 2021</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2021/08/'>August 2021</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2021/07/'>July 2021</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2021/06/'>June 2021</a>&nbsp;(71)</li>
+	<li><a href='https://eclecticlight.co/2021/05/'>May 2021</a>&nbsp;(80)</li>
+	<li><a href='https://eclecticlight.co/2021/04/'>April 2021</a>&nbsp;(79)</li>
+	<li><a href='https://eclecticlight.co/2021/03/'>March 2021</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2021/02/'>February 2021</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2021/01/'>January 2021</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2020/12/'>December 2020</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2020/11/'>November 2020</a>&nbsp;(84)</li>
+	<li><a href='https://eclecticlight.co/2020/10/'>October 2020</a>&nbsp;(81)</li>
+	<li><a href='https://eclecticlight.co/2020/09/'>September 2020</a>&nbsp;(79)</li>
+	<li><a href='https://eclecticlight.co/2020/08/'>August 2020</a>&nbsp;(103)</li>
+	<li><a href='https://eclecticlight.co/2020/07/'>July 2020</a>&nbsp;(81)</li>
+	<li><a href='https://eclecticlight.co/2020/06/'>June 2020</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2020/05/'>May 2020</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2020/04/'>April 2020</a>&nbsp;(81)</li>
+	<li><a href='https://eclecticlight.co/2020/03/'>March 2020</a>&nbsp;(86)</li>
+	<li><a href='https://eclecticlight.co/2020/02/'>February 2020</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2020/01/'>January 2020</a>&nbsp;(86)</li>
+	<li><a href='https://eclecticlight.co/2019/12/'>December 2019</a>&nbsp;(82)</li>
+	<li><a href='https://eclecticlight.co/2019/11/'>November 2019</a>&nbsp;(74)</li>
+	<li><a href='https://eclecticlight.co/2019/10/'>October 2019</a>&nbsp;(89)</li>
+	<li><a href='https://eclecticlight.co/2019/09/'>September 2019</a>&nbsp;(80)</li>
+	<li><a href='https://eclecticlight.co/2019/08/'>August 2019</a>&nbsp;(91)</li>
+	<li><a href='https://eclecticlight.co/2019/07/'>July 2019</a>&nbsp;(95)</li>
+	<li><a href='https://eclecticlight.co/2019/06/'>June 2019</a>&nbsp;(88)</li>
+	<li><a href='https://eclecticlight.co/2019/05/'>May 2019</a>&nbsp;(91)</li>
+	<li><a href='https://eclecticlight.co/2019/04/'>April 2019</a>&nbsp;(79)</li>
+	<li><a href='https://eclecticlight.co/2019/03/'>March 2019</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2019/02/'>February 2019</a>&nbsp;(71)</li>
+	<li><a href='https://eclecticlight.co/2019/01/'>January 2019</a>&nbsp;(69)</li>
+	<li><a href='https://eclecticlight.co/2018/12/'>December 2018</a>&nbsp;(79)</li>
+	<li><a href='https://eclecticlight.co/2018/11/'>November 2018</a>&nbsp;(71)</li>
+	<li><a href='https://eclecticlight.co/2018/10/'>October 2018</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2018/09/'>September 2018</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2018/08/'>August 2018</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2018/07/'>July 2018</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2018/06/'>June 2018</a>&nbsp;(77)</li>
+	<li><a href='https://eclecticlight.co/2018/05/'>May 2018</a>&nbsp;(71)</li>
+	<li><a href='https://eclecticlight.co/2018/04/'>April 2018</a>&nbsp;(67)</li>
+	<li><a href='https://eclecticlight.co/2018/03/'>March 2018</a>&nbsp;(73)</li>
+	<li><a href='https://eclecticlight.co/2018/02/'>February 2018</a>&nbsp;(67)</li>
+	<li><a href='https://eclecticlight.co/2018/01/'>January 2018</a>&nbsp;(83)</li>
+	<li><a href='https://eclecticlight.co/2017/12/'>December 2017</a>&nbsp;(94)</li>
+	<li><a href='https://eclecticlight.co/2017/11/'>November 2017</a>&nbsp;(73)</li>
+	<li><a href='https://eclecticlight.co/2017/10/'>October 2017</a>&nbsp;(86)</li>
+	<li><a href='https://eclecticlight.co/2017/09/'>September 2017</a>&nbsp;(92)</li>
+	<li><a href='https://eclecticlight.co/2017/08/'>August 2017</a>&nbsp;(69)</li>
+	<li><a href='https://eclecticlight.co/2017/07/'>July 2017</a>&nbsp;(81)</li>
+	<li><a href='https://eclecticlight.co/2017/06/'>June 2017</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2017/05/'>May 2017</a>&nbsp;(90)</li>
+	<li><a href='https://eclecticlight.co/2017/04/'>April 2017</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2017/03/'>March 2017</a>&nbsp;(79)</li>
+	<li><a href='https://eclecticlight.co/2017/02/'>February 2017</a>&nbsp;(65)</li>
+	<li><a href='https://eclecticlight.co/2017/01/'>January 2017</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2016/12/'>December 2016</a>&nbsp;(75)</li>
+	<li><a href='https://eclecticlight.co/2016/11/'>November 2016</a>&nbsp;(68)</li>
+	<li><a href='https://eclecticlight.co/2016/10/'>October 2016</a>&nbsp;(76)</li>
+	<li><a href='https://eclecticlight.co/2016/09/'>September 2016</a>&nbsp;(78)</li>
+	<li><a href='https://eclecticlight.co/2016/08/'>August 2016</a>&nbsp;(70)</li>
+	<li><a href='https://eclecticlight.co/2016/07/'>July 2016</a>&nbsp;(74)</li>
+	<li><a href='https://eclecticlight.co/2016/06/'>June 2016</a>&nbsp;(66)</li>
+	<li><a href='https://eclecticlight.co/2016/05/'>May 2016</a>&nbsp;(71)</li>
+	<li><a href='https://eclecticlight.co/2016/04/'>April 2016</a>&nbsp;(67)</li>
+	<li><a href='https://eclecticlight.co/2016/03/'>March 2016</a>&nbsp;(71)</li>
+	<li><a href='https://eclecticlight.co/2016/02/'>February 2016</a>&nbsp;(68)</li>
+	<li><a href='https://eclecticlight.co/2016/01/'>January 2016</a>&nbsp;(90)</li>
+	<li><a href='https://eclecticlight.co/2015/12/'>December 2015</a>&nbsp;(96)</li>
+	<li><a href='https://eclecticlight.co/2015/11/'>November 2015</a>&nbsp;(103)</li>
+	<li><a href='https://eclecticlight.co/2015/10/'>October 2015</a>&nbsp;(119)</li>
+	<li><a href='https://eclecticlight.co/2015/09/'>September 2015</a>&nbsp;(115)</li>
+	<li><a href='https://eclecticlight.co/2015/08/'>August 2015</a>&nbsp;(117)</li>
+	<li><a href='https://eclecticlight.co/2015/07/'>July 2015</a>&nbsp;(117)</li>
+	<li><a href='https://eclecticlight.co/2015/06/'>June 2015</a>&nbsp;(105)</li>
+	<li><a href='https://eclecticlight.co/2015/05/'>May 2015</a>&nbsp;(111)</li>
+	<li><a href='https://eclecticlight.co/2015/04/'>April 2015</a>&nbsp;(119)</li>
+	<li><a href='https://eclecticlight.co/2015/03/'>March 2015</a>&nbsp;(69)</li>
+	<li><a href='https://eclecticlight.co/2015/02/'>February 2015</a>&nbsp;(54)</li>
+	<li><a href='https://eclecticlight.co/2015/01/'>January 2015</a>&nbsp;(39)</li>
+			</ul>
+
+			</aside><aside id="wp_tag_cloud-2" class="widget wp_widget_tag_cloud"><h1 class="widget-title">Tags</h1><a href="https://eclecticlight.co/tag/apfs/" class="tag-cloud-link tag-link-16027655 tag-link-position-1" style="font-size: 12.4pt;" aria-label="APFS (443 items)">APFS</a>
+<a href="https://eclecticlight.co/tag/apple/" class="tag-cloud-link tag-link-291 tag-link-position-2" style="font-size: 17.1pt;" aria-label="Apple (1,309 items)">Apple</a>
+<a href="https://eclecticlight.co/tag/apple-silicon/" class="tag-cloud-link tag-link-701531672 tag-link-position-3" style="font-size: 13.5pt;" aria-label="Apple silicon (569 items)">Apple silicon</a>
+<a href="https://eclecticlight.co/tag/backup/" class="tag-cloud-link tag-link-5469 tag-link-position-4" style="font-size: 11.1pt;" aria-label="backup (329 items)">backup</a>
+<a href="https://eclecticlight.co/tag/big-sur/" class="tag-cloud-link tag-link-301690 tag-link-position-5" style="font-size: 11.7pt;" aria-label="Big Sur (379 items)">Big Sur</a>
+<a href="https://eclecticlight.co/tag/blake/" class="tag-cloud-link tag-link-121850 tag-link-position-6" style="font-size: 9.3pt;" aria-label="Blake (217 items)">Blake</a>
+<a href="https://eclecticlight.co/tag/bonnard/" class="tag-cloud-link tag-link-849210 tag-link-position-7" style="font-size: 8.1pt;" aria-label="Bonnard (164 items)">Bonnard</a>
+<a href="https://eclecticlight.co/tag/bug/" class="tag-cloud-link tag-link-1621 tag-link-position-8" style="font-size: 11pt;" aria-label="bug (326 items)">bug</a>
+<a href="https://eclecticlight.co/tag/catalina/" class="tag-cloud-link tag-link-138897 tag-link-position-9" style="font-size: 11.6pt;" aria-label="Catalina (370 items)">Catalina</a>
+<a href="https://eclecticlight.co/tag/consolation/" class="tag-cloud-link tag-link-378938 tag-link-position-10" style="font-size: 9.2pt;" aria-label="Consolation (214 items)">Consolation</a>
+<a href="https://eclecticlight.co/tag/console/" class="tag-cloud-link tag-link-2611 tag-link-position-11" style="font-size: 9.3pt;" aria-label="Console (219 items)">Console</a>
+<a href="https://eclecticlight.co/tag/corinth/" class="tag-cloud-link tag-link-1383313 tag-link-position-12" style="font-size: 8.8pt;" aria-label="Corinth (194 items)">Corinth</a>
+<a href="https://eclecticlight.co/tag/delacroix/" class="tag-cloud-link tag-link-1045238 tag-link-position-13" style="font-size: 8pt;" aria-label="Delacroix (163 items)">Delacroix</a>
+<a href="https://eclecticlight.co/tag/disk-utility/" class="tag-cloud-link tag-link-2512263 tag-link-position-14" style="font-size: 8.9pt;" aria-label="Disk Utility (200 items)">Disk Utility</a>
+<a href="https://eclecticlight.co/tag/el-capitan/" class="tag-cloud-link tag-link-266601 tag-link-position-15" style="font-size: 11.9pt;" aria-label="El Capitan (394 items)">El Capitan</a>
+<a href="https://eclecticlight.co/tag/extended-attributes/" class="tag-cloud-link tag-link-3013936 tag-link-position-16" style="font-size: 8.2pt;" aria-label="extended attributes (168 items)">extended attributes</a>
+<a href="https://eclecticlight.co/tag/finder/" class="tag-cloud-link tag-link-55715 tag-link-position-17" style="font-size: 10.1pt;" aria-label="Finder (261 items)">Finder</a>
+<a href="https://eclecticlight.co/tag/firmware/" class="tag-cloud-link tag-link-25552 tag-link-position-18" style="font-size: 8.2pt;" aria-label="firmware (170 items)">firmware</a>
+<a href="https://eclecticlight.co/tag/gatekeeper/" class="tag-cloud-link tag-link-102026 tag-link-position-19" style="font-size: 10.2pt;" aria-label="Gatekeeper (268 items)">Gatekeeper</a>
+<a href="https://eclecticlight.co/tag/gerome/" class="tag-cloud-link tag-link-7293016 tag-link-position-20" style="font-size: 8.9pt;" aria-label="Gérôme (197 items)">Gérôme</a>
+<a href="https://eclecticlight.co/tag/high-sierra/" class="tag-cloud-link tag-link-1041249 tag-link-position-21" style="font-size: 13.1pt;" aria-label="High Sierra (523 items)">High Sierra</a>
+<a href="https://eclecticlight.co/tag/history/" class="tag-cloud-link tag-link-678 tag-link-position-22" style="font-size: 8.2pt;" aria-label="history (167 items)">history</a>
+<a href="https://eclecticlight.co/tag/history-of-painting/" class="tag-cloud-link tag-link-9273791 tag-link-position-23" style="font-size: 19.8pt;" aria-label="history of painting (2,462 items)">history of painting</a>
+<a href="https://eclecticlight.co/tag/icloud/" class="tag-cloud-link tag-link-10036452 tag-link-position-24" style="font-size: 9.2pt;" aria-label="iCloud (212 items)">iCloud</a>
+<a href="https://eclecticlight.co/tag/impressionism/" class="tag-cloud-link tag-link-214337 tag-link-position-25" style="font-size: 11.6pt;" aria-label="Impressionism (374 items)">Impressionism</a>
+<a href="https://eclecticlight.co/tag/landscape/" class="tag-cloud-link tag-link-11201 tag-link-position-26" style="font-size: 15.2pt;" aria-label="landscape (841 items)">landscape</a>
+<a href="https://eclecticlight.co/tag/lockrattler/" class="tag-cloud-link tag-link-552197507 tag-link-position-27" style="font-size: 8.7pt;" aria-label="LockRattler (189 items)">LockRattler</a>
+<a href="https://eclecticlight.co/tag/log/" class="tag-cloud-link tag-link-12657 tag-link-position-28" style="font-size: 12.6pt;" aria-label="log (470 items)">log</a>
+<a href="https://eclecticlight.co/tag/m1/" class="tag-cloud-link tag-link-146035 tag-link-position-29" style="font-size: 10.8pt;" aria-label="M1 (306 items)">M1</a>
+<a href="https://eclecticlight.co/tag/mac/" class="tag-cloud-link tag-link-808 tag-link-position-30" style="font-size: 16.1pt;" aria-label="Mac (1,039 items)">Mac</a>
+<a href="https://eclecticlight.co/tag/mac-history/" class="tag-cloud-link tag-link-55090 tag-link-position-31" style="font-size: 15.2pt;" aria-label="Mac history (841 items)">Mac history</a>
+<a href="https://eclecticlight.co/tag/macos/" class="tag-cloud-link tag-link-55368 tag-link-position-32" style="font-size: 19.6pt;" aria-label="macOS (2,344 items)">macOS</a>
+<a href="https://eclecticlight.co/tag/macos-10-12/" class="tag-cloud-link tag-link-435378828 tag-link-position-33" style="font-size: 9.7pt;" aria-label="macOS 10.12 (241 items)">macOS 10.12</a>
+<a href="https://eclecticlight.co/tag/macos-10-13/" class="tag-cloud-link tag-link-507422264 tag-link-position-34" style="font-size: 9pt;" aria-label="macOS 10.13 (204 items)">macOS 10.13</a>
+<a href="https://eclecticlight.co/tag/macos-10-14/" class="tag-cloud-link tag-link-603624060 tag-link-position-35" style="font-size: 12.5pt;" aria-label="macOS 10.14 (451 items)">macOS 10.14</a>
+<a href="https://eclecticlight.co/tag/macos-10-15/" class="tag-cloud-link tag-link-636071736 tag-link-position-36" style="font-size: 11.9pt;" aria-label="macOS 10.15 (401 items)">macOS 10.15</a>
+<a href="https://eclecticlight.co/tag/macos-11/" class="tag-cloud-link tag-link-478372911 tag-link-position-37" style="font-size: 11.8pt;" aria-label="macOS 11 (387 items)">macOS 11</a>
+<a href="https://eclecticlight.co/tag/macos-12/" class="tag-cloud-link tag-link-486305390 tag-link-position-38" style="font-size: 10.4pt;" aria-label="macOS 12 (284 items)">macOS 12</a>
+<a href="https://eclecticlight.co/tag/macos-13/" class="tag-cloud-link tag-link-576216599 tag-link-position-39" style="font-size: 10.4pt;" aria-label="macOS 13 (283 items)">macOS 13</a>
+<a href="https://eclecticlight.co/tag/macos-14/" class="tag-cloud-link tag-link-760773462 tag-link-position-40" style="font-size: 8.8pt;" aria-label="macOS 14 (196 items)">macOS 14</a>
+<a href="https://eclecticlight.co/tag/macos-15/" class="tag-cloud-link tag-link-770998048 tag-link-position-41" style="font-size: 8.7pt;" aria-label="macOS 15 (189 items)">macOS 15</a>
+<a href="https://eclecticlight.co/tag/malware/" class="tag-cloud-link tag-link-15593 tag-link-position-42" style="font-size: 11.3pt;" aria-label="malware (343 items)">malware</a>
+<a href="https://eclecticlight.co/tag/metamorphoses/" class="tag-cloud-link tag-link-3193982 tag-link-position-43" style="font-size: 8.8pt;" aria-label="Metamorphoses (195 items)">Metamorphoses</a>
+<a href="https://eclecticlight.co/tag/mojave/" class="tag-cloud-link tag-link-1846958 tag-link-position-44" style="font-size: 13.3pt;" aria-label="Mojave (543 items)">Mojave</a>
+<a href="https://eclecticlight.co/tag/monet/" class="tag-cloud-link tag-link-257825 tag-link-position-45" style="font-size: 9.7pt;" aria-label="Monet (240 items)">Monet</a>
+<a href="https://eclecticlight.co/tag/monterey/" class="tag-cloud-link tag-link-181118 tag-link-position-46" style="font-size: 10.4pt;" aria-label="Monterey (282 items)">Monterey</a>
+<a href="https://eclecticlight.co/tag/moreau/" class="tag-cloud-link tag-link-228553 tag-link-position-47" style="font-size: 8.9pt;" aria-label="Moreau (199 items)">Moreau</a>
+<a href="https://eclecticlight.co/tag/myth/" class="tag-cloud-link tag-link-21945 tag-link-position-48" style="font-size: 13.6pt;" aria-label="myth (593 items)">myth</a>
+<a href="https://eclecticlight.co/tag/narrative/" class="tag-cloud-link tag-link-29521 tag-link-position-49" style="font-size: 17.6pt;" aria-label="narrative (1,480 items)">narrative</a>
+<a href="https://eclecticlight.co/tag/os-x/" class="tag-cloud-link tag-link-2438 tag-link-position-50" style="font-size: 11.5pt;" aria-label="OS X (359 items)">OS X</a>
+<a href="https://eclecticlight.co/tag/ovid/" class="tag-cloud-link tag-link-54993 tag-link-position-51" style="font-size: 9.6pt;" aria-label="Ovid (236 items)">Ovid</a>
+<a href="https://eclecticlight.co/tag/painting-2/" class="tag-cloud-link tag-link-34917973 tag-link-position-52" style="font-size: 22pt;" aria-label="painting (4,048 items)">painting</a>
+<a href="https://eclecticlight.co/tag/performance/" class="tag-cloud-link tag-link-1930 tag-link-position-53" style="font-size: 8.7pt;" aria-label="performance (189 items)">performance</a>
+<a href="https://eclecticlight.co/tag/pissarro/" class="tag-cloud-link tag-link-256963 tag-link-position-54" style="font-size: 8.7pt;" aria-label="Pissarro (190 items)">Pissarro</a>
+<a href="https://eclecticlight.co/tag/poussin/" class="tag-cloud-link tag-link-2749132 tag-link-position-55" style="font-size: 9.4pt;" aria-label="Poussin (222 items)">Poussin</a>
+<a href="https://eclecticlight.co/tag/privacy/" class="tag-cloud-link tag-link-3279 tag-link-position-56" style="font-size: 10.4pt;" aria-label="privacy (281 items)">privacy</a>
+<a href="https://eclecticlight.co/tag/renoir/" class="tag-cloud-link tag-link-198951 tag-link-position-57" style="font-size: 8.2pt;" aria-label="Renoir (169 items)">Renoir</a>
+<a href="https://eclecticlight.co/tag/riddle/" class="tag-cloud-link tag-link-31026 tag-link-position-58" style="font-size: 14.8pt;" aria-label="riddle (774 items)">riddle</a>
+<a href="https://eclecticlight.co/tag/rubens/" class="tag-cloud-link tag-link-2032860 tag-link-position-59" style="font-size: 11.1pt;" aria-label="Rubens (332 items)">Rubens</a>
+<a href="https://eclecticlight.co/tag/sargent/" class="tag-cloud-link tag-link-1034206 tag-link-position-60" style="font-size: 8.1pt;" aria-label="Sargent (165 items)">Sargent</a>
+<a href="https://eclecticlight.co/tag/security/" class="tag-cloud-link tag-link-801 tag-link-position-61" style="font-size: 17.8pt;" aria-label="security (1,564 items)">security</a>
+<a href="https://eclecticlight.co/tag/sequoia/" class="tag-cloud-link tag-link-479814 tag-link-position-62" style="font-size: 8.4pt;" aria-label="Sequoia (178 items)">Sequoia</a>
+<a href="https://eclecticlight.co/tag/sierra/" class="tag-cloud-link tag-link-105398 tag-link-position-63" style="font-size: 14.3pt;" aria-label="Sierra (691 items)">Sierra</a>
+<a href="https://eclecticlight.co/tag/silentknight/" class="tag-cloud-link tag-link-95887679 tag-link-position-64" style="font-size: 8.6pt;" aria-label="SilentKnight (186 items)">SilentKnight</a>
+<a href="https://eclecticlight.co/tag/sonoma/" class="tag-cloud-link tag-link-41431 tag-link-position-65" style="font-size: 8.8pt;" aria-label="Sonoma (194 items)">Sonoma</a>
+<a href="https://eclecticlight.co/tag/swift/" class="tag-cloud-link tag-link-596263 tag-link-position-66" style="font-size: 8.5pt;" aria-label="Swift (182 items)">Swift</a>
+<a href="https://eclecticlight.co/tag/time-machine/" class="tag-cloud-link tag-link-280009 tag-link-position-67" style="font-size: 11.8pt;" aria-label="Time Machine (387 items)">Time Machine</a>
+<a href="https://eclecticlight.co/tag/tintoretto/" class="tag-cloud-link tag-link-840301 tag-link-position-68" style="font-size: 8.4pt;" aria-label="Tintoretto (176 items)">Tintoretto</a>
+<a href="https://eclecticlight.co/tag/turner/" class="tag-cloud-link tag-link-734026 tag-link-position-69" style="font-size: 10pt;" aria-label="Turner (258 items)">Turner</a>
+<a href="https://eclecticlight.co/tag/update/" class="tag-cloud-link tag-link-3251 tag-link-position-70" style="font-size: 17.4pt;" aria-label="update (1,411 items)">update</a>
+<a href="https://eclecticlight.co/tag/upgrade/" class="tag-cloud-link tag-link-8683 tag-link-position-71" style="font-size: 8.5pt;" aria-label="upgrade (180 items)">upgrade</a>
+<a href="https://eclecticlight.co/tag/ventura/" class="tag-cloud-link tag-link-348591 tag-link-position-72" style="font-size: 10.3pt;" aria-label="Ventura (272 items)">Ventura</a>
+<a href="https://eclecticlight.co/tag/xattr/" class="tag-cloud-link tag-link-3925058 tag-link-position-73" style="font-size: 8.5pt;" aria-label="xattr (181 items)">xattr</a>
+<a href="https://eclecticlight.co/tag/xcode/" class="tag-cloud-link tag-link-176525 tag-link-position-74" style="font-size: 8.5pt;" aria-label="Xcode (181 items)">Xcode</a>
+<a href="https://eclecticlight.co/tag/xprotect/" class="tag-cloud-link tag-link-10864411 tag-link-position-75" style="font-size: 12.7pt;" aria-label="XProtect (480 items)">XProtect</a></aside><aside id="blog-stats-2" class="widget widget_blog-stats"><h1 class="widget-title">Statistics</h1>		<ul>
+			<li>23,359,040 hits</li>
+		</ul>
+		</aside></div><!-- #secondary --></div><!-- .container -->
+
+</div><!-- #content -->
+
+<footer id="colophon" class="site-footer" role="contentinfo">
+	<div class="container">
+		<div class="grid">
+			<div class="grid__item  site-info">
+				<a href="https://wordpress.com/?ref=footer_blog" rel="nofollow">Blog at WordPress.com.</a>
+				
+							</div><!-- .site-info -->
+
+			<div class="grid__item  footer-navigation">
+				<nav><h5 class="screen-reader-text">Footer navigation</h5><ul id="menu-main" class="nav  nav--footer"><li id="menu-item-26" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-26"><a href="https://eclecticlight.co/about">About &amp; Contact</a></li>
+<li id="menu-item-77738" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-77738"><a href="https://eclecticlight.co/free-software-menu/">Free Software Menu</a></li>
+<li id="menu-item-23" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-23"><a href="https://eclecticlight.co/category/macs/">Macs</a></li>
+<li id="menu-item-25" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-25"><a href="https://eclecticlight.co/category/painting/">Painting</a></li>
+<li id="menu-item-20571" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20571"><a href="https://eclecticlight.co/downloads/">Downloads</a></li>
+<li id="menu-item-41457" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-41457"><a href="https://eclecticlight.co/lockrattler-systhist/">SilentKnight, Skint, SystHist, silnite, LockRattler &amp; Scrub</a></li>
+<li id="menu-item-42465" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-42465"><a href="https://eclecticlight.co/consolation-t2m2-and-log-utilities/">AIRer, XProCheck, T2M2, LogUI, Ulbow, blowhole and log utilities</a></li>
+<li id="menu-item-58829" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-58829"><a href="https://eclecticlight.co/mints-a-multifunction-utility/">Mints: a multifunction utility</a></li>
+<li id="menu-item-41784" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-41784"><a href="https://eclecticlight.co/xattred-sandstrip-xattr-tools/">xattred, SpotTest, Providable, Spotcord, Metamer  &amp; xattr tools</a></li>
+<li id="menu-item-42731" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-42731"><a href="https://eclecticlight.co/revisionist-deeptools/">Versatility &amp; Revisionist</a></li>
+<li id="menu-item-41604" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-41604"><a href="https://eclecticlight.co/delighted-podofyllin/">DelightEd &amp; Podofyllin</a></li>
+<li id="menu-item-42636" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-42636"><a href="https://eclecticlight.co/taccy-signet-precize-alifix-utiutility-alisma/">Precize, Alifix, UTIutility, Sparsity, alisma, Taccy, Signet</a></li>
+<li id="menu-item-71920" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-71920"><a href="https://eclecticlight.co/system-updates/">System Updates</a></li>
+<li id="menu-item-50115" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-50115"><a href="https://eclecticlight.co/dintch/">Spundle, Cormorant, Stibium, DropSum, Dintch, Fintch and cintch</a></li>
+<li id="menu-item-67365" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-67365"><a href="https://eclecticlight.co/virtualisation-on-apple-silicon/">Virtualisation on Apple silicon</a></li>
+<li id="menu-item-42597" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-42597"><a href="https://eclecticlight.co/cirrus-bailiff/">Cirrus &amp; Bailiff</a></li>
+<li id="menu-item-42930" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-42930"><a href="https://eclecticlight.co/text-utilities-nalaprop-dystextia-and-others/">Text Utilities: Textovert, Disclipper, Nalaprop, Dystextia and others</a></li>
+<li id="menu-item-77924" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-77924"><a href="https://eclecticlight.co/sysctl-information/">sysctl information</a></li>
+<li id="menu-item-30283" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-30283"><a href="https://eclecticlight.co/extended-attributes-xattrs/">Extended attributes (xattrs)</a></li>
+<li id="menu-item-41844" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-41844"><a href="https://eclecticlight.co/32-bitcheck-archichect/">32-bitCheck &amp; ArchiChect</a></li>
+<li id="menu-item-43048" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-43048"><a href="https://eclecticlight.co/keychains-permissions/">Keychains &amp; Permissions</a></li>
+<li id="menu-item-43026" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-43026"><a href="https://eclecticlight.co/pdf/">PDF</a></li>
+<li id="menu-item-64512" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-64512"><a href="https://eclecticlight.co/visuallookuptest/">VisualLookUpTest</a></li>
+<li id="menu-item-44481" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-44481"><a href="https://eclecticlight.co/category/updates/">Updates</a></li>
+<li id="menu-item-51082" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51082"><a href="https://eclecticlight.co/long-reads/">Long Reads</a></li>
+<li id="menu-item-51896" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51896"><a href="https://eclecticlight.co/mac-troubleshooting-summary/">Mac Troubleshooting Summary</a></li>
+<li id="menu-item-75733" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-75733"><a href="https://eclecticlight.co/saturday-mac-riddles/">Saturday Mac Riddles</a></li>
+<li id="menu-item-75736" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-75736"><a href="https://eclecticlight.co/last-week-on-my-mac/">Last Week on My Mac</a></li>
+<li id="menu-item-91170" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-91170"><a href="https://eclecticlight.co/painting-topics-2-2/">Painting topics</a></li>
+<li id="menu-item-91176" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-91176"><a href="https://eclecticlight.co/mac-problem-solving-2-2/">Mac problem-solving</a></li>
+<li id="menu-item-91180" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-91180"><a href="https://eclecticlight.co/m1-macs-2/">M-series Macs</a></li>
+</ul></nav>			</div>
+		</div>
+	</div><!-- .site-footer .container -->
+</footer><!-- #colophon -->
+</div><!-- #page -->
+
+	<div class="toolbar">
+		<div class="toolbar__head">
+			<nav id="social-navigation" class="toolbar-navigation" role="navigation">
+				<h5 class="screen-reader-text">Secondary navigation</h5>
+									<ul class="nav  nav--toolbar">
+						<li class="nav__item--search"><a href="#">Search</a></li>
+					</ul>
+							</nav>
+			<!-- #social-navigation -->
+		</div>
+		<div class="toolbar__body">
+						<nav class="navigation post-navigation" role="navigation">
+				<h1 class="screen-reader-text">Post navigation</h1>
+
+				<div class="nav-links">
+					<div class="nav-home"><a href="https://eclecticlight.co"><i class="fa fa-th-large"></i></a></div><div class="nav-previous"><a href="https://eclecticlight.co/2023/02/19/february-fill-dyke-in-paintings-other-floods/" rel="prev"><i class="fa fa-long-arrow-left prev-arrow"></i><span>February fill dyke in paintings: Other&nbsp;floods</span></a></div><div class="nav-next"><a href="https://eclecticlight.co/2023/02/20/solutions-to-saturday-mac-riddles-191/" rel="next"><span>Solutions to Saturday Mac riddles&nbsp;191</span><i class="fa fa-long-arrow-right next-arrow"></i></a></div>				</div>
+				<!-- .nav-links -->
+			</nav><!-- .navigation -->
+				</div>
+	</div>
+	<div class="overlay--search">
+		<div class="overlay__wrapper">
+			<form role="search" method="get" class="search-form" action="https://eclecticlight.co/">
+				<label>
+					<span class="screen-reader-text">Search for:</span>
+					<input type="search" class="search-field" placeholder="Search &hellip;" value="" name="s" />
+				</label>
+				<input type="submit" class="search-submit" value="Search" />
+			</form>			<p>Begin typing your search above and press return to search. Press Esc to cancel.</p>
+		</div>
+		<b class="overlay__close"></b>
+	</div>
+<!--  -->
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/files/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/premium/hive/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+<script id="grofiles-cards-js" src="//0.gravatar.com/js/hovercards/hovercards.min.js?ver=202646fffb5f6f8dc7a9c7ad08f16ba2e694fddff32cc1793b3fe3b32aaa232a52550e"></script>
+<script id="wpgroho-js-extra">
+var WPGroHo = {"my_hash":""};
+//# sourceURL=wpgroho-js-extra
+</script>
+<script crossorigin='anonymous' type='text/javascript'  src='/wp-content/mu-plugins/gravatar-hovercards/wpgroho.js?m=1610363240i'></script>
+
+	<script>
+		// Initialize and attach hovercards to all gravatars
+		( function() {
+			function init() {
+				if ( typeof Gravatar === 'undefined' ) {
+					return;
+				}
+
+				if ( typeof Gravatar.init !== 'function' ) {
+					return;
+				}
+
+				Gravatar.profile_cb = function ( hash, id ) {
+					WPGroHo.syncProfileData( hash, id );
+				};
+
+				Gravatar.my_hash = WPGroHo.my_hash;
+				Gravatar.init(
+					'body',
+					'#wp-admin-bar-my-account',
+					{
+						i18n: {
+							'Edit your profile →': 'Edit your profile →',
+							'View profile →': 'View profile →',
+							'Contact': 'Contact',
+							'Send money': 'Send money',
+							'Sorry, we are unable to load this Gravatar profile.': 'Sorry, we are unable to load this Gravatar profile.',
+							'Gravatar not found.': 'Gravatar not found.',
+							'Too Many Requests.': 'Too Many Requests.',
+							'Internal Server Error.': 'Internal Server Error.',
+							'Is this you?': 'Is this you?',
+							'Claim your free profile.': 'Claim your free profile.',
+							'Email': 'Email',
+							'Home Phone': 'Home Phone',
+							'Work Phone': 'Work Phone',
+							'Cell Phone': 'Cell Phone',
+							'Contact Form': 'Contact Form',
+							'Calendar': 'Calendar',
+						},
+					}
+				);
+			}
+
+			if ( document.readyState !== 'loading' ) {
+				init();
+			} else {
+				document.addEventListener( 'DOMContentLoaded', init );
+			}
+		} )();
+	</script>
+
+		<div style="display:none">
+	<div class="grofile-hash-map-7f8d960283745f612d6ac38b265ec1f1">
+	</div>
+	<div class="grofile-hash-map-6986a746f627e5a238c6af519e379f10">
+	</div>
+	<div class="grofile-hash-map-c4eda620c12dedd8a114eb013e55bec6">
+	</div>
+	<div class="grofile-hash-map-8d53fc15eb97740cd1e881cef08daa68">
+	</div>
+	<div class="grofile-hash-map-030cfa14687bae7a264f7c84b62143d4">
+	</div>
+	<div class="grofile-hash-map-8abf3f81cbb1705aab367ad921f78c15">
+	</div>
+	<div class="grofile-hash-map-ded6beb516a9c05f19c9d382ac519577">
+	</div>
+	<div class="grofile-hash-map-0e9b39943e0d067e20559679dc731dc9">
+	</div>
+	</div>
+			<div id="actionbar" dir="ltr" style="display: none;"
+				class="actnbr-premium-hive" role="region" aria-label="Site actions">
+			<span class="actnbr-live" aria-live="polite"></span>
+			<ul>
+										<li class="actnbr-btn">
+							<a class="actnbr-action actnbr-actn-reblog" href="" role="button">
+								<svg class="actnbr-icon actnbr-icon-reusable-block" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="currentColor"><path d="M7 7.2h8.2L13.5 9l1.1 1.1 3.6-3.6-3.5-4-1.1 1 1.9 2.3H7c-.9 0-1.7.3-2.3.9-1.4 1.5-1.4 4.2-1.4 5.6v.2h1.5v-.3c0-1.1 0-3.5 1-4.5.3-.3.7-.5 1.2-.5zm13.8 4V11h-1.5v.3c0 1.1 0 3.5-1 4.5-.3.3-.7.5-1.3.5H8.8l1.7-1.7-1.1-1.1L5.9 17l3.5 4 1.1-1-1.9-2.3H17c.9 0 1.7-.3 2.3-.9 1.5-1.4 1.5-4.2 1.5-5.6z"/></svg><span>Reblog</span>
+							</a>
+						</li>
+											<li class="actnbr-btn actnbr-hidden">
+										<a class="actnbr-action actnbr-actn-follow " href="" role="button" aria-haspopup="dialog" aria-expanded="false">
+				<svg class="actnbr-icon actnbr-icon-bell" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M17 11.5c0 1.353.17 2.368.976 3 .266.209.602.376 1.024.5v1H5v-1c.422-.124.757-.291 1.024-.5.806-.632.976-1.647.976-3V9c0-2.8 2.2-5 5-5s5 2.2 5 5v2.5ZM15.5 9v2.5c0 .93.066 1.98.515 2.897l.053.103H7.932a4.018 4.018 0 0 0 .053-.103c.449-.917.515-1.967.515-2.897V9c0-1.972 1.528-3.5 3.5-3.5s3.5 1.528 3.5 3.5Zm-5.492 9.008c0-.176.023-.346.065-.508h3.854A1.996 1.996 0 0 1 12 20c-1.1 0-1.992-.892-1.992-1.992Z"/></svg>				<span>Subscribe</span>
+			</a>
+			<a class="actnbr-action actnbr-actn-following  no-display" href="" role="button">
+				<svg class="actnbr-icon actnbr-icon-check" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="fill: none" stroke="currentColor" stroke-width="1.5"><path d="M7 12L10 15L17 8" vector-effect="non-scaling-stroke"/></svg>				<span>Subscribed</span>
+			</a>
+									<div class="actnbr-popover actnbr-panel actnbr-notice" id="follow-bubble" role="dialog" aria-label="Subscribe to The Eclectic Light Company">
+								<div class="actnbr-follow-bubble">
+								<div class="actnbr-panel__group"><a class="actnbr-menu__item actnbr-sitename" href="https://eclecticlight.co"><img loading='lazy' alt='' src='https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=50' srcset='https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=50 1x, https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=75 1.5x, https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=100 2x, https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=150 3x, https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=200 4x' class='avatar avatar-50' height='50' width='50' /><span class="actnbr-menu__label">The Eclectic Light Company</span></a></div>																	<div class="actnbr-panel__group">
+										<div class="actnbr-message no-display" aria-live="polite"></div>
+										<form method="post" action="https://subscribe.wordpress.com" accept-charset="utf-8" class="no-display">
+																							<div class="actnbr-follow-count">Join 9,526 other subscribers</div>
+																							<input type="email" name="email" placeholder="Want updates? Enter your email" class="actnbr-email-field" aria-label="Email address" />
+											<input type="hidden" name="action" value="subscribe" />
+											<input type="hidden" name="blog_id" value="83108039" />
+											<input type="hidden" name="source" value="https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/" />
+											<input type="hidden" name="sub-type" value="actionbar-follow" />
+											<input type="hidden" id="_wpnonce" name="_wpnonce" value="7413368688" />											<button type="submit" class="actnbr-button">Sign me up</button>
+										</form>
+										<p class="actnbr-login-nudge">
+											Have a WordPress.com account? <a href="https://wordpress.com/log-in?redirect_to=https%3A%2F%2Fr-login.wordpress.com%2Fremote-login.php%3Faction%3Dlink%26back%3Dhttps%253A%252F%252Feclecticlight.co%252F2023%252F02%252F20%252Fmacos-13-2-1-authenticated-restart-and-fdesetup%252F">Log in now.</a>										</p>
+									</div>
+																	</div>
+							</div>
+						</li>
+									<li class="actnbr-ellipsis actnbr-hidden">
+					<button type="button" class="actnbr-more-toggle" aria-haspopup="true" aria-expanded="false" aria-label="More options">
+						<svg class="actnbr-icon actnbr-icon-more-horizontal" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="currentColor"><path d="M11 13h2v-2h-2v2zm-6 0h2v-2H5v2zm12-2v2h2v-2h-2z"/></svg>					</button>
+					<div class="actnbr-popover actnbr-menu" role="menu" aria-label="Site options">
+						<div class="actnbr-menu__group" role="group"><a role="menuitem" class="actnbr-menu__item actnbr-sitename" href="https://eclecticlight.co"><img loading='lazy' alt='' src='https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=50' srcset='https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=50 1x, https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=75 1.5x, https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=100 2x, https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=150 3x, https://eclecticlight.co/wp-content/uploads/2015/01/cropped-eclecticlightlogo-e1421784280911.png?w=200 4x' class='avatar avatar-50' height='50' width='50' /><span class="actnbr-menu__label">The Eclectic Light Company</span></a></div><div class="actnbr-menu__group" role="group"><a role="menuitem" class="actnbr-menu__item actnbr-shortlink" href="https://wp.me/p5CIcf-ikf"><span class="actnbr-menu__label actnbr-shortlink__text">Copy shortlink</span><span class="actnbr-menu__icon actnbr-shortlink__icon"><svg class="actnbr-icon actnbr-icon-copy" width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.5h11a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 1 .5-.5ZM3 5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5Zm17 3v10.75c0 .69-.56 1.25-1.25 1.25H6v1.5h12.75a2.75 2.75 0 0 0 2.75-2.75V8H20Z"/></svg></span><span class="actnbr-menu__icon actnbr-shortlink__icon-copied"><svg class="actnbr-icon actnbr-icon-check" width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="fill: none" stroke="currentColor" stroke-width="1.5"><path d="M7 12L10 15L17 8" vector-effect="non-scaling-stroke"/></svg></span></a><a role="menuitem" class="actnbr-menu__item actnbr-reader" href="https://wordpress.com/reader/blogs/83108039/posts/70447"><span class="actnbr-menu__label">View post in Reader</span></a></div><div class="actnbr-menu__group" role="group"><a role="menuitem" class="actnbr-menu__item actnbr-subs" href="https://subscribe.wordpress.com/"><span class="actnbr-menu__label">Manage subscriptions</span></a><a role="menuitem" class="actnbr-menu__item actnbr-signup" href="https://wordpress.com/start/"><span class="actnbr-menu__label">Sign up</span></a><a role="menuitem" class="actnbr-menu__item actnbr-login" href="https://wordpress.com/log-in?redirect_to=https%3A%2F%2Fr-login.wordpress.com%2Fremote-login.php%3Faction%3Dlink%26back%3Dhttps%253A%252F%252Feclecticlight.co%252F2023%252F02%252F20%252Fmacos-13-2-1-authenticated-restart-and-fdesetup%252F"><span class="actnbr-menu__label">Log in</span></a></div><div class="actnbr-menu__group" role="group"><a role="menuitem" class="actnbr-menu__item flb-report" href="https://wordpress.com/abuse/?report_url=https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/" target="_blank" rel="noopener noreferrer"><span class="actnbr-menu__label">Report this content</span><span class="actnbr-menu__icon"><svg class="actnbr-icon actnbr-icon-external" width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="currentColor"><path d="M19.5 4.5h-7V6h4.44l-5.97 5.97 1.06 1.06L18 7.06v4.44h1.5v-7Zm-13 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3H17v3a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h3V5.5h-3Z"/></svg></span></a></div><div class="actnbr-menu__group" role="group"><a role="menuitem" class="actnbr-menu__item actnbr-fold" href=""><span class="actnbr-menu__label">Collapse this bar</span></a></div>					</div>
+				</li>
+			</ul>
+		</div>
+		<script>
+window.addEventListener( "DOMContentLoaded", function () {
+				var link = document.createElement( "link" );
+				link.href = "\/wp-content\/mu-plugins\/jetpack-plugin\/sun\/jetpack_vendor\/automattic\/jetpack-newsletter\/src\/..\/build\/action-bar.css?ver=35dd33285eb46dc308dd";
+				link.rel = "stylesheet";
+				document.head.appendChild( link );
+
+				var script = document.createElement( "script" );
+				script.src = "\/wp-content\/mu-plugins\/jetpack-plugin\/sun\/jetpack_vendor\/automattic\/jetpack-newsletter\/src\/..\/build\/action-bar.js?ver=35dd33285eb46dc308dd";
+				document.body.appendChild( script );
+			} );
+</script>
+
+	<script type="text/javascript">
+		window.WPCOM_sharing_counts = {"https://eclecticlight.co/2023/02/20/macos-13-2-1-authenticated-restart-and-fdesetup/":70447};
+	</script>
+							<script>
+      /(trident|msie)/i.test(navigator.userAgent)&&document.getElementById&&window.addEventListener&&window.addEventListener("hashchange",function(){var t,e=location.hash.substring(1);/^[A-z0-9_-]+$/.test(e)&&(t=document.getElementById(e))&&(/^(?:a|select|input|button|textarea)$/i.test(t.tagName)||(t.tabIndex=-1),t.focus())},!1);
+	</script>
+	
+	<script type="text/javascript">
+		(function () {
+			var wpcom_reblog = {
+				source: 'toolbar',
+
+				toggle_reblog_box_flair: function (obj_id, post_id) {
+
+					// Go to site selector. This will redirect to their blog if they only have one.
+					const postEndpoint = `https://wordpress.com/post`;
+
+					// Ideally we would use the permalink here, but fortunately this will be replaced with the 
+					// post permalink in the editor.
+					const originalURL = `${ document.location.href }?page_id=${ post_id }`; 
+					
+					const url =
+						postEndpoint +
+						'?url=' +
+						encodeURIComponent( originalURL ) +
+						'&is_post_share=true' +
+						'&v=5';
+
+					const redirect = function () {
+						if (
+							! window.open( url, '_blank' )
+						) {
+							location.href = url;
+						}
+					};
+
+					if ( /Firefox/.test( navigator.userAgent ) ) {
+						setTimeout( redirect, 0 );
+					} else {
+						redirect();
+					}
+				},
+			};
+
+			window.wpcom_reblog = wpcom_reblog;
+		})();
+	</script>
+<script id="comment-like-js-extra">
+var comment_like_text = {"loading":"Loading...","swipeUrl":"https://s0.wp.com/wp-content/mu-plugins/comment-likes/js/lib/swipe.js?m=1382645497i&amp;ver=20131008"};
+//# sourceURL=comment-like-js-extra
+</script>
+<script crossorigin='anonymous' type='text/javascript'  src='/_static/??-eJyVj8sOgjAQRX9IKAaicWFc+xlNO6FTO1PsA8Lf20BIjLJhe+ecubliGirlOQEnQbkaXO6Ro3D4gijeGTIYydpBqG08iX1YeaISVatkf4JNRFYu6xVAkj1E56UGXRPyHkMyeg7z93nrTgaoQEMAwkzC4AhCxgjp//kh05bBpdH4EcJzEY75IzivMM3HLJLLwgfdz9dbe+marmntB3VumOU='></script>
+<script data-wp-strategy="defer" defer id="wp-embed-js" src="/wp-includes/js/wp-embed.min.js?m=1743165756i&#038;ver=7.2-alpha-63998"></script>
+<script id="sharing-js-js-extra">
+var sharing_js_options = {"lang":"en","counts":"1","is_stats_active":"1"};
+//# sourceURL=sharing-js-js-extra
+</script>
+<script crossorigin='anonymous' type='text/javascript'  src='/wp-content/mu-plugins/jetpack-plugin/sun/_inc/build/sharedaddy/sharing.min.js?m=1787944794i'></script>
+<script id="sharing-js-js-after">
+window.WPCOM_sharing_popups = window.WPCOM_sharing_popups || {};
+window.WPCOM_sharing_popups[ "twitter" ] = "menubar=1,resizable=1,width=600,height=350";
+window.WPCOM_sharing_popups = window.WPCOM_sharing_popups || {};
+window.WPCOM_sharing_popups[ "facebook" ] = "menubar=1,resizable=1,width=600,height=400";
+window.WPCOM_sharing_popups = window.WPCOM_sharing_popups || {};
+window.WPCOM_sharing_popups[ "threads" ] = "menubar=1,resizable=1,width=600,height=400";
+window.WPCOM_sharing_popups = window.WPCOM_sharing_popups || {};
+window.WPCOM_sharing_popups[ "mastodon" ] = "menubar=1,resizable=1,width=460,height=400";
+window.WPCOM_sharing_popups = window.WPCOM_sharing_popups || {};
+window.WPCOM_sharing_popups[ "bluesky" ] = "menubar=1,resizable=1,width=600,height=400";
+//# sourceURL=sharing-js-js-after
+</script>
+<script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s0.wp.com/wp-content/mu-plugins/wpcom-smileys/twemoji/2/72x72/","ext":".png","svgUrl":"https://s0.wp.com/wp-content/mu-plugins/wpcom-smileys/twemoji/2/svg/","svgExt":".svg","source":{"concatemoji":"/wp-includes/js/wp-emoji-release.min.js?m=1783090810i&ver=7.2-alpha-63998"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof HTMLScriptElement))throw new Error("Element missing: "+e);const r=JSON.parse(t.text),s=(window._wpemojiSettings=r,"wpEmojiSettingsSupports"),o=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(s,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const r=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===r[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,r){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!r(e,"\ud83e\udec8")}return!1}function f(e,t,n,r){let a;const s=(a="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),o=(s.textBaseline="top",s.font="600 32px Arial",{});return e.forEach(e=>{o[e]=t(s,e,n,r)}),o}function a(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}r.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(s));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(o),u.toString(),c.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"});const a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=e=>{i(n=e.data),a.terminate(),t(n)})}catch(e){}i(n=f(o,u,c,p))}t(n)}).then(e=>{for(const n in e)r.supports[n]=e[n],r.supports.everything=r.supports.everything&&r.supports[n],"flag"!==n&&(r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&r.supports[n]);var t;r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&!r.supports.flag,r.supports.everything||((t=r.source||{}).concatemoji?a(t.concatemoji):t.wpemoji&&t.twemoji&&(a(t.twemoji),a(t.wpemoji)))});
+//# sourceURL=/wp-includes/js/wp-emoji-loader.min.js
+</script>
+	<iframe src='https://widgets.wp.com/likes/master.html?ver=20261111#ver=20261111' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
+	<div id='likes-other-gravatars' role="dialog" aria-hidden="true" tabindex="-1"><div class="likes-text"><span>%d</span></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
+	<script src="//stats.wp.com/w.js?71" defer></script> <script type="text/javascript">
+_tkq = window._tkq || [];
+_stq = window._stq || [];
+_tkq.push(['storeContext', {'blog_id':'83108039','blog_tz':'0','user_lang':'en','blog_lang':'en','user_id':'0'}]);
+		// Prevent sending pageview tracking from WP-Admin pages.
+		_stq.push(['view', {'blog':'83108039','v':'wpcom','tz':'0','user_id':'0','post':'70447','subd':'eclecticlightdotcom'}]);
+		_stq.push(['extra', {'crypt':'UE5tW3cvZGRxXWhIdk1BQzU4TUN4OV0wbTA9X1pDeU1oJm9RRSw5R3U1bUY3SzlbTGtkJXw1d3o3JXJreWtOXysvJlZTbEhJSyx5bk1ZTnJrWE9bdVBuZDZZQzUyMlpJRyZsa2t4cSwzSGJncjVvQ2ovVm0vU3RSckd1JkdVMXJoRThXLFVQR3RMQ20rMEd0ckk2Xz1+TFZGVS15LWUmX180OXhhLkFQZm5NRVo9Nz0lbFZZbXdNaWdJYVgrMDBuci9EVnJUSj98LEJ3a1Z8L3Z2VmJnLjZvLWNOQTEsLnl1WjRIen5ZeDV+c3x+RXp5SWU0X25Lb29OPX51UVZ3LmJ3ZGZUW2tJREhLaWlbSTc='}]);
+_stq.push([ 'clickTrackerInit', '83108039', '70447' ]);
+</script>
+<noscript><img src="https://pixel.wp.com/b.gif?v=noscript" style="height:1px;width:1px;overflow:hidden;position:absolute;bottom:1px;" alt="" /></noscript>
+<meta id="bilmur" property="bilmur:data" content="" data-provider="wordpress.com" data-service="simple" data-site-tz="Etc/GMT-0" data-custom-props="{&quot;enq_jquery&quot;:&quot;1&quot;,&quot;logged_in&quot;:&quot;0&quot;,&quot;wptheme&quot;:&quot;premium\/hive&quot;,&quot;wptheme_is_block&quot;:&quot;0&quot;}"   >
+		<script defer src="/wp-content/js/bilmur.min.js?i=19&amp;m=202646"></script> 	
+</body>
+</html>

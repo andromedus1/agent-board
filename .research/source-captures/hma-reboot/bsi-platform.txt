@@ -1,0 +1,189 @@
+
+	Background Security Improvements support - Apple Support
+Apple
+Store
+Mac
+iPad
+iPhone
+Watch
+Vision
+AirPods
+Home
+Entertainment
+Accessories
+Support
+0+
+            Apple Platform Support
+          Search this guide
+              Clear Search
+    Table of Contents
+    Apple Platform Support
+            Welcome
+            Intro to Apple Platform Support
+            Systematic troubleshooting
+            Systematic troubleshooting
+            Gather information about a Mac
+            Gather information about an iPhone or iPad
+            Device management
+            Intro to device management
+            About device supervision
+            Security and privacy
+            Intro to security and privacy
+            Authentication and identity
+            Face ID and Touch ID support
+            Use passkeys on iPhone and iPad
+            Privacy controls
+            Location Services
+            App privacy access settings
+            Protecting Lost Devices and Data
+            Locate a lost device
+            Protect a device with Activation Lock
+            Remotely lock a lost device
+            Remotely erase a lost device
+            Protect against theft with Stolen Device Protection
+            Advanced security protections
+            Lockdown Mode support
+            Background Security Improvements support
+            Security and privacy for iPhone and iPad
+            Mac security
+            Manage FileVault
+            Manage Firewall
+            System security
+            App Store security protections
+            Gatekeeper and runtime protection
+            Notarization
+            XProtect
+            System Integrity Protection
+            Startup security in macOS
+            User accounts
+            Intro to user account types
+            Reset login passwords on Mac
+            Apple Accounts, iCloud, and Continuity
+            Intro to Managed Apple Accounts
+            iCloud
+            Continuity
+            Continuity feature support
+            Use an iPad as a second display with Sidecar
+            Use AirDrop to send items to nearby devices
+            Device setup
+            About Setup Assistant
+            iPhone and iPad setup
+            Resolve issues during iPhone or iPad setup
+            Mac setup
+            Resolve issues during Mac setup
+            Network configuration and connectivity
+            Intro to testing and troubleshooting network connections
+            Troubleshoot Bluetooth connections
+            iPhone and iPad
+            Wi-Fi and connectivity on iPhone and iPad
+            Manage private Wi-Fi settings on iPhone and iPad
+            Troubleshoot Wi-Fi connectivity on iPhone and iPad
+            Set up a VPN on iPhone and iPad
+            Cellular connectivity
+            Check cellular connectivity
+            Manage eSIM and SIM cards
+            Troubleshoot Personal Hotspot connections on iPhone and iPad
+            Mac
+            Network settings on Mac
+            Intro to network settings for Mac
+            Identify network settings on Mac
+            Manage private Wi-Fi settings on Mac
+            Network troubleshooting on Mac
+            Troubleshoot network connections on Mac
+            Use network tools to test connections
+            Set up a VPN on Mac
+            Apps, content, and backups
+            Storage management
+            Manage device storage on iPhone or iPad
+            Intro to device storage and content sharing on Mac
+            Apps and content
+            Manage apps and content on iPhone and iPad
+            Check app installation and processes on Mac
+            iPhone and iPad backups
+            Back up and restore a managed iPhone or iPad
+            Back up an unmanaged iPhone or iPad
+            Back up an unmanaged iPhone or iPad with iCloud Backup
+            Back up an unmanaged iPhone or iPad to a Mac
+            Restore an unmanaged iPhone or iPad from a backup
+            Restore an unmanaged iPhone or iPad from an iCloud Backup
+            Restore iPhone or iPad from a Mac backup
+            Mac backups
+            System updates, recovery, and diagnostics
+            Software updates
+            Install software updates on iPhone and iPad
+            Install software updates on Mac
+            Recover, revive, and restore devices
+            iPhone and iPad
+            Explore recover, revive, and restore workflows
+            Recover an iPhone or iPad
+            Revive an iPhone or iPad
+            Restore an iPhone or iPad
+            macOS installation and backup options
+            macOS installation
+            Mac firmware revive and restore
+            Use macOS Recovery
+            Mac troubleshooting
+            Intro to troubleshooting system issues and peripherals
+            Review Mac startup modes
+            Diagnose Mac startup issues
+            Use Disk Utility
+            Troubleshoot peripheral connections
+            Diagnostic tools
+            Intro to using diagnostics to research device issues
+            Collect information or quit a process with Activity Monitor
+            View log messages and reports in Console
+            Use diagnostics to research device issues
+            Identify and troubleshoot hardware issues with Apple Diagnostics
+            View configuration details with System Information and reports
+            Accessibility
+            Assist users to maximize accessibility features on iPhone and iPad
+            Assist users to maximize accessibility features on Mac
+            Copyright and trademarks
+            Device support training
+            Glossary
+			Background Security Improvements support
+Overview
+A Background Security Improvement is a type of software release for applying security fixes to users more frequently by not requiring a full software update. Background Security Improvements are included in any ensuing minor update (not upgrade).
+Background Security Improvements deliver important security improvements; for example, improvements to the Safari web browser, the WebKit framework stack, or other critical system libraries. They may also be used to more quickly mitigate some security issues, such as those that might have been exploited or reported to exist in everyday situations.
+New Background Security Improvements are delivered only for the latest versions of iOS, iPadOS, and macOS.
+Background Security Improvements that involve the operating system require the device to restart. For a Mac, the applied operating system content may be made available to Safari and its associated processes with just a relaunch of those processes, though a restart is required to make this content broadly available to the rest of the operating system.
+Background Security Improvements also don’t adhere to the managed software update delay; however, because they apply only to the latest minor operating system version, if that minor operating system update is delayed, the Background Security Improvement is also effectively delayed. If necessary, the user can also remove Background Security Improvements.
+By default, a device automatically applies Background Security Improvements. If necessary, a prompt appears asking to restart the device.
+When a Background Security Improvement has been applied, a letter appears after the software version number, as in this example: macOS 13.3.1 (a).
+If the user chooses to turn off this setting or not to apply Background Security Improvements when they’re available, the device receives relevant fixes or mitigations when they’re included in a subsequent software update. When device management is used to manage software updates, it can also manage Background Security Improvements.
+Organizations can define whether Background Security Improvements are automatically applied and specify whether users are allowed to remove them after they’ve been applied.
+How to turn on and view any Background Security Improvements
+On iPhone or iPad:
+Go to Settings > Privacy & Security > Background Security Improvements, and make sure that Automatically Install is turned on. If installed, the latest Background Security Improvement will appear on that screen.
+On Mac:
+Choose Apple menu > System Settings, click Privacy & Security in the sidebar, click Background Security Improvements, then make sure that Automatically Install is turned on. If installed, the latest Background Security Improvement will appear on that screen.
+How to remove a Background Security Improvement
+If a recent Background Security Improvement might be causing an issue, you can help users remove it. When you remove a Background Security Improvement, you remove all Background Security Improvements that have been applied since the last software update.
+Users can apply or reapply available Background Security Improvements until the next software update is released.
+On iPhone or iPad:
+Go to Settings > Privacy & Security > Background Security Improvements, tap the Info button next to the version number, tap Remove and Restart, then tap to confirm.
+On Mac:
+Choose Apple menu > System Settings, click Privacy & Security in the sidebar, click Background Security Improvements, click the Info button next to the version number, click Remove and Restart, then click to confirm.
+Published Date: October 22, 2025See alsoApple Support article: Apple security releasesApple Platform Deployment: Background Security Improvements on Apple devicesApple Platform Security: Background Security Improvements in Apple operating systems
+				Previous
+				Lockdown Mode support
+				Next 
+				Security and privacy for iPhone and iPad
+                Helpful?
+                    Yes
+                    No
+                            Character limit:
+                            250
+                Please don’t include any personal information in your comment.
+                    Maximum character limit is 250.
+                    Submit
+        Thanks for your feedback.
+            Apple Footer
+                    
+                    Apple
+                                Support
+                                Apple Platform Support
+                            Background Security Improvements support
+                United States
+                Copyright © 2026 Apple Inc. All rights reserved.
+                 Privacy Policy Terms of Use                    Sales and Refunds Site Map

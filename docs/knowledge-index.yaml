@@ -6,9 +6,9 @@
 #   2 = enforce (missing v2 fields are errors)
 # Set to 2 once the project's docs are fully backfilled to v2 frontmatter.
 schema_version: 2
-generated_at: 2026-11-11T04:48:45Z
+generated_at: 2026-11-11T05:39:24Z
 generated_from: frontmatter
-total_docs: 42
+total_docs: 44
 
 documents:
   # ── planning ──────────────────────────────────────────────────────────────
@@ -245,6 +245,21 @@ documents:
     kind: research
     updated: 2026-11-10
     consumer_hint: Specialist brief on running an always-on Apple-silicon Mac mini (macOS 26) as a headless Herdr/agent host reached over Tailscale, with FileVault left on.
+
+  - path: .research/analysis/campaigns/herdr-mac-mini-architecture/specialists/reboot-host-controls.md
+    title: Reboot host controls
+    type: campaign
+    kind: research
+    updated: 2026-11-10
+    status: draft
+    consumer_hint: Verification of five reboot-resilience mitigations for an always-on Apple-silicon Mac mini hosting Herdr TUI (update control, authrestart, FileVault-off exposure, UPS, Herdr boot start and resume).
+
+  - path: .research/analysis/campaigns/herdr-mac-mini-architecture/specialists/rescue-access.md
+    title: "Rescue access: recovering a FileVault Mac mini from away"
+    type: campaign
+    kind: research
+    updated: 2026-11-10
+    consumer_hint: Specialist brief on a LAN rescue device for an always-on FileVault Mac mini (macOS 26) - Pi jump host, subnet router, KVM-over-IP, smart plug, router/Apple TV foothold, outage alerting, Wake-on-LAN.
 
   - path: .research/analysis/campaigns/remote-persistent-supervision/acquisitions.md
     title: Acquisition candidates

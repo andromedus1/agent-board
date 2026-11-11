@@ -1,0 +1,4 @@
+    AutomaticDownload = 1;
+    AutomaticallyInstallMacOSUpdates = 1;
+    ConfigDataInstall = 1;
+    CriticalUpdateInstall = 1;

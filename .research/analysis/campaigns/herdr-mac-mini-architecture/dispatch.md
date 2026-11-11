@@ -82,3 +82,15 @@ herdr-core takes status from program-reported OSC 7501. This completes the
 pre-registered "Herdr TUI vs Desktop" verification target rather than
 re-scoping the engagement. The lead also fetched one attestation
 (`hma-lead-herdr-tui-state-api`) during the adversarial-read correction pass.
+
+## Registration amendment (2026-11-10, reboot-resilience extension)
+
+Operator requested a verification pass on reboot-resilience mitigations and a new
+brief section. Same dials (standard rigor; multi-path, so lint, adversarial-read,
+evaluate and spot-check run over the new section). Decision relevance: whether
+to add a UPS, a LAN rescue device (and which kind), an update routine, Herdr
+boot auto-start, or a FileVault-off fallback to the build. Lanes (lead-proposed,
+operator-directed): `reboot-host-controls` (macOS update deferral, authrestart on
+Apple silicon, FileVault-off exposure, macOS UPS shutdown, Herdr boot start and
+scripted attach) and `rescue-access` (KVM-over-IP on Apple-silicon Mac mini,
+rescue-device variants, outage alerting). Herdr live handoff is already attested.

@@ -1,0 +1,47 @@
+hoakley
+February 20, 2023
+Macs, Technology
+macOS 13.2.1, authenticated restart and fdesetup
+A small minority of users experienced something strange when they updated to macOS 13.2.1, or even 13.2. Instead of the updated macOS automatically returning them to the Finder and Desktop once the update was complete, it bounced the Mac into Recovery (or similar, if your Mac is managed) and asked for the password. This article explains what happened, and other accidents that can happen when updates don’t work right.
+Like so much else, macOS updates aren’t what they used to be. There was a time when I used to count the number of startup chimes sounded during each update. Now everything is orderly, quiet, and on Apple silicon Macs in particular very quick. This relies partly on what’s known as an authenticated restart, sparing you from having to enter your password to unlock FileVault.
+macOS 13.2.1 update
+As Robert Hammen has proposed, what most probably happened at the end of the 13.2.1 (or 13.2 for some) update was that authenticated restart didn’t work properly. Instead of the updated macOS booting silently straight into the Finder, the Mac ended up in Recovery where the user had to authenticate to unlock FileVault. Once they had done that, the restart should have completed correctly, and that Mac resumed working normally.
+Robert advises restarting that Mac, and if necessary installing the update again, within 30 minutes, if that’s offered. In most cases, though, the update should have succeeded and no further update will be available.
+Failed macOS updates
+This is different from what should happen when an update fails to install correctly. If the SSV can’t be built, mounted and booted successfully, that Mac should be returned to Recovery mode for a full reinstall of macOS. In the worst case, with a failed firmware update, Apple silicon Macs could be put into DFU mode awaiting connection from another Mac and emergency surgery using Apple Configurator 2 to refresh the firmware or perform a full restore.
+The other serious consequence is that an Intel or Apple silicon Mac could get trapped in a boot loop, in which it suffers a panic whenever it tries to boot, and that results in a series of reboot-panic cycles. While that may appear alarming at the time, as it did to me the first time it happened here, the solution of choice is to press and hold the Power button to force the Mac to shut down. Wait at least 20 seconds, then try starting it up straight into Recovery.
+These should all be very rare events, though. It remains to be seen whether the new update system is prone to failure of authenticated restart, or whether this proves to be a one-off glitch.
+Apple uses authenticated restarts because they make updates more seamless. Now that an Apple silicon Mac can install a macOS update in just a few minutes, this final touch minimises their downtime and user interaction. They’re also highly secure: on Apple silicon and T2 Intel Macs, they’re handled by the Secure Enclave. The only significant difference there is that the token used to authorise them on Apple silicon models can only be used once.
+fdesetup
+Authenticated restarts are also available to the user, through the fdesetup command tool (the fde in its name referring to Full Disk Encryption). That tool is the utility provided for working with FileVault, and has many important and potentially dangerous verbs. Provided that FileVault is enabled on the current boot volume group, the command
+sudo fdesetup authrestart -delayminutes 0
+restarts the system immediately, bypassing the normal initial unlock. Before the restart can occur, you also have to provide the short username and password for a user entitled to unlock FileVault.
+You can also use the tool to list users able to unlock FileVault:
+sudo fdesetup list
+or for more detail, including any iCloud Recovery Record:
+sudo fdesetup list -extended
+Two more things
+Of course, macOS updates don’t just use an authenticated restart to appear so seamless. They also log the current user back in automatically, and temporarily mute the startup chime. As far as I’m aware, unlike authenticated restarts, those tricks aren’t made available to mere users.
+Hopefully, when we update to macOS 13.3 there’ll be none of these shenanigans.
+Share this:
+Share on X (Opens in new window)
+X
+Share on Facebook (Opens in new window)
+Facebook
+Share on Reddit (Opens in new window)
+Reddit
+Share on Pinterest (Opens in new window)
+Pinterest
+Share on Threads (Opens in new window)
+Threads
+Share on Mastodon (Opens in new window)
+Mastodon
+Share on Bluesky (Opens in new window)
+Bluesky
+Email a link to a friend (Opens in new window)
+Email
+Print (Opens in new window)
+Print
+Like Loading...
+Related
+Posted in Macs, Technology and tagged Apple, fdesetup, macOS 13, recovery, restart, update, Ventura. Bookmark the permalink.
